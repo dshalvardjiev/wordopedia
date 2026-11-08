@@ -28,7 +28,9 @@ export default function Quiz({ S, settings, words, say, base, onSettle, onNext, 
   const [hint, setHint] = useState('');
   const [shake, setShake] = useState(0);
   const st = useRef({ clean: true, cleanBefore: undefined, lastWrong: '', hint: 0, locked: false });
-  const inp = useRef(null), nextBtn = useRef(null);
+  const inp = useRef(null), nextBtn = useRef(null), timer = useRef(0);
+  // The auto-advance timer must not outlive this question (e.g. after "Край").
+  useEffect(() => () => clearTimeout(timer.current), []);
   const again = S.seen.has(w.id);
   const answerText = dir === 'de-bg' ? w.bg[0] : full(w);
 
@@ -37,12 +39,12 @@ export default function Quiz({ S, settings, words, say, base, onSettle, onNext, 
   // Restart the shake animation on the same element; never re-create the field, or a phone keyboard would close.
   useEffect(() => { const el = inp.current; if (!shake || !el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }, [shake]);
 
-  function goNext() { if (st.current.locked) onNext(); }
+  function goNext() { if (st.current.locked) { clearTimeout(timer.current); onNext(); } }
   function lock() { st.current.locked = true; setLocked(true); }
   function showOk(warn, clean) {
     setFb({ kind: 'ok', clean, warn });
     if (settings.autoSpeak && dir !== 'de-bg') say(full(w));
-    if (settings.mode === 'test' && clean) { const id = S.qid; setTimeout(() => { if (S.qid === id) onNext(); }, 1000); }
+    if (settings.mode === 'test' && clean) { timer.current = setTimeout(() => onNext(), 1000); }
     else setTimeout(() => nextBtn.current && nextBtn.current.focus({ preventScroll: true }), 20);
   }
 

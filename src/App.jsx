@@ -68,6 +68,7 @@ export default function App() {
   }
   function next() {
     const S = session.current;
+    if (!S) return;
     if (!S.queue.length) { setView('result'); setTick(t => t + 1); return; }
     S.cur = S.queue.shift(); S.qid++;
     setTick(t => t + 1);

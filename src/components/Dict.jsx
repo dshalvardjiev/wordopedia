@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { parseDictionary, full } from '../lib/dictionary.js';
-import { audioBase, prefetchAll } from '../lib/audio.js';
+import { audioBase, prefetchAll, resetPrepared } from '../lib/audio.js';
 
 // raw.githubusercontent.com/OWNER/REPO/BRANCH/path -> github.com edit page for that file
 function editLink(url) {
@@ -27,6 +27,7 @@ export default function Dict({ store, update, dict, words, toast, defaultUrl, on
       const before = new Set(dict.words.map(w => w.id)), after = new Set(d.words.map(w => w.id));
       const added = [...after].filter(x => !before.has(x)).length, removed = [...before].filter(x => !after.has(x)).length;
       update(s => { s.dict = { csv: text, url: u, updatedAt: Date.now(), problems: d.problems }; });
+      resetPrepared();
       setMsg(`Речникът е обновен: ${d.words.length} думи, ${added} нови, ${removed} премахнати.` + (d.problems.length ? ` Пропуснати редове: ${d.problems.length}.` : ''));
       const b = audioBase(u);
       if (b) {

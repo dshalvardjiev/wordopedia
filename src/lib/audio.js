@@ -15,7 +15,8 @@ async function getBlobUrl(base, text, allowNetwork = true) {
     let r = c ? await c.match(url) : null;
     if (!r && allowNetwork) { const f = await fetch(url); if (f.ok) { if (c) await c.put(url, f.clone()); r = f; } }
     if (!r) return null;
-    const u = URL.createObjectURL(await r.blob()); ready.set(text, u); return u;
+    // Explicit type: iOS Safari may refuse a blob served as application/octet-stream.
+    const u = URL.createObjectURL(new Blob([await r.blob()], { type: 'audio/mpeg' })); ready.set(text, u); return u;
   } catch (e) { return null; }
 }
 export function prepare(base, text) { getBlobUrl(base, text); }
@@ -56,4 +57,5 @@ export async function prefetchAll(base, texts, onProgress) {
   await Promise.all(Array.from({ length: 6 }, work));
   return { have, missing };
 }
+export function resetPrepared() { ready.forEach(u => URL.revokeObjectURL(u)); ready.clear(); }
 export async function clearAudioCache() { ready.clear(); try { await caches.delete(CACHE); } catch (e) {} }

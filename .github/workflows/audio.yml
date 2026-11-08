@@ -31,4 +31,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898099+github-actions[bot]@users.noreply.github.com"
           git add dictionary/audio
-          git diff --cached --quiet || (git commit -m "Recordings for new words" && git push)
+          git diff --cached --quiet || (git commit -m "Recordings for new words" && git pull --rebase && git push)
