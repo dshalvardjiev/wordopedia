@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// base './' works both on GitHub Pages (/deutsch-woerter/) and on any other static host.
+// base './' works both on GitHub Pages (/wordopedia/) and on any other static host.
 export default defineConfig({
   base: './',
   plugins: [

@@ -1,4 +1,4 @@
-# Немски думи: BG и DE
+# Wordopedia: Немски думи (BG и DE)
 
 Web app for learning German words with Bulgarian translations. It installs on Android and iPhone and works offline.
 
