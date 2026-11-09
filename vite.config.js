@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Немски думи: BG и DE',
-        short_name: 'Немски думи',
-        description: 'Упражнения с немски думи и превод на български',
+        name: 'Wordopedia',
+        short_name: 'Wordopedia',
+        description: 'Думи на немски, френски и английски с превод на български',
         lang: 'bg',
         start_url: './',
         scope: './',
