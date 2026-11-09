@@ -10,6 +10,7 @@ import { audioBase, speak as speakAudio, prefetchAll, resetPrepared } from './li
 import { fetchLangConf, fetchDictionary } from './lib/sync.js';
 import { shuffle } from './lib/match.js';
 import LangPick from './components/LangPick.jsx';
+import { LangMenu, TabBar } from './components/Chrome.jsx';
 import Home from './components/Home.jsx';
 import Quiz from './components/Quiz.jsx';
 import Result from './components/Result.jsx';
@@ -140,19 +141,27 @@ export default function App() {
 
   const S = session.current;
   const shown = !lang ? 'lang' : view;
+  const counts = Object.fromEntries(LANG_ORDER.map(c => [c, dictFor(c).words.length]));
+  const withTabs = ['home', 'words', 'dict'].includes(shown);
+  useEffect(() => { document.title = lang ? `Wordopedia: ${L.name.toLowerCase()}` : 'Wordopedia'; }, [lang, L.name]);
   return (
-    <div className="wrap">
-      {shown === 'lang' && <LangPick conf={conf} current={lang} counts={Object.fromEntries(LANG_ORDER.map(c => [c, dictFor(c).words.length]))}
-        onPick={chooseLang} onCheck={checkLangs} toast={toast} onBack={lang ? () => setView('home') : null} />}
+    <div className={'wrap' + (withTabs ? '' : ' notabs')}>
+      {withTabs && (
+        <div className="topbar">
+          <LangMenu L={L} conf={conf} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />
+        </div>
+      )}
+      {shown === 'lang' && <LangPick conf={conf} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
       {shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
-        dict={store.dicts[L.code]} onStart={() => start()} onWords={() => setView('words')} onDict={() => setView('dict')} onLang={() => setView('lang')} />}
+        onStart={() => start()} onPractise={ids => start(ids)} />}
       {shown === 'quiz' && S && S.cur && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
         onSettle={settle} onNext={next} onQuit={quit} onAcceptOwn={acceptOwn} />}
       {shown === 'result' && S && <Result S={S} onAgain={() => start()} onMissed={ids => start(ids)} onHome={() => { session.current = null; setView('home'); }} />}
-      {shown === 'words' && <Words L={L} store={store} update={update} sets={sets} words={words} toast={toast} onBack={() => setView('home')} />}
+      {shown === 'words' && <Words L={L} store={store} update={update} sets={sets} words={words} toast={toast} />}
       {shown === 'dict' && <Dict L={L} store={store} update={update} dict={dict} base={base} defaultBase={DEFAULT_DICT_BASE} toast={toast}
-        onPull={pullLang} onCheck={checkLangs} onBack={() => setView('home')} />}
-      <div className={'toast' + (toastMsg ? ' show' : '')} role="status">{toastMsg}</div>
+        onPull={pullLang} onCheck={checkLangs} />}
+      {withTabs && <TabBar view={shown} onView={setView} />}
+      <div className={'toast' + (toastMsg ? ' show' : '')} role="status" aria-live="polite">{toastMsg}</div>
     </div>
   );
 }

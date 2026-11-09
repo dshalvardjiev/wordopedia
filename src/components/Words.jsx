@@ -1,5 +1,8 @@
 import { useState, useRef } from 'react';
 import { Art } from './Quiz.jsx';
+import { Icon } from './ui.jsx';
+import { nbg } from '../lib/match.js';
+import { norm } from '../lib/langs.js';
 import { full, guessType } from '../lib/dictionary.js';
 import { splitArticle, joinArt } from '../lib/langs.js';
 
@@ -24,13 +27,14 @@ function TwoStep({ label, className, onConfirm }) {
   }}>{armed ? 'Натисни отново за потвърждение' : label}</button>;
 }
 
-export default function Words({ L, store, update, sets, words, toast, onBack }) {
+export default function Words({ L, store, update, sets, words, toast }) {
   const mine = id => id.startsWith(L.code + ':');
   const latest = sets[0] ? sets[0].id : '__new';
   const [fSet, setFSet] = useState(latest), [fSetName, setFSetName] = useState('');
   const [bSet, setBSet] = useState(latest), [bSetName, setBSetName] = useState('');
   const [art, setArt] = useState(''), [de, setDe] = useState(''), [bg, setBg] = useState(''), [type, setType] = useState('n');
   const [bulk, setBulk] = useState('');
+  const [q, setQ] = useState('');
 
   function pickSet(v, name, clearName) {
     if (v !== '__new') return v;
@@ -88,62 +92,74 @@ export default function Words({ L, store, update, sets, words, toast, onBack }) 
   }
 
   const on = words.filter(w => w.on).length;
+  // Search matches the foreign word (without accents) or any Bulgarian answer.
+  const qq = q.trim();
+  const match = w => !qq || norm(L, w.de).includes(norm(L, qq)) || w.bg.some(b => nbg(b).includes(nbg(qq)));
+  const groups = sets.map(x => ({ x, g: words.filter(w => w.set === x.id && match(w)) })).filter(({ g }) => g.length);
+  const toggle = (w, val) => update(s => { const o = { ...s.off }; if (val) delete o[w.id]; else o[w.id] = true; s.off = o; });
   return (
     <section>
-      <header><h1>{L.name}: думи</h1><button className="link" onClick={onBack}>← Назад</button></header>
-      <p className="small">{words.length} думи, {on} включени. Изключените не участват в упражненията. Думите от речника се променят в речника; тук може да ги изключиш.</p>
-      <div className="row" style={{ marginBottom: 12 }}>
+      <h1>Думи</h1>
+      <p className="small" style={{ margin: '4px 0 14px' }}>{on} от {words.length} участват в упражненията. Махни отметката, за да изключиш дума.</p>
+      <div className="search form"><Icon name="search" size={18} /><input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder={`Търси на ${L.adj}и или на български`} aria-label="Търсене" /></div>
+      <div className="wlist">
+        {groups.map(({ x, g }) => (
+          <div key={x.id}>
+            <div className="sethead"><span>{x.name}</span><span>{g.length}</span></div>
+            {g.map(w => { const st = store.stats[w.id]; return (
+              <div key={w.id} className={'wrow' + (w.on ? '' : ' off')}>
+                <input type="checkbox" checked={w.on} aria-label={`${full(w)} участва в упражненията`} onChange={e => toggle(w, e.target.checked)} />
+                <div><div className="de"><Art w={w} />{w.de}{w.pl && <span className="bg pl">, мн. ч. {w.pl}</span>}{w.user && <span className="tag">мое</span>}</div><div className="bg">{w.bg.join(', ')}</div></div>
+                <span className="st" title="верни / грешни">{st ? <><span style={{ color: 'var(--ok)' }}>{st.c}</span> / <span style={{ color: 'var(--bad)' }}>{st.w}</span></> : ''}</span>
+                {w.user ? <button className="del" aria-label={`Изтрий ${full(w)}`} onClick={() => { update(s => { s.userWords = s.userWords.filter(u => u.id !== w.id); const n = { ...s.stats }; delete n[w.id]; s.stats = n; }); toast(`Изтрита: ${full(w)}`); }}>×</button> : <span />}
+              </div>); })}
+          </div>
+        ))}
+        {!groups.length && <p className="empty">{qq ? `Няма дума, която съдържа „${qq}“.` : 'Още няма думи. Добави от речника или по-долу.'}</p>}
+      </div>
+      <div className="row" style={{ marginTop: 10 }}>
         <button className="ghost" onClick={() => update(s => { s.off = Object.fromEntries(Object.entries(s.off).filter(([id]) => !mine(id))); })}>Включи всички</button>
         <button className="ghost" onClick={() => update(s => { s.off = { ...s.off, ...Object.fromEntries(words.map(w => [w.id, true])) }; })}>Изключи всички</button>
       </div>
-      <div className="card wlist">
-        {sets.map(x => {
-          const g = words.filter(w => w.set === x.id); if (!g.length) return null;
-          return <div key={x.id}>
-            <div className="sethead">{x.name} · {g.length}</div>
-            {g.map(w => { const st = store.stats[w.id]; return (
-              <div key={w.id} className={'wrow' + (w.on ? '' : ' off')}>
-                <input type="checkbox" checked={w.on} aria-label="включена" onChange={e => update(s => { const o = { ...s.off }; if (e.target.checked) delete o[w.id]; else o[w.id] = true; s.off = o; })} />
-                <div><div className="de"><Art w={w} />{w.de}{w.pl && <span className="bg pl"> · мн. ч. {w.pl}</span>}{w.user && <span className="tag">мое</span>}</div><div className="bg">{w.bg.join(', ')}</div></div>
-                <span className="st">{st ? `✓${st.c} ✗${st.w}` : ''}</span>
-                {w.user ? <button className="del" aria-label="изтрий" onClick={() => { update(s => { s.userWords = s.userWords.filter(u => u.id !== w.id); const n = { ...s.stats }; delete n[w.id]; s.stats = n; }); toast(`Изтрита: ${full(w)}`); }}>×</button> : <span />}
-              </div>); })}
-          </div>;
-        })}
-      </div>
 
-      <h2>Добави дума</h2>
-      <div className="card form">
-        <SetPicker sets={sets} value={fSet} onChange={setFSet} name={fSetName} onName={setFSetName} />
-        <div className="row">
-          {L.articles.length > 0 && <select value={art} onChange={e => { setArt(e.target.value); if (e.target.value) setType('n'); }} style={{ flex: '0 0 96px' }} aria-label="Член">
-            <option value="">—</option>{L.articles.map(a => <option key={a}>{a}</option>)}
-          </select>}
-          <input value={de} onChange={e => setDe(e.target.value)} placeholder={`${L.adj}и, напр. ${L.exampleNoun.replace(/^\S+\s|^l'/, '')}`} autoCapitalize="off" />
+      <details className="box">
+        <summary><Icon name="plus" />Добави дума<Icon name="chevron" /></summary>
+        <div className="form">
+          <SetPicker sets={sets} value={fSet} onChange={setFSet} name={fSetName} onName={setFSetName} />
+          <div className="row">
+            {L.articles.length > 0 && <select value={art} onChange={e => { setArt(e.target.value); if (e.target.value) setType('n'); }} style={{ flex: '0 0 96px' }} aria-label="Член">
+              <option value="">без член</option>{L.articles.map(a => <option key={a}>{a}</option>)}
+            </select>}
+            <input value={de} onChange={e => setDe(e.target.value)} placeholder={`на ${L.adj}и, напр. ${L.exampleNoun.replace(/^\S+\s|^l'/, '')}`} autoCapitalize="off" aria-label={`Дума на ${L.adj}и`} />
+          </div>
+          <input value={bg} onChange={e => setBg(e.target.value)} placeholder="на български; няколко със запетая" aria-label="Превод на български" />
+          <select value={type} onChange={e => setType(e.target.value)} aria-label="Вид дума">
+            <option value="n">съществително</option><option value="v">глагол</option><option value="a">прилагателно / наречие</option><option value="o">друга дума</option>
+          </select>
+          <button className="primary" onClick={addOne}>Добави думата</button>
         </div>
-        <input value={bg} onChange={e => setBg(e.target.value)} placeholder="български, напр. куче (няколко със запетая)" />
-        <select value={type} onChange={e => setType(e.target.value)} aria-label="Вид дума">
-          <option value="n">съществително</option><option value="v">глагол</option><option value="a">прилагателно / наречие</option><option value="o">друга дума</option>
-        </select>
-        <button className="primary" onClick={addOne}>Добави</button>
-      </div>
+      </details>
 
-      <h2>Добави много наведнъж</h2>
-      <div className="card form">
-        <p className="small" style={{ margin: 0 }}>По една дума на ред, напр. <b>{L.exampleNoun} = …</b></p>
-        <SetPicker sets={sets} value={bSet} onChange={setBSet} name={bSetName} onName={setBSetName} />
-        <textarea value={bulk} onChange={e => setBulk(e.target.value)} placeholder={`${L.exampleNoun} = …`} />
-        <button className="primary" onClick={addBulk}>Добави от текста</button>
-      </div>
+      <details className="box">
+        <summary><Icon name="book" />Добави много наведнъж<Icon name="chevron" /></summary>
+        <div className="form">
+          <p className="small">По една дума на ред, напр. <b>{L.exampleNoun} = …</b></p>
+          <SetPicker sets={sets} value={bSet} onChange={setBSet} name={bSetName} onName={setBSetName} />
+          <textarea value={bulk} onChange={e => setBulk(e.target.value)} placeholder={`${L.exampleNoun} = …`} aria-label="Думи, по една на ред" />
+          <button className="primary" onClick={addBulk}>Добави думите</button>
+        </div>
+      </details>
 
-      <h2>Други</h2>
-      <div className="stack" style={{ marginTop: 0 }}>
-        <button className="ghost" onClick={copyCsv}>Копирай моите думи и синоними (за речника)</button>
-        <TwoStep className="ghost" label="Нулирай статистиката" onConfirm={() => { update(s => { s.stats = Object.fromEntries(Object.entries(s.stats).filter(([id]) => !mine(id))); }); toast('Статистиката е нулирана'); }} />
-        <TwoStep className="ghost danger" label="Изтрий моите думи и синоними" onConfirm={() => { update(s => {
-          s.userWords = s.userWords.filter(w => w.lang !== L.code); s.userSets = s.userSets.filter(x => x.lang !== L.code);
-          s.extra = Object.fromEntries(Object.entries(s.extra).filter(([id]) => !mine(id))); }); toast('Изтрити'); }} />
-      </div>
+      <details className="box">
+        <summary><Icon name="repeat" />Още действия<Icon name="chevron" /></summary>
+        <div className="boxbody">
+          <button className="ghost" onClick={copyCsv}>Копирай моите думи и синоними за речника</button>
+          <TwoStep className="ghost" label="Нулирай статистиката" onConfirm={() => { update(s => { s.stats = Object.fromEntries(Object.entries(s.stats).filter(([id]) => !mine(id))); }); toast('Статистиката е нулирана'); }} />
+          <TwoStep className="ghost danger" label="Изтрий моите думи и синоними" onConfirm={() => { update(s => {
+            s.userWords = s.userWords.filter(w => w.lang !== L.code); s.userSets = s.userSets.filter(x => x.lang !== L.code);
+            s.extra = Object.fromEntries(Object.entries(s.extra).filter(([id]) => !mine(id))); }); toast('Изтрити'); }} />
+        </div>
+      </details>
     </section>
   );
 }

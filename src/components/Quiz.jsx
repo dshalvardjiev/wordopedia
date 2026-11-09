@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { full } from '../lib/dictionary.js';
 import { evaluate, options } from '../lib/match.js';
 import { splitArticle } from '../lib/langs.js';
+import { Icon } from './ui.jsx';
 import { prepare } from '../lib/audio.js';
 
 const TYPE = { n: 'съществително', v: 'глагол', a: 'прилагателно / наречие', o: 'друга дума' };
@@ -15,9 +16,7 @@ export function Pair({ w }) {
   return <><Art w={w} /><b>{w.de}</b>{w.pl ? <span className="pl"> (мн. ч. {w.pl})</span> : null} = {l.slice(0, 5).join(', ')}{l.length > 5 ? ', …' : ''}</>;
 }
 const Spk = ({ onClick }) => (
-  <button type="button" className="spk" onClick={onClick}>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M18.5 5.5a9 9 0 0 1 0 13" /></svg> Чуй
-  </button>
+  <button type="button" className="spk" onClick={onClick}><Icon name="speaker" size={16} />Чуй</button>
 );
 const XLabel = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <Art w={{ art: m.art }} /> : null; };
 const Label = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <><XLabel L={L} text={text} />{m.word}</> : text; };
@@ -119,16 +118,18 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
   return (
     <section>
       <div className="qtop">
-        <button className="link" onClick={onQuit}>← Край</button>
-        <div className="prog"><div className="bar"><i style={{ width: (done / S.total * 100) + '%' }} /></div><span>{done} / {S.total}</span></div>
-        <span className="score">✓ {S.firstOk}</span>
+        <button className="iconbtn" onClick={onQuit} aria-label="Край на упражнението"><Icon name="close" /></button>
+        <div className="qprog">
+          <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={S.total} aria-valuenow={done}><i style={{ width: (done / S.total * 100) + '%' }} /></div>
+          <div className="qmeta"><span>{done} от {S.total}</span><span className="ok">{S.firstOk} верни от първия опит</span></div>
+        </div>
       </div>
 
-      <div className="card prompt">
+      <div className="sheet">
         {again && <span className="badge">повторение</span>}
         {dir === 'x-bg' && <><div className="big"><Art w={w} />{w.de}</div><div className="sub">{TYPE[w.type]}</div><Spk onClick={() => say(full(w))} /></>}
-        {dir === 'bg-x' && <><div className="big">{w.bg[0]}</div><div className="sub">{TYPE[w.type]}{w.type === 'n' && w.art && L.articles.length && settings.reqArt && settings.mode === 'open' ? ' · напиши го с члена' : ''}</div></>}
-        {dir === 'art' && <><div className="big"><span className="blank">___</span> {w.de}</div><div className="sub">{w.bg[0]}</div></>}
+        {dir === 'bg-x' && <><div className="big">{w.bg[0]}</div><div className="sub">{TYPE[w.type]}{w.type === 'n' && w.art && L.articles.length && settings.reqArt && settings.mode === 'open' ? ', напиши го с члена' : ''}</div></>}
+        {dir === 'art' && <><div className="big"><span className="blank" aria-label="член" />{w.de}</div><div className="sub">{w.bg[0]}</div></>}
       </div>
 
       <div className="answer">
@@ -153,7 +154,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
               <button className="ghost" type="button" disabled={locked} onClick={() => giveHint(false)}>Подсказка</button>
               <button className="ghost" type="button" disabled={locked} onClick={() => giveHint(true)}>Покажи отговора</button>
             </div>
-            {hint && <div className="hint">{hint}</div>}
+            {hint && <div className="hinttxt">{hint}</div>}
           </>
         )}
       </div>
@@ -171,7 +172,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
             : <><b>{fb.msg}</b>{fb.own && <button type="button" className="ghost own" onClick={acceptOwn}>{dir === 'bg-x' ? `Приеми моя отговор (верен ${L.adj}и синоним)` : 'Приеми моя отговор (верен синоним)'}</button>}</>}
         </div>
       )}
-      {locked && <button ref={nextBtn} className="primary wide nextbtn" onClick={goNext}>Напред →</button>}
+      {locked && <button ref={nextBtn} className="primary nextbtn" onClick={goNext}>Напред</button>}
     </section>
   );
 }
