@@ -1,9 +1,9 @@
-# After the dictionary changes, creates German recordings for words that have none and commits them.
+# After a dictionary changes, creates recordings for words that have none and commits them.
 name: Recordings for new words
 on:
   push:
     branches: [main]
-    paths: ['dictionary/words.csv']
+    paths: ['dictionary/*/words.csv', 'dictionary/languages.json']
   workflow_dispatch:
 permissions:
   contents: write
@@ -20,15 +20,11 @@ jobs:
           python-version: '3.12'
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - run: pip install piper-tts==1.8.0
-      - name: Download the German voice
-        run: |
-          mkdir -p voice
-          curl -sSfL -o voice/de.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/de/de_DE/thorsten/high/de_DE-thorsten-high.onnx
-          curl -sSfL -o voice/de.onnx.json https://huggingface.co/rhasspy/piper-voices/resolve/main/de/de_DE/thorsten/high/de_DE-thorsten-high.onnx.json
-      - run: python scripts/make_audio.py dictionary/words.csv dictionary/audio voice/de.onnx
+      # Voices come from dictionary/languages.json and are downloaded only for languages with new words.
+      - run: python scripts/make_audio.py dictionary voice
       - name: Commit new recordings
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898099+github-actions[bot]@users.noreply.github.com"
-          git add dictionary/audio
+          git add dictionary/*/audio
           git diff --cached --quiet || (git commit -m "Recordings for new words" && git pull --rebase && git push)

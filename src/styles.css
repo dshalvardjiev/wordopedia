@@ -108,3 +108,16 @@ h2{font-size:17px;margin:22px 0 10px;font-weight:800}
 code{font-size:13px;background:#f1eee7;border-radius:5px;padding:1px 5px;word-break:break-word}
 details summary{cursor:pointer;font-weight:700}
 .prompt .spk{margin-top:12px}
+.langs{display:grid;gap:10px}
+.langcard{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:16px}
+.langcard.cur{border-color:var(--accent)}
+.langcard:disabled{opacity:.5}
+.lc-code{width:44px;height:44px;border-radius:12px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;letter-spacing:.03em}
+.langcard:disabled .lc-code{background:#a8a39a}
+.lc-name{display:flex;flex-direction:column;gap:2px}
+.lc-name b{font-size:18px}
+.lc-meta{font-size:13px;font-weight:700;color:var(--mute)}
+.a-le{color:var(--der)}.a-la{color:var(--die)}.a-l{color:#7c3aed}.a-les{color:var(--das)}
+.wide.ghost{display:block}
+.keys{flex-wrap:wrap}
+.keys button{flex:1 0 12%}

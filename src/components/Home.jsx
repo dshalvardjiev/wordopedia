@@ -1,8 +1,8 @@
-const DIR_DESC = {
-  'de-bg': 'Виждаш немската дума и отговаряш на български.',
-  'bg-de': 'Виждаш българската дума и отговаряш на немски.',
-  art: 'Виждаш съществително и избираш der, die или das.',
-};
+const dirDesc = (L, d) => ({
+  'x-bg': `Виждаш ${L.adj}ата дума и отговаряш на български.`,
+  'bg-x': `Виждаш българската дума и отговаряш на ${L.adj}и.`,
+  art: `Виждаш съществително и избираш ${L.quizArticles.join(', ')}.`,
+}[d]);
 
 function Seg({ value, onChange, options, tight }) {
   return (
@@ -12,26 +12,28 @@ function Seg({ value, onChange, options, tight }) {
   );
 }
 
-export default function Home({ store, update, sets, words, eligibleCount, onStart, onWords, onDict, dict }) {
+export default function Home({ L, dir, store, update, sets, words, eligibleCount, setSel, onStart, onWords, onDict, onLang, dict }) {
   const s = store.settings;
   const set = (k, v) => update(n => { n.settings = { ...n.settings, [k]: v }; });
+  const setSet = v => update(n => { n.setByLang = { ...n.setByLang, [L.code]: v }; });
+  const X = L.code.toUpperCase();
   const cnt = id => words.filter(w => w.on && (!id || w.set === id)).length;
   const latest = sets[0];
-  const setValue = s.set === 'all' || s.set === 'latest' || sets.some(x => x.id === s.set) ? s.set : 'all';
+  const setValue = setSel === 'all' || setSel === 'latest' || sets.some(x => x.id === setSel) ? setSel : 'all';
   const size = s.size === 'all' ? eligibleCount : Math.min(eligibleCount, +s.size);
   const modeDesc = s.mode === 'test'
-    ? (s.dir === 'art' ? 'Един опит. При грешка виждаш верния член и продължаваш.' : 'Четири възможни отговора. При грешка виждаш верния и продължаваш.')
-    : (s.dir === 'art' ? 'Избираш, докато уцелиш верния член. Не можеш да продължиш преди това.' : 'Пишеш отговора сам. Не можеш да продължиш, докато не го напишеш вярно.');
+    ? (dir === 'art' ? 'Един опит. При грешка виждаш верния член и продължаваш.' : 'Четири възможни отговора. При грешка виждаш верния и продължаваш.')
+    : (dir === 'art' ? 'Избираш, докато уцелиш верния член. Не можеш да продължиш преди това.' : 'Пишеш отговора сам. Не можеш да продължиш, докато не го напишеш вярно.');
 
   return (
     <section>
       <header>
-        <h1>Немски думи</h1>
-        <div className="hlinks"><button className="link" onClick={onWords}>Думи</button><button className="link" onClick={onDict}>Речник</button></div>
+        <h1>{L.name} думи</h1>
+        <div className="hlinks"><button className="link" onClick={onLang}>Език</button><button className="link" onClick={onWords}>Думи</button><button className="link" onClick={onDict}>Речник</button></div>
       </header>
 
       <div className="field"><div className="lbl">Списък с думи</div>
-        <select className="sel" value={setValue} onChange={e => set('set', e.target.value)} aria-label="Списък с думи">
+        <select className="sel" value={setValue} onChange={e => setSet(e.target.value)} aria-label="Списък с думи">
           <option value="all">Всички думи ({cnt(null)})</option>
           {latest && <option value="latest">Последни: {latest.name} ({cnt(latest.id)})</option>}
           {sets.map(x => <option key={x.id} value={x.id}>{x.name} ({cnt(x.id)})</option>)}
@@ -39,8 +41,8 @@ export default function Home({ store, update, sets, words, eligibleCount, onStar
       </div>
 
       <div className="field"><div className="lbl">Упражнение</div>
-        <Seg value={s.dir} onChange={v => set('dir', v)} options={[['de-bg', 'DE → BG'], ['bg-de', 'BG → DE'], ['art', 'Член']]} />
-        <p className="desc">{DIR_DESC[s.dir]}</p>
+        <Seg value={dir} onChange={v => set('dir', v)} options={[['x-bg', `${X} → BG`], ['bg-x', `BG → ${X}`], ...(L.quizArticles.length ? [['art', 'Член']] : [])]} />
+        <p className="desc">{dirDesc(L, dir)}</p>
       </div>
 
       <div className="field"><div className="lbl">Режим</div>
@@ -57,12 +59,12 @@ export default function Home({ store, update, sets, words, eligibleCount, onStar
       </div>
 
       <div className="card toggles">
-        {s.dir === 'bg-de' && (
-          <label className="tog"><span>Изисквай член при BG → DE<br /><span className="small">напр. „der Affe“, не само „Affe“</span></span>
+        {dir === 'bg-x' && L.articles.length > 0 && (
+          <label className="tog"><span>Изисквай член при BG → {X}<br /><span className="small">напр. „{L.exampleNoun}“, не само „{L.exampleNoun.replace(/^\S+\s|^l'/, '')}“</span></span>
             <input type="checkbox" checked={s.reqArt} onChange={e => set('reqArt', e.target.checked)} /></label>
         )}
         <label className="tog"><span>Повтаряй грешните думи в кръга</span><input type="checkbox" checked={s.retry} onChange={e => set('retry', e.target.checked)} /></label>
-        <label className="tog"><span>Произнасяй немската дума автоматично</span><input type="checkbox" checked={s.autoSpeak} onChange={e => set('autoSpeak', e.target.checked)} /></label>
+        <label className="tog"><span>Произнасяй {L.adj}ата дума автоматично</span><input type="checkbox" checked={s.autoSpeak} onChange={e => set('autoSpeak', e.target.checked)} /></label>
       </div>
 
       <button className="primary wide" disabled={!eligibleCount} onClick={onStart}>
