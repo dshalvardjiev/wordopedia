@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { LANGS, LANG_ORDER } from '../lib/langs.js';
-import { Flag, Icon } from './ui.jsx';
+import { Flag, Icon, MathBadge } from './ui.jsx';
+import { MATH } from '../lib/math.js';
 
 // First start: which language to practise. Bulgarian is always the other side.
 export default function LangPick({ conf, counts, onPick, onCheck, toast }) {
@@ -19,7 +20,7 @@ export default function LangPick({ conf, counts, onPick, onCheck, toast }) {
     <section>
       <div className="hero">
         <h1>Wordopedia</h1>
-        <p>Кой език ще учиш? Отговорите са на български.</p>
+        <p>Какво ще упражняваш? При езиците отговорите са на български.</p>
       </div>
       <div className="langs">
         {LANG_ORDER.map(c => {
@@ -32,6 +33,10 @@ export default function LangPick({ conf, counts, onPick, onCheck, toast }) {
             </button>
           );
         })}
+        <button className="langcard" onClick={() => onPick(MATH)}>
+          <MathBadge size={40} />
+          <span><b>Математика</b><span className="small">Таблица за умножение до 12</span></span>
+        </button>
       </div>
       <button className="link wide" style={{ marginTop: 18, display: 'flex', justifyContent: 'center', gap: 8 }} disabled={busy} onClick={check}>
         <Icon name="sync" size={18} />{busy ? 'Проверявам…' : 'Провери за нови езици'}

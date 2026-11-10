@@ -1,4 +1,6 @@
 // Everything the learner owns lives in localStorage; dictionaries are cached copies of the remote CSV files.
+import { DEFAULT_MATH } from './math.js';
+
 const KEY = 'woerter.v1';
 export const DEFAULT_DICT_BASE = import.meta.env.VITE_DICT_BASE ||
   'https://raw.githubusercontent.com/dshalvardjiev/wordopedia/main/dictionary/';
@@ -46,6 +48,7 @@ export function loadStore() {
     dicts: s.dicts || {},              // lang -> {csv, updatedAt, problems}
     langConf: s.langConf || null,      // last downloaded dictionary/languages.json
     dictBase: s.dictBase || null,      // custom dictionary folder; null = default
+    math: { ...DEFAULT_MATH, ...(s.math || {}) }, // maths settings: test, tables, order, size
   };
 }
 export function saveStore(st) { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* ignore */ } }

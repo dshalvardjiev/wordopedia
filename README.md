@@ -1,6 +1,6 @@
 # Wordopedia
 
-Web app for learning German, French and English words with Bulgarian translations. It installs on Android and iPhone and works offline. Bulgarian is always one side; there is no French–English practice.
+Web app for learning German, French and English words with Bulgarian translations, plus a maths section (multiplication table). It installs on Android and iPhone and works offline. Bulgarian is always one side; there is no French–English practice.
 
 ## Install on a phone
 - **Android (Chrome):** open the app link, then menu ⋮ → *Add to Home screen* / *Install app*.
@@ -15,6 +15,12 @@ To switch on French or English: add words to `dictionary/fr/words.csv` or `dicti
 | de | de_DE-thorsten-high | der, die, das |
 | fr | fr_FR-siwis-medium | le, la, l', les |
 | en | en_GB-cori-high | none; "the", "a/an" and "to" are optional in answers |
+
+## Maths
+Choose **Математика** in the top menu (or on the first screen). The first test is the multiplication table up to 12:
+pick the tables (1–12), shuffled or in order, 10 / 20 / all questions. Answers are typed; the next question comes only
+after the correct number. Wrong answers get a specific hint (e.g. "this is 7 + 8" or "close: that is 7 × 9"), and the
+result shows the time taken and the facts to practise again. New tests go into `src/lib/math.js` (`TESTS`).
 
 ## Change the word list (no new release needed)
 1. Edit `dictionary/<code>/words.csv` on github.com (pencil icon) and commit.

@@ -245,3 +245,24 @@ details.box > .form, details.box > .boxbody { padding: 0 16px 16px; }
 /* ---------- toast ---------- */
 .toast { position: fixed; left: 50%; bottom: calc(var(--tab-h) + 86px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: #fff; padding: 11px 16px; border-radius: 12px; font-weight: 700; font-size: 15px; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: 90vw; text-align: center; z-index: 30; }
 .toast.show { opacity: 1; }
+
+/* ---------- maths ---------- */
+/* Squared paper, as in a maths exercise book; the answer is written into the slot after "=". */
+.sheet.grid {
+  background-image: linear-gradient(var(--rule) 1px, transparent 1px), linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: -1px -1px; padding: 38px 18px 34px 46px;
+}
+.expr { display: flex; align-items: baseline; flex-wrap: wrap; gap: 14px; font-size: 46px; font-weight: 800; font-variant-numeric: tabular-nums; cursor: text; }
+.slot {
+  width: 3.2ch; min-width: 0; font: inherit; font-size: 46px; color: var(--pen); background: transparent; border: 0;
+  border-bottom: 3px solid var(--ink-2); border-radius: 0; padding: 0 2px; text-align: center; outline: none; caret-color: var(--pen);
+}
+.slot:focus { border-bottom-color: var(--pen); }
+.slot.done { color: var(--ok); border-bottom-color: var(--ok); }
+.label-row { display: flex; align-items: baseline; justify-content: space-between; }
+.label-row .label { margin-bottom: 8px; }
+.numgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.num { aspect-ratio: 1.15; border: 1.5px solid var(--rule); background: var(--card); border-radius: var(--r-sm); font-size: 19px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.num.on { background: var(--pen); border-color: var(--pen); color: #fff; }
+.wrap.solo { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+.wrap.solo .startbar { bottom: 0; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }

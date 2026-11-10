@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { LANGS, LANG_ORDER } from '../lib/langs.js';
-import { Flag, Icon } from './ui.jsx';
+import { Flag, Icon, MathBadge } from './ui.jsx';
+import { MATH } from '../lib/math.js';
 
 // Language dropdown: flag + name; inactive languages are listed but cannot be picked.
-export function LangMenu({ L, conf, counts, onPick, onCheck, toast }) {
+export function LangMenu({ L, isMath, conf, counts, onPick, onCheck, toast }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const ref = useRef(null);
@@ -27,21 +28,25 @@ export function LangMenu({ L, conf, counts, onPick, onCheck, toast }) {
   return (
     <div className="menu-wrap" ref={ref}>
       <button className="langbtn" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(o => !o)}>
-        <Flag code={L.code} size={26} /><span>{L.name}</span><Icon name="chevron" size={18} />
+        {isMath ? <><MathBadge size={26} /><span>Математика</span></> : <><Flag code={L.code} size={26} /><span>{L.name}</span></>}<Icon name="chevron" size={18} />
       </button>
       {open && (
         <div className="menu" role="menu">
           {LANG_ORDER.map(c => {
             const on = active(c);
             return (
-              <button key={c} role="menuitem" className={'menu-item' + (c === L.code ? ' cur' : '')} disabled={!on}
-                onClick={() => { setOpen(false); if (c !== L.code) onPick(c); }}>
+              <button key={c} role="menuitem" className={'menu-item' + (!isMath && c === L.code ? ' cur' : '')} disabled={!on}
+                onClick={() => { setOpen(false); if (isMath || c !== L.code) onPick(c); }}>
                 <Flag code={c} size={28} />
                 <span><b>{LANGS[c].name}</b><span className="small">{LANGS[c].native}</span></span>
                 <span className="meta">{on ? (counts[c] ? `${counts[c]} думи` : 'изтегли') : 'скоро'}</span>
               </button>
             );
           })}
+          <div className="menu-sep" />
+          <button role="menuitem" className={'menu-item' + (isMath ? ' cur' : '')} onClick={() => { setOpen(false); if (!isMath) onPick(MATH); }}>
+            <MathBadge size={28} /><span><b>Математика</b><span className="small">Таблица за умножение</span></span>
+          </button>
           <div className="menu-sep" />
           <button className="menu-foot" disabled={busy} onClick={check}><Icon name="sync" size={18} />{busy ? 'Проверявам…' : 'Провери за нови езици'}</button>
         </div>

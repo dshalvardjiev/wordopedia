@@ -50,3 +50,14 @@ export function Seg({ value, onChange, options, label }) {
     </div>
   );
 }
+
+// Same footprint as a flag, so the maths entry lines up with the languages in menus.
+export function MathBadge({ size = 28 }) {
+  return (
+    <svg className="flag" width={size} height={Math.round(size * 0.7)} viewBox="0 0 60 42" aria-hidden="true">
+      <rect width="60" height="42" fill="#fff" />
+      <path d="M0 14h60M0 28h60M15 0v42M30 0v42M45 0v42" stroke="#D9E1EF" strokeWidth="1.5" />
+      <path d="M22 13l16 16M38 13L22 29" stroke="#2747D0" strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  );
+}

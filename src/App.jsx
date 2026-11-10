@@ -11,6 +11,9 @@ import { fetchLangConf, fetchDictionary } from './lib/sync.js';
 import { shuffle } from './lib/match.js';
 import LangPick from './components/LangPick.jsx';
 import { LangMenu, TabBar } from './components/Chrome.jsx';
+import MathHome from './components/math/MathHome.jsx';
+import MathQuiz from './components/math/MathQuiz.jsx';
+import { MATH, TESTS, factText } from './lib/math.js';
 import Home from './components/Home.jsx';
 import Quiz from './components/Quiz.jsx';
 import Result from './components/Result.jsx';
@@ -36,8 +39,9 @@ export default function App() {
   // Languages that are switched on in dictionary/languages.json (downloaded copy, or the one built into the app).
   const conf = store.langConf || bundledConf;
   const isActive = c => !!(conf.languages.find(l => l.code === c) || {}).active && !!LANGS[c];
-  const lang = store.lang && isActive(store.lang) ? store.lang : null;
-  const L = LANGS[lang || 'de'];
+  const isMath = store.lang === MATH;
+  const lang = isMath ? MATH : store.lang && isActive(store.lang) ? store.lang : null;
+  const L = LANGS[lang && !isMath ? lang : 'de'];
   const base = store.dictBase || DEFAULT_DICT_BASE;
 
   // Dictionary of the chosen language: downloaded copy, or the one built into the app; plus the learner's own additions.
@@ -87,6 +91,7 @@ export default function App() {
   async function chooseLang(code) {
     update(n => { n.lang = code; });
     setView('home');
+    if (code === MATH) return;
     // A language switched on after this version was built has no words inside the app yet: download them now.
     if (!dictFor(code).words.length) {
       toast('Изтеглям думите…');
@@ -95,20 +100,32 @@ export default function App() {
   }
 
   // ----- session -----
+  function run(pool, retry) {
+    session.current = { queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0 };
+    next();
+    setView('quiz');
+  }
   function start(ids) {
     let pool = ids ? words.filter(w => ids.includes(w.id)) : eligible.slice();
     if (dir === 'art') pool = pool.filter(isArtWord);
     if (!pool.length) { toast('Няма думи за тези настройки'); return; }
     shuffle(pool);
     if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
-    session.current = { queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false };
-    next();
-    setView('quiz');
+    run(pool, s.retry);
+  }
+  // Maths: a given list of facts (e.g. the often-confused ones), or the chosen tables in the chosen order.
+  function startMath(list) {
+    const m = store.math;
+    let pool = list ? list.slice() : TESTS[m.test].facts(m.tables);
+    if (!pool.length) { toast('Избери поне една таблица'); return; }
+    if (list || m.order === 'mixed') shuffle(pool);
+    if (!list && m.size !== 'all') pool = pool.slice(0, +m.size);
+    run(pool, true);
   }
   function next() {
     const S = session.current;
     if (!S) return;
-    if (!S.queue.length) { setView('result'); setTick(t => t + 1); return; }
+    if (!S.queue.length) { S.finishedAt = Date.now(); setView('result'); setTick(t => t + 1); return; }
     S.cur = S.queue.shift(); S.qid++;
     setTick(t => t + 1);
   }
@@ -118,7 +135,7 @@ export default function App() {
     if (clean && first) S.firstOk++;
     if (!clean) S.missed.set(w.id, w);
     update(n => { const st = { ...(n.stats[w.id] || { c: 0, w: 0 }) }; clean ? st.c++ : st.w++; n.stats = { ...n.stats, [w.id]: st }; });
-    if (!clean && s.retry && (S.reins[w.id] || 0) < 2) {
+    if (!clean && S.retry && (S.reins[w.id] || 0) < 2) {
       S.reins[w.id] = (S.reins[w.id] || 0) + 1;
       S.queue.splice(Math.min(S.queue.length, 3 + Math.floor(Math.random() * 3)), 0, w);
     }
@@ -127,7 +144,7 @@ export default function App() {
   function quit() {
     const S = session.current;
     if (!S || !S.seen.size) { session.current = null; setView('home'); return; }
-    S.early = true; setView('result');
+    S.early = true; S.finishedAt = Date.now(); setView('result');
   }
   function acceptOwn(w, value) {
     update(n => {
@@ -142,21 +159,25 @@ export default function App() {
   const S = session.current;
   const shown = !lang ? 'lang' : view;
   const counts = Object.fromEntries(LANG_ORDER.map(c => [c, dictFor(c).words.length]));
-  const withTabs = ['home', 'words', 'dict'].includes(shown);
-  useEffect(() => { document.title = lang ? `Wordopedia: ${L.name.toLowerCase()}` : 'Wordopedia'; }, [lang, L.name]);
+  const withTabs = !isMath && ['home', 'words', 'dict'].includes(shown);
+  const withTop = withTabs || (isMath && shown === 'home');
+  useEffect(() => { document.title = isMath ? 'Wordopedia: математика' : lang ? `Wordopedia: ${L.name.toLowerCase()}` : 'Wordopedia'; }, [lang, isMath, L.name]);
   return (
-    <div className={'wrap' + (withTabs ? '' : ' notabs')}>
-      {withTabs && (
+    <div className={'wrap' + (withTabs ? '' : ' notabs') + (isMath && shown === 'home' ? ' solo' : '')}>
+      {withTop && (
         <div className="topbar">
-          <LangMenu L={L} conf={conf} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />
+          <LangMenu L={L} isMath={isMath} conf={conf} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />
         </div>
       )}
       {shown === 'lang' && <LangPick conf={conf} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
-      {shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
+      {isMath && shown === 'home' && <MathHome store={store} update={update} toast={toast} onStart={startMath} />}
+      {isMath && shown === 'quiz' && S && S.cur && <MathQuiz S={S} onSettle={settle} onNext={next} onQuit={quit} />}
+      {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
+      {!isMath && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
         onStart={() => start()} onPractise={ids => start(ids)} />}
-      {shown === 'quiz' && S && S.cur && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
+      {!isMath && shown === 'quiz' && S && S.cur && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
         onSettle={settle} onNext={next} onQuit={quit} onAcceptOwn={acceptOwn} />}
-      {shown === 'result' && S && <Result S={S} onAgain={() => start()} onMissed={ids => start(ids)} onHome={() => { session.current = null; setView('home'); }} />}
+      {!isMath && shown === 'result' && S && <Result S={S} onAgain={() => start()} onMissed={ids => start(ids)} onHome={() => { session.current = null; setView('home'); }} />}
       {shown === 'words' && <Words L={L} store={store} update={update} sets={sets} words={words} toast={toast} />}
       {shown === 'dict' && <Dict L={L} store={store} update={update} dict={dict} base={base} defaultBase={DEFAULT_DICT_BASE} toast={toast}
         onPull={pullLang} onCheck={checkLangs} />}
