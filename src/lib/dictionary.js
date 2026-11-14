@@ -10,10 +10,9 @@ function guessType(L, art, de) {
   if (L.code === 'fr') return /(er|ir|re)$/.test(de) ? 'v' : 'o';
   return 'o';
 }
-export { guessType };
 
 // "2026-11 Ноември" -> {id:'2026-11', name:'Ноември'}; any other text is its own id and name.
-export function parseSet(v) {
+function parseSet(v) {
   const m = /^(\S+)\s+(.+)$/.exec((v || '').trim());
   if (m && /\d/.test(m[1])) return { id: m[1], name: m[2] };
   const t = (v || '').trim() || 'Без списък';

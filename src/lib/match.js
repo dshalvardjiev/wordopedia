@@ -8,7 +8,7 @@ export function nbg(s) {
   if (/[а-я]/.test(s)) s = s.replace(/[aeopcxykmt]/g, ch => HOMO[ch]);
   return s;
 }
-export const nbgL = s => nbg(s).replace(/^да /, '').replace(/ (се|си)$/, '');
+const nbgL = s => nbg(s).replace(/^да /, '').replace(/ (се|си)$/, '');
 
 function adjForms(c) {
   // фин -> фина, фино, фини; добър -> добра, добро, добри; деликатен -> деликатна
@@ -18,7 +18,7 @@ function adjForms(c) {
   return out;
 }
 const bgCands = w => w.bg.flatMap(x => (w.type === 'a' && !/ /.test(nbgL(x)) ? adjForms(nbgL(x)) : [nbgL(x)]));
-export function lev(a, b) {
+function lev(a, b) {
   if (Math.abs(a.length - b.length) > 1) return 2;
   const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
   for (let j = 1; j <= b.length; j++) d[0][j] = j;
@@ -41,7 +41,7 @@ function dropPrefix(L, typed, f) {
   return typed;
 }
 
-// Returns {ok, warn?, msg?, own?}. "own" means the learner may accept the answer as a new synonym.
+// Returns {ok, warn?, msg?}.
 export function evaluate(L, w, v, dir, reqArt, allWords) {
   const WRONG = 'Не е вярно. Опитай пак.';
   if (dir === 'x-bg') {   // answer typed in Bulgarian
@@ -49,7 +49,7 @@ export function evaluate(L, w, v, dir, reqArt, allWords) {
     if (cands.includes(x)) return { ok: true };
     const near = x.length >= 4 && cands.find(c => c.length >= 5 && lev(c, x) === 1);
     if (near) return { ok: true, warn: `Правописът е: ${near}.` };
-    return { ok: false, msg: WRONG, own: true };
+    return { ok: false, msg: WRONG };
   }
   const { art, word } = hasArticles(L) ? splitArticle(L, v) : { art: '', word: normApos(v).trim().replace(/\s+/g, ' ') };
   const p = nbg(w.bg[0]);
@@ -58,7 +58,7 @@ export function evaluate(L, w, v, dir, reqArt, allWords) {
   const t = fs.find(f => norm(L, f.de) === norm(L, word) || norm(L, f.de) === norm(L, dropPrefix(L, word, f)));
   if (!t) {
     const near = fs.find(f => norm(L, f.de).length >= 4 && lev(norm(L, f.de), norm(L, word)) === 1);
-    return { ok: false, msg: near ? 'Почти. Провери правописа.' : WRONG, own: !near };
+    return { ok: false, msg: near ? 'Почти. Провери правописа.' : WRONG };
   }
   if (L.code === 'fr' && t.de.length <= 3 && /[^\x00-\x7f]/.test(t.de) && word.toLowerCase() !== t.de.toLowerCase())
     return { ok: false, msg: `Почти. Провери знака над буквата: ${t.de}.` };

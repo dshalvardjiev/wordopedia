@@ -29,10 +29,7 @@ const paths = {
   close: <><path d="M6 6l12 12M18 6L6 18" /></>,
   chevron: <path d="M6 9l6 6 6-6" />,
   speaker: <><path d="M11 5 6 9H3v6h3l5 4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M18.5 5.5a9 9 0 0 1 0 13" /></>,
-  check: <path d="M5 12l5 5L20 7" />,
-  plus: <path d="M12 5v14M5 12h14" />,
   search: <><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5" /></>,
-  repeat: <><path d="M17 2l3 3-3 3" /><path d="M4 11V9a4 4 0 0 1 4-4h12" /><path d="M7 22l-3-3 3-3" /><path d="M20 13v2a4 4 0 0 1-4 4H4" /></>,
 };
 export function Icon({ name, size = 20 }) {
   return (

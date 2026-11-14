@@ -7,26 +7,22 @@ export const LANGS = {
     quizArticles: ['der', 'die', 'das'], // buttons in the article exercise
     // Conjugation table (dictionary/de/verbs.csv columns ich..sie): label shown, words spoken in the recording.
     pronouns: [['ich', 'ich', 'ich'], ['du', 'du', 'du'], ['er', 'er/sie/es', 'er, sie, es'], ['wir', 'wir', 'wir'], ['ihr', 'ihr', 'ihr'], ['sie', 'sie/Sie', 'sie']],
-    keys: ['ä', 'ö', 'ü', 'ß'], capNouns: true, placeholder: 'напр. der Hund', exampleNoun: 'der Affe', exampleAlt: 'das Bild',
-    exampleRow: '2026-12 Декември,der,Hund,куче; кученце,n,die Hunde,,',
+    keys: ['ä', 'ö', 'ü', 'ß'], capNouns: true, placeholder: 'напр. der Hund', exampleNoun: 'der Affe',
   },
   fr: {
     code: 'fr', name: 'Френски', native: 'Français', adj: 'френск', tts: 'fr',
     articles: ['le', 'la', "l'", 'les'],
     quizArticles: ['le', 'la', "l'", 'les'],
-    keys: ['é', 'è', 'ê', 'à', 'â', 'ç', 'î', 'ô', 'ù', 'û', 'ë', 'œ'], capNouns: false, placeholder: 'напр. le chien', exampleNoun: 'le chat', exampleAlt: 'la photo',
-    exampleRow: "2026-12 Декември,le,chien,куче,n,les chiens,,",
+    keys: ['é', 'è', 'ê', 'à', 'â', 'ç', 'î', 'ô', 'ù', 'û', 'ë', 'œ'], capNouns: false, placeholder: 'напр. le chien', exampleNoun: 'le chat',
   },
   en: {
     code: 'en', name: 'Английски', native: 'English', adj: 'английск', tts: 'en-GB',
     articles: [], quizArticles: [],      // no article exercise for English
     optionalPrefixes: { n: ['the', 'a', 'an'], v: ['to'] }, // "to eat" = "eat", "the dog" = "dog"
-    keys: [], capNouns: false, placeholder: 'напр. dog', exampleNoun: 'dog', exampleAlt: 'picture',
-    exampleRow: '2026-12 Декември,,dog,куче; кученце,n,dogs,,',
+    keys: [], capNouns: false, placeholder: 'напр. dog', exampleNoun: 'dog',
   },
 };
 export const LANG_ORDER = ['de', 'fr', 'en'];
-export const DEFAULT_LANG_CONF = { languages: [{ code: 'de', active: true }, { code: 'fr', active: false }, { code: 'en', active: false }] };
 
 // "l'" joins without a space: l'eau; other articles take one: der Affe, le chat.
 export const joinArt = (art, word) => (!art ? word : /'$/.test(art) ? art + word : art + ' ' + word);

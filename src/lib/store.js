@@ -4,12 +4,13 @@ import { DEFAULT_MATH } from './math.js';
 const KEY = 'woerter.v1';
 export const DEFAULT_DICT_BASE = import.meta.env.VITE_DICT_BASE ||
   'https://raw.githubusercontent.com/dshalvardjiev/wordopedia/main/dictionary/';
-export const DEFAULT_SETTINGS = { dir: 'x-bg', mode: 'test', filter: 'all', size: 'all', reqArt: true, retry: true, autoSpeak: false };
+const DEFAULT_SETTINGS = { dir: 'x-bg', mode: 'test', filter: 'all', size: 'all', reqArt: true, retry: true, autoSpeak: false };
 
 // Version 1 ids never carry a language prefix, so every key gets one.
 const prefixKeys = (o, l) => Object.fromEntries(Object.entries(o || {}).map(([k, v]) => [l + ':' + k, v]));
 
-// Version 1 (German only) -> version 2 (several languages). Old data becomes German data.
+// Version 1 (German only) -> version 2 (several languages). Old progress becomes German progress.
+// Own words, own synonyms and switched-off words of version 1 are dropped: learners no longer edit content.
 function migrate(s) {
   if (s.version === 2) return s;
   const dirMap = { 'de-bg': 'x-bg', 'bg-de': 'bg-x', art: 'art' };
@@ -20,10 +21,6 @@ function migrate(s) {
     settings: { ...st, dir: dirMap[st.dir] || 'x-bg' },
     setByLang: { de: st.set || 'all' },
     stats: prefixKeys(s.stats, 'de'),
-    extra: prefixKeys(s.extra, 'de'),
-    off: prefixKeys(s.off, 'de'),
-    userWords: (s.userWords || []).map(w => ({ ...w, lang: 'de', id: 'de:' + w.id })),
-    userSets: (s.userSets || []).map(x => ({ ...x, lang: x.lang || 'de' })),
     dicts: s.dict ? { de: { csv: s.dict.csv, updatedAt: s.dict.updatedAt, problems: s.dict.problems } } : {},
     // The folder layout changed (one sub-folder per language), so an old custom address cannot be reused.
     dictBase: null,
@@ -41,13 +38,9 @@ export function loadStore() {
     settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) },
     setByLang: s.setByLang || {},      // lang -> 'all' | 'latest' | set id
     stats: s.stats || {},              // word id -> {c, w}; ids start with the language code
-    extra: s.extra || {},              // word id -> {bg:[], alt:[]} synonyms accepted by the learner
-    off: s.off || {},                  // word id -> true when switched off
-    userWords: s.userWords || [],      // words added in the app (each has lang)
-    userSets: s.userSets || [],        // sets created in the app (each has lang)
     dicts: s.dicts || {},              // lang -> {csv, updatedAt, problems}
     langConf: s.langConf || null,      // last downloaded dictionary/languages.json
-    dictBase: s.dictBase || null,      // custom dictionary folder; null = default
+    dictBase: s.dictBase || null,      // dictionary folder override (no UI; used for testing); null = default
     math: { ...DEFAULT_MATH, ...(s.math || {}) }, // maths settings: test, tables, order, size
     syncAt: s.syncAt || {},            // course key -> time of the last automatic word update
     verbs: s.verbs || {},              // course key -> {csv, updatedAt}: downloaded verbs.csv

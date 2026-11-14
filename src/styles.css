@@ -39,7 +39,6 @@ p { margin: 0; }
 .muted { color: var(--ink-2); }
 .small { font-size: 14px; color: var(--ink-2); }
 .center { text-align: center; }
-code { font-size: 13px; background: var(--pen-soft); border-radius: 6px; padding: 1px 5px; word-break: break-word; }
 .a-der { color: var(--der); } .a-die { color: var(--die); } .a-das { color: var(--das); }
 .a-le { color: var(--der); } .a-la { color: var(--die); } .a-l { color: var(--l); } .a-les { color: var(--das); }
 .flag { border-radius: 4px; box-shadow: 0 0 0 1px rgba(27,42,74,.12); flex: none; display: block; }
@@ -131,13 +130,7 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 .row { display: flex; gap: 8px; }
 .row > * { flex: 1; min-width: 0; }
 .stack { display: grid; gap: 10px; }
-.field-input, .form input, .form select, .form textarea {
-  width: 100%; font-size: 16px; padding: 12px 13px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: #fff; color: var(--ink);
-}
-.form textarea { min-height: 110px; resize: vertical; }
-.form { display: grid; gap: 10px; }
-.panel { background: var(--card); border: 1px solid var(--rule); border-radius: var(--r-lg); padding: 16px; }
-.btnlink { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; color: var(--pen); }
+.form input, .form select, .form { display: grid; gap: 10px; }
 
 /* ---------- quiz ---------- */
 .qtop { display: flex; align-items: center; gap: 12px; min-height: 52px; margin-bottom: 12px; }
@@ -184,7 +177,6 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 .fb.bad { background: var(--bad-bg); color: #7F1D1D; border-color: var(--bad); }
 .fb .note { display: block; margin-top: 6px; font-size: 14px; opacity: .9; }
 .fb .spk { background: rgba(255,255,255,.75); }
-.fb .own { display: block; margin-top: 10px; width: 100%; font-size: 14px; }
 .pl { font-weight: 400; }
 .nextbtn { width: 100%; margin-top: 14px; }
 .shake { animation: sh .35s; }
@@ -204,31 +196,8 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 .search .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-2); }
 .search input { padding-left: 40px; }
 .wlist { background: var(--card); border: 1px solid var(--rule); border-radius: var(--r-lg); padding: 0 14px; }
-.sethead { display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; color: var(--ink-2); padding: 14px 0 6px; border-bottom: 1px solid var(--rule); }
-.wrow { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--rule); }
-.wlist > div:last-child .wrow:last-child { border-bottom: 0; }
-.wrow input { width: 20px; height: 20px; accent-color: var(--pen); }
-.wrow .de { font-weight: 800; }
-.wrow .bg { font-size: 14px; color: var(--ink-2); }
-.wrow .st { font-size: 12px; color: var(--ink-2); white-space: nowrap; font-weight: 700; }
-.wrow .del { background: none; border: 0; color: #9AA3B5; font-size: 22px; padding: 2px 6px; line-height: 1; }
-.wrow.off .de, .wrow.off .bg { opacity: .4; }
-.tag { font-size: 11px; font-weight: 800; color: #8A5A00; background: #FFF3D6; border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
 .empty { padding: 26px 8px; text-align: center; color: var(--ink-2); }
-details.box { background: var(--card); border: 1px solid var(--rule); border-radius: var(--r-lg); margin-top: 12px; }
-details.box > summary { list-style: none; display: flex; align-items: center; gap: 10px; padding: 15px 16px; font-weight: 800; cursor: pointer; }
-details.box > summary::-webkit-details-marker { display: none; }
-details.box > summary .icon:last-child { margin-left: auto; color: var(--ink-2); transition: transform .15s; }
-details.box[open] > summary .icon:last-child { transform: rotate(180deg); }
-details.box > .form, details.box > .boxbody { padding: 0 16px 16px; }
-.boxbody ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
-.boxbody { display: grid; gap: 10px; font-size: 15px; }
 
-/* ---------- dictionary ---------- */
-.status { display: flex; gap: 14px; align-items: center; }
-.status-ic { width: 46px; height: 46px; border-radius: 14px; background: var(--pen-soft); color: var(--pen); display: grid; place-items: center; flex: none; }
-.status-num { font-size: 20px; font-weight: 800; }
-.note-line { font-size: 14px; color: var(--ink-2); }
 
 /* ---------- language picker (first start) ---------- */
 .hero { padding: 28px 2px 18px; }

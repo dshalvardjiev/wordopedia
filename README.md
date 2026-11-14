@@ -1,26 +1,75 @@
 # Wordopedia
 
-Web app for learning German, French and English words with Bulgarian translations, plus a maths section (multiplication table). It installs on Android and iPhone and works offline. Bulgarian is always one side; there is no French–English practice.
+Web app for practising words in German, French and English with Bulgarian translations, plus maths (the
+multiplication table). Bulgarian is always one side; there is no French–English practice. The app installs on
+Android and iPhone and works offline.
+
+**App:** https://dshalvardjiev.github.io/wordopedia/
 
 ## Install on a phone
 - **Android (Chrome):** open the app link, then menu ⋮ → *Add to Home screen* / *Install app*.
 - **iPhone (Safari):** open the app link, then Share → *Add to Home Screen*.
 
-## Languages
-`dictionary/languages.json` decides which languages the app offers. A language with `"active": false` is shown as "скоро" and cannot be chosen.
-To switch on French: add words to `dictionary/fr/words.csv`, set `"active": true`, then in the app open the language menu and tap **Обнови думите** (or wait for the automatic update).
+## What the app offers
+- **Words** (per course): translate foreign → Bulgarian or Bulgarian → foreign, choosing from four answers or
+  typing; German and French also practise the article. Typed answers must be correct to continue; hints and
+  "show answer" help. Missed words come back in the same round.
+- **Думи** tab: the vocabulary of the course, by set or A–Z, with search; tap a word to hear it; marks for learned
+  and often-confused words.
+- **Verb conjugation** (German): tables with every form hidden until tapped; tapping plays the form.
+- **Maths**: multiplication table up to 12, typed answers only, with specific hints and the time taken.
 
-### Courses
-A language can have several courses, each with its own word list and progress; recordings are shared.
-English has two: **Elementary English** (`dictionary/en/elementary/words.csv`, the alphabet book, letters A–R so far)
-and **Basic English** (`dictionary/en/basic/words.csv`, inactive until it has words). A course is listed in `languages.json`:
-```json
-{ "code": "en", "active": true, "courses": [
-  { "id": "elementary", "name": "Elementary English", "active": true },
-  { "id": "basic", "name": "Basic English", "active": false } ] }
+Learners cannot add or change words, answers or verbs in the app. All content comes from the `dictionary/` folder.
+
+## Changing content (no new release needed)
+1. Edit the file on github.com (pencil icon) and commit to `main`.
+2. The app updates by itself when it opens or comes back to the screen, at most every 6 hours per course.
+   To update at once: language menu → **Обнови думите**.
+3. The *Recordings for new words* workflow records new words and verb forms within 1–2 minutes; the next update
+   in the app downloads them for offline use.
+
 ```
-To switch on Basic English: add words to its file, set its `"active": true`, then **Обнови думите** in the language menu (or wait for the automatic update).
-Sets without a date (e.g. `Букви M–R`) count in file order: the last one in the file is "Последни".
+dictionary/
+  languages.json            which languages and courses are on, and each language's voice
+  de/words.csv              German words          de/verbs.csv   German conjugation tables
+  de/audio/                 German recordings (all courses of a language share one folder)
+  fr/words.csv              French words (inactive)
+  en/elementary/words.csv   Elementary English (alphabet book, letters A–R)
+  en/basic/words.csv        Basic English (inactive until it has words)
+  en/audio/, fr/audio/
+```
+
+### words.csv
+Columns: `set, article, german, bulgarian, type, plural, alt, note` (the third column may be called `foreign`).
+
+| column | meaning |
+|---|---|
+| set | date and name, e.g. `2026-12 Декември`; the newest date is "Последни". Sets without a date (e.g. `Букви M–R`) count in file order: the last one is "Последни" |
+| article | German `der/die/das`, French `le/la/l'/les`, English empty |
+| german / foreign | the foreign word |
+| bulgarian | accepted answers separated by `;`; the first one is shown |
+| type | `n` noun, `v` verb, `a` adjective/adverb (Bulgarian gender forms are accepted automatically), `o` other |
+| plural | e.g. `die Hunde`, shown after answering and in the vocabulary |
+| alt | other correct foreign words separated by `;`, e.g. `das Bild` |
+| note | shown after answering and in the vocabulary |
+
+```
+2026-12 Декември,der,Hund,куче; кученце,n,die Hunde,,
+2026-12 Декември,l',eau,вода,n,,,
+2026-12 Декември,,dog,куче,n,dogs,,
+```
+
+### verbs.csv (German)
+Columns: `verb, bulgarian, ich, du, er, wir, ihr, sie` — for example `sein,съм,bin,bist,ist,sind,seid,sind`.
+
+### languages.json
+A language or course with `"active": false` is shown as "скоро" and cannot be chosen. To switch one on, add words to
+its file first, then set `"active": true`. A language can have courses, each with its own words and progress:
+```json
+{ "code": "en", "active": true, "voice": "en/en_GB/cori/high/en_GB-cori-high",
+  "courses": [ { "id": "elementary", "name": "Elementary English", "active": true },
+               { "id": "basic", "name": "Basic English", "active": false } ] }
+```
 
 | code | voice (Piper TTS) | articles in the exercises |
 |---|---|---|
@@ -28,50 +77,12 @@ Sets without a date (e.g. `Букви M–R`) count in file order: the last one 
 | fr | fr_FR-siwis-medium | le, la, l', les |
 | en | en_GB-cori-high | none; "the", "a/an" and "to" are optional in answers |
 
-## Maths
-Choose **Математика** in the top menu (or on the first screen). The first test is the multiplication table up to 12:
-pick the tables (1–12), shuffled or in order, 10 / 20 / all questions. Answers are typed; the next question comes only
-after the correct number. Wrong answers get a specific hint (e.g. "this is 7 + 8" or "close: that is 7 × 9"), and the
-result shows the time taken and the facts to practise again. New tests go into `src/lib/math.js` (`TESTS`).
-
-## Verb conjugation (German)
-`dictionary/de/verbs.csv` holds the tables (`verb,bulgarian,ich,du,er,wir,ihr,sie`); currently fliegen, haben, sein.
-In the app: German, exercise **ich, du…**. Each form is hidden until tapped; tapping plays its recording.
-Add a verb as a new row; the app picks it up with the next word update, and the recordings workflow records its forms.
-
-## Change the word list (no new release needed)
-1. Edit `dictionary/<code>/words.csv` (or `dictionary/<code>/<course>/words.csv`) on github.com (pencil icon) and commit.
-2. The app updates by itself when it opens or comes back to the screen (at most every 6 hours per course).
-   To update at once: language menu → **Обнови думите**. Learners cannot add or change words in the app.
-
-Columns: `set, article, german, bulgarian, type, plural, alt, note` (French and English files may call the third column `foreign`).
-
-| column | meaning |
-|---|---|
-| set | date and name, e.g. `2026-12 Декември`; the newest date is "Последни" |
-| article | German `der/die/das`, French `le/la/l'/les`, English empty |
-| german / foreign | the foreign word |
-| bulgarian | accepted answers separated by `;`; the first is shown |
-| type | `n` noun, `v` verb, `a` adjective/adverb, `o` other |
-| plural | e.g. `die Hunde` (shown after answering) |
-| alt | other correct foreign words separated by `;`, e.g. `das Bild` |
-| note | shown after answering |
-
-Example rows:
-```
-2026-12 Декември,der,Hund,куче; кученце,n,die Hunde,,
-2026-12 Декември,l',eau,вода,n,,,
-2026-12 Декември,,dog,куче,n,dogs,,
-```
-
-After a change to a CSV, the *Recordings for new words* workflow creates recordings in `dictionary/<code>/audio/` with that language's voice and commits them. It takes 1–2 minutes; the next update downloads them for offline use.
-
-и речника** again afterwards to download them for offline use.
-
 ## Development
 ```
 npm install
 npm run dev      # local server
 npm run build    # production build in dist/
+python scripts/make_audio.py dictionary voice   # record missing words locally (needs piper-tts and ffmpeg)
 ```
-Pushing app changes to `main` publishes them to GitHub Pages (workflow *Deploy app*).
+Pushing app changes to `main` publishes them to GitHub Pages (workflow *Deploy app*). Changes under `dictionary/`
+do not need a release. See `CLAUDE.md` for architecture notes.

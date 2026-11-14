@@ -2,7 +2,7 @@
 const CACHE = 'woerter-audio-v1';
 
 // Must match scripts/make_audio.py: "der Affe" -> der-affe, "l'élève" -> l-eleve, "Größe" -> groesse.
-export const slug = t => t.toLowerCase()
+const slug = t => t.toLowerCase()
   .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/œ/g, 'oe').replace(/æ/g, 'ae')
   .normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
