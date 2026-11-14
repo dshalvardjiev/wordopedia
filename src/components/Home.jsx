@@ -4,10 +4,11 @@ import { Icon, Seg } from './ui.jsx';
 export const isLearned = st => !!st && st.c >= 2 && st.c > st.w;
 export const isWeak = st => !!st && st.w > 0 && st.w >= st.c;
 
-export default function Home({ L, dir, store, update, sets, words, eligibleCount, setSel, onStart, onPractise }) {
+export default function Home({ L, dir, store, update, sets, words, eligibleCount, setSel, verbs = [], onStart, onPractise }) {
+  const conj = dir === 'conj';
   const s = store.settings;
   const set = (k, v) => update(n => { n.settings = { ...n.settings, [k]: v }; });
-  const setSet = v => update(n => { n.setByLang = { ...n.setByLang, [L.code]: v }; });
+  const setSet = v => update(n => { n.setByLang = { ...n.setByLang, [L.key]: v }; });
   const X = L.code.toUpperCase();
   const latest = sets[0];
   const current = setSel === 'all' || setSel === 'latest' || sets.some(x => x.id === setSel) ? setSel : 'all';
@@ -22,6 +23,7 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
     ['x-bg', `${X} → BG`, 'превеждаш на български'],
     ['bg-x', `BG → ${X}`, `превеждаш на ${L.adj}и`],
     ...(L.quizArticles.length ? [['art', <span key="a">{L.quizArticles.slice(0, 3).map((a, i) => <span key={a} className={'a-' + a.replace("'", '')}>{i ? ' ' : ''}{a}</span>)}</span>, 'учиш члена']] : []),
+    ...(verbs.length ? [['conj', 'ich, du…', 'спрежение на глаголи']] : []),
   ];
   const modeHint = s.mode === 'test'
     ? (dir === 'art' ? 'Един опит. При грешка виждаш верния член.' : 'Избираш от четири отговора. При грешка виждаш верния.')
@@ -29,7 +31,7 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
 
   return (
     <section>
-      <div className="progress">
+      {!conj && <div className="progress">
         <div className="progress-top">
           <span className="progress-num">{learned} <span>от {scope.length} научени</span></span>
           <span className="small">{current === 'all' ? 'всички думи' : current === 'latest' ? (latest ? latest.name : '') : (sets.find(x => x.id === current) || {}).name}</span>
@@ -41,20 +43,20 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
             <button className="small-btn" onClick={() => onPractise(weak.map(w => w.id))}>Упражни ги</button>
           </div>
         )}
-      </div>
+      </div>}
 
-      <div className="section">
+      {!conj && <div className="section">
         <p className="label">Списък</p>
         <div className="chips" role="radiogroup" aria-label="Списък с думи">
           <button role="radio" aria-checked={current === 'all'} className={'chip' + (current === 'all' ? ' on' : '')} onClick={() => setSet('all')}>Всички <span className="n">{words.filter(inSet(null)).length}</span></button>
           {latest && <button role="radio" aria-checked={current === 'latest'} className={'chip' + (current === 'latest' ? ' on' : '')} onClick={() => setSet('latest')}>Последни: {latest.name} <span className="n">{words.filter(inSet(latest.id)).length}</span></button>}
           {sets.map(x => <button key={x.id} role="radio" aria-checked={current === x.id} className={'chip' + (current === x.id ? ' on' : '')} onClick={() => setSet(x.id)}>{x.name} <span className="n">{words.filter(inSet(x.id)).length}</span></button>)}
         </div>
-      </div>
+      </div>}
 
       <div className="section">
         <p className="label">Упражнение</p>
-        <div className="tiles" role="radiogroup" aria-label="Упражнение">
+        <div className={'tiles' + (tiles.length === 4 ? ' two' : '')} role="radiogroup" aria-label="Упражнение">
           {tiles.map(([v, big, sub]) => (
             <button key={v} role="radio" aria-checked={dir === v} className={'tile' + (dir === v ? ' on' : '')} onClick={() => set('dir', v)}>
               <span className="tile-big">{big}</span><span className="tile-sub">{sub}</span>
@@ -63,13 +65,15 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
         </div>
       </div>
 
-      <div className="section">
+      {conj && <p className="hint" style={{ marginTop: -8, marginBottom: 20 }}>Глаголи: {verbs.map(v => v.verb).join(', ')}. Формите са скрити; казваш ги на глас и ги докосваш, за да провериш.</p>}
+
+      {!conj && <div className="section">
         <p className="label">Как отговаряш</p>
         <Seg label="Как отговаряш" value={s.mode} onChange={v => set('mode', v)} options={[['test', 'Избираш'], ['open', 'Пишеш']]} />
         <p className="hint">{modeHint}</p>
-      </div>
+      </div>}
 
-      <details className="more">
+      {!conj && <details className="more">
         <summary>Още настройки <Icon name="chevron" /></summary>
         <div className="more-body">
           <div>
@@ -89,11 +93,11 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
             <label className="tog"><span>Произнасяй думата на {L.adj}и автоматично</span><input type="checkbox" checked={s.autoSpeak} onChange={e => set('autoSpeak', e.target.checked)} /></label>
           </div>
         </div>
-      </details>
+      </details>}
 
       <div className="startbar">
-        <button className="primary" disabled={!eligibleCount} onClick={onStart}>
-          {eligibleCount ? `Започни: ${size} ${size === 1 ? 'дума' : 'думи'}` : (s.filter === 'weak' ? 'Още няма грешени думи' : 'Няма думи с тези настройки')}
+        <button className="primary" disabled={!conj && !eligibleCount} onClick={onStart}>
+          {conj ? `Започни: ${verbs.length} ${verbs.length === 1 ? 'глагол' : 'глагола'}` : eligibleCount ? `Започни: ${size} ${size === 1 ? 'дума' : 'думи'}` : (s.filter === 'weak' ? 'Още няма грешени думи' : 'Няма думи с тези настройки')}
         </button>
       </div>
     </section>

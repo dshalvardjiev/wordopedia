@@ -266,3 +266,18 @@ details.box > .form, details.box > .boxbody { padding: 0 16px 16px; }
 .num.on { background: var(--pen); border-color: var(--pen); color: #fff; }
 .wrap.solo { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
 .wrap.solo .startbar { bottom: 0; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+
+/* ---------- conjugation ---------- */
+.conj-chips { margin: 0; padding-left: 0; flex: 1; }
+.conj-sheet .big { line-height: 72px; }
+.conj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; margin-top: 10px; margin-left: -6px; }
+.conj-row { display: grid; grid-template-columns: 4.6em 1fr; align-items: baseline; gap: 4px; min-height: 38px; padding: 2px 0; }
+.pron { color: var(--ink-2); font-weight: 700; font-size: 15px; white-space: nowrap; }
+.form {
+  justify-self: start; min-width: 2.8em; padding: 2px 8px; border: 0; border-bottom: 2px dashed var(--ink-2); background: var(--pen-soft); border-radius: 6px 6px 0 0;
+  font-size: 20px; font-weight: 800; color: var(--ink-2); line-height: 1.3;
+}
+.form.open { background: transparent; border-bottom-style: solid; border-bottom-color: transparent; color: var(--pen); }
+
+.tiles.two { grid-template-columns: 1fr 1fr; }
+.tiles.two .tile { min-height: 76px; }

@@ -39,11 +39,11 @@ export function parseDictionary(text, L) {
     if (art && !L.articles.includes(art)) { problems.push(`ред ${i + 2}: непознат член „${art}“`); art = ''; }
     const s = parseSet(get(r, 'set'));
     if (!sets.has(s.id)) sets.set(s.id, s);
-    const id = L.code + ':' + s.id + '|' + joinArt(art, de);
+    const id = L.key + ':' + s.id + '|' + joinArt(art, de);   // course key: progress is per course
     if (seen.has(id)) { problems.push(`ред ${i + 2}: повторена дума ${de}`); return; }
     seen.add(id);
     const type = (get(r, 'type') || guessType(L, art, de)).toLowerCase()[0];
-    words.push({ id, lang: L.code, set: s.id, art, de, bg, type: 'nvao'.includes(type) ? type : 'o', pl: get(r, 'plural'), alt: split(get(r, 'alt')).map(normApos), note: get(r, 'note') });
+    words.push({ id, lang: L.key, set: s.id, art, de, bg, type: 'nvao'.includes(type) ? type : 'o', pl: get(r, 'plural'), alt: split(get(r, 'alt')).map(normApos), note: get(r, 'note') });
   });
   return { words, sets: [...sets.values()], problems };
 }

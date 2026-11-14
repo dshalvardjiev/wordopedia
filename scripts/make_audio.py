@@ -1,8 +1,9 @@
 """Create recordings for dictionary words that do not have one yet, for every language in languages.json.
 
 Usage: python scripts/make_audio.py dictionary [voice_cache_dir]
-Reads dictionary/languages.json; for each language with words in dictionary/<code>/words.csv it writes
-dictionary/<code>/audio/<slug>.mp3 using that language's Piper voice (downloaded from Hugging Face on first use).
+Reads dictionary/languages.json; for each language it reads dictionary/<code>/words.csv and, for languages with
+courses, dictionary/<code>/<course>/words.csv, and writes dictionary/<code>/audio/<slug>.mp3 (shared by the courses)
+using that language's Piper voice (downloaded from Hugging Face on first use).
 Inactive languages are recorded too, so their audio is ready when they are switched on.
 File names must match src/lib/audio.js: "der Affe" -> der-affe.mp3, "l'élève" -> l-eleve.mp3.
 """
@@ -11,6 +12,8 @@ import csv, json, os, re, subprocess, sys, tempfile, unicodedata, urllib.request
 HF = 'https://huggingface.co/rhasspy/piper-voices/resolve/main/'
 # Same as LANGS[code].articles in src/lib/langs.js; an article not listed here is ignored, as in the app.
 ARTICLES = {'de': ['der', 'die', 'das'], 'fr': ['le', 'la', "l'", 'les'], 'en': []}
+# Same as LANGS[code].pronouns in src/lib/langs.js: verbs.csv column and the words spoken before the form.
+PRONOUNS = {'de': [('ich', 'ich'), ('du', 'du'), ('er', 'er, sie, es'), ('wir', 'wir'), ('ihr', 'ihr'), ('sie', 'sie')]}
 APOS = str.maketrans({'’': "'", '`': "'", '´': "'", 'ʼ': "'"})
 
 def slug(t):
@@ -33,6 +36,15 @@ def texts_for(csv_path, code):
         if word: out.append(join_art(art, word))
     return list(dict.fromkeys(out))
 
+def verb_texts(csv_path, code):
+    # "ich fliege", "du fliegst", "er, sie, es fliegt", … for each verb in verbs.csv
+    out = []
+    for r in csv.DictReader(open(csv_path, encoding='utf-8-sig')):
+        for col, say in PRONOUNS.get(code, []):
+            form = (r.get(col) or '').strip()
+            if form: out.append(f'{say} {form}')
+    return out
+
 def voice_file(voice, cache):
     os.makedirs(cache, exist_ok=True)
     name = os.path.basename(voice)
@@ -48,10 +60,16 @@ def main(root, cache='voice'):
     conf = json.load(open(os.path.join(root, 'languages.json'), encoding='utf-8'))
     for lang in conf['languages']:
         code, voice = lang['code'], lang.get('voice')
-        csv_path = os.path.join(root, code, 'words.csv')
-        if not voice or not os.path.exists(csv_path): continue
+        paths = [os.path.join(root, code, 'words.csv')] + [os.path.join(root, code, c['id'], 'words.csv') for c in lang.get('courses', [])]
+        paths = [p for p in paths if os.path.exists(p)]
+        if not voice or not paths: continue
         out_dir = os.path.join(root, code, 'audio')
-        todo = [t for t in texts_for(csv_path, code) if not os.path.exists(os.path.join(out_dir, slug(t) + '.mp3'))]
+        texts = [t for p in paths for t in texts_for(p, code)]
+        for d in [os.path.dirname(p) for p in paths]:
+            vp = os.path.join(d, 'verbs.csv')
+            if os.path.exists(vp): texts += verb_texts(vp, code)
+        texts = list(dict.fromkeys(texts))
+        todo = [t for t in texts if not os.path.exists(os.path.join(out_dir, slug(t) + '.mp3'))]
         print(f'{code}: {len(todo)} new recording(s)')
         if not todo: continue
         os.makedirs(out_dir, exist_ok=True)

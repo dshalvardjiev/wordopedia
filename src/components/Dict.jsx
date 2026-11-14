@@ -12,14 +12,14 @@ export default function Dict({ L, store, update, dict, base, defaultBase, toast,
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   const [audio, setAudio] = useState('');
-  const src = store.dicts[L.code];
-  const edit = editLink(base + L.code + '/words.csv'), editConf = editLink(base + 'languages.json');
+  const src = store.dicts[L.key];
+  const edit = editLink(base + L.path + '/words.csv'), editConf = editLink(base + 'languages.json');
 
   async function pull() {
     setBusy(true); setMsg(''); setAudio('');
     try { await onCheck(); } catch (e) { /* languages.json is optional for an update of the words */ }
     try {
-      const r = await onPull(L.code, (i, n) => setAudio(`Записи: ${i} от ${n}…`));
+      const r = await onPull(L.key, (i, n) => setAudio(`Записи: ${i} от ${n}…`));
       const n = r.parsed.words.length;
       setMsg(`Речникът е обновен: ${n} думи, ${r.added} нови, ${r.removed} премахнати.` + (r.parsed.problems.length ? ` Пропуснати редове: ${r.parsed.problems.length}.` : ''));
       setAudio(n ? `Записи за офлайн: ${r.audio.have} от ${n}.` + (r.audio.missing ? ` За ${r.audio.missing} думи още няма запис; тогава се ползва гласът на устройството, ако е ${L.adj}и.` : '') : '');
@@ -56,8 +56,8 @@ export default function Dict({ L, store, update, dict, base, defaultBase, toast,
       <details className="box">
         <summary><Icon name="plus" />Как се добавят думи<Icon name="chevron" /></summary>
         <div className="boxbody">
-          <p>Думите на {L.adj}и са във файла <code>{L.code}/words.csv</code>. Добави ред, запази и натисни „Обнови речника“. Не е нужна нова версия на приложението.</p>
-          {edit && <a className="ghost btnlink" href={edit} target="_blank" rel="noopener">Отвори {L.code}/words.csv в GitHub</a>}
+          <p>Думите на курса са във файла <code>{L.path}/words.csv</code>. Добави ред, запази и натисни „Обнови речника“. Не е нужна нова версия на приложението.</p>
+          {edit && <a className="ghost btnlink" href={edit} target="_blank" rel="noopener">Отвори {L.path}/words.csv в GitHub</a>}
           <p>Пример: <code>{L.exampleRow}</code></p>
           <ul>
             <li><b>set</b>: дата и име, напр. <code>2026-12 Декември</code>. Най-новата дата става „Последни“.</li>
@@ -67,7 +67,7 @@ export default function Dict({ L, store, update, dict, base, defaultBase, toast,
             <li><b>alt</b>: други верни думи на {L.adj}и, напр. <code>{L.exampleAlt}</code>.</li>
           </ul>
           <p>Записите на новите думи се правят автоматично за 1–2 минути след промяната. После обнови още веднъж, за да ги изтеглиш.</p>
-          <p>Нов език се включва във файла <code>languages.json</code> с <code>"active": true</code>, след като в неговия файл има думи.</p>
+          <p>Нов език или курс се включва във файла <code>languages.json</code> с <code>"active": true</code>, след като в неговия файл има думи.</p>
           {editConf && <a className="ghost btnlink" href={editConf} target="_blank" rel="noopener">Отвори languages.json в GitHub</a>}
         </div>
       </details>

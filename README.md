@@ -8,7 +8,19 @@ Web app for learning German, French and English words with Bulgarian translation
 
 ## Languages
 `dictionary/languages.json` decides which languages the app offers. A language with `"active": false` is shown as "скоро" and cannot be chosen.
-To switch on French or English: add words to `dictionary/fr/words.csv` or `dictionary/en/words.csv`, set `"active": true`, then in the app tap **Език → Провери за нови езици**.
+To switch on French: add words to `dictionary/fr/words.csv`, set `"active": true`, then in the app open the language menu and tap **Провери за нови курсове**.
+
+### Courses
+A language can have several courses, each with its own word list and progress; recordings are shared.
+English has two: **Elementary English** (`dictionary/en/elementary/words.csv`, the alphabet book, letters A–R so far)
+and **Basic English** (`dictionary/en/basic/words.csv`, inactive until it has words). A course is listed in `languages.json`:
+```json
+{ "code": "en", "active": true, "courses": [
+  { "id": "elementary", "name": "Elementary English", "active": true },
+  { "id": "basic", "name": "Basic English", "active": false } ] }
+```
+To switch on Basic English: add words to its file, set its `"active": true`, then **Провери за нови курсове** in the app.
+Sets without a date (e.g. `Букви M–R`) count in file order: the last one in the file is "Последни".
 
 | code | voice (Piper TTS) | articles in the exercises |
 |---|---|---|
@@ -22,8 +34,13 @@ pick the tables (1–12), shuffled or in order, 10 / 20 / all questions. Answers
 after the correct number. Wrong answers get a specific hint (e.g. "this is 7 + 8" or "close: that is 7 × 9"), and the
 result shows the time taken and the facts to practise again. New tests go into `src/lib/math.js` (`TESTS`).
 
+## Verb conjugation (German)
+`dictionary/de/verbs.csv` holds the tables (`verb,bulgarian,ich,du,er,wir,ihr,sie`); currently fliegen, haben, sein.
+In the app: German, exercise **ich, du…**. Each form is hidden until tapped; tapping plays its recording.
+Add a verb as a new row and tap **Обнови речника**; the recordings workflow records its forms.
+
 ## Change the word list (no new release needed)
-1. Edit `dictionary/<code>/words.csv` on github.com (pencil icon) and commit.
+1. Edit `dictionary/<code>/words.csv` (or `dictionary/<code>/<course>/words.csv`) on github.com (pencil icon) and commit.
 2. In the app: **Речник → Обнови речника**.
 
 Columns: `set, article, german, bulgarian, type, plural, alt, note` (French and English files may call the third column `foreign`).

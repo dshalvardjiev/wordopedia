@@ -1,7 +1,31 @@
 {
   "languages": [
-    { "code": "de", "active": true,  "voice": "de/de_DE/thorsten/high/de_DE-thorsten-high" },
-    { "code": "fr", "active": false, "voice": "fr/fr_FR/siwis/medium/fr_FR-siwis-medium" },
-    { "code": "en", "active": false, "voice": "en/en_GB/cori/high/en_GB-cori-high" }
+    {
+      "code": "de",
+      "active": true,
+      "voice": "de/de_DE/thorsten/high/de_DE-thorsten-high"
+    },
+    {
+      "code": "fr",
+      "active": false,
+      "voice": "fr/fr_FR/siwis/medium/fr_FR-siwis-medium"
+    },
+    {
+      "code": "en",
+      "active": true,
+      "voice": "en/en_GB/cori/high/en_GB-cori-high",
+      "courses": [
+        {
+          "id": "elementary",
+          "name": "Elementary English",
+          "active": true
+        },
+        {
+          "id": "basic",
+          "name": "Basic English",
+          "active": false
+        }
+      ]
+    }
   ]
 }

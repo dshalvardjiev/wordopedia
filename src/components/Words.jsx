@@ -28,7 +28,7 @@ function TwoStep({ label, className, onConfirm }) {
 }
 
 export default function Words({ L, store, update, sets, words, toast }) {
-  const mine = id => id.startsWith(L.code + ':');
+  const mine = id => id.startsWith(L.key + ':');
   const latest = sets[0] ? sets[0].id : '__new';
   const [fSet, setFSet] = useState(latest), [fSetName, setFSetName] = useState('');
   const [bSet, setBSet] = useState(latest), [bSetName, setBSetName] = useState('');
@@ -41,16 +41,16 @@ export default function Words({ L, store, update, sets, words, toast }) {
     const n = name.trim(); if (!n) { toast('Въведи име на новия списък'); return null; }
     const ex = sets.find(x => x.name.toLowerCase() === n.toLowerCase()); if (ex) return ex.id;
     const d = new Date(), id = d.toISOString().slice(0, 16);
-    update(s => { s.userSets = [...s.userSets, { id, name: n, lang: L.code }]; });
+    update(s => { s.userSets = [...s.userSets, { id, name: n, lang: L.key }]; });
     clearName(''); return id;
   }
   function addWords(list, set) {
     let ok = 0, dup = 0;
     const add = [];
     list.forEach(x => {
-      const id = L.code + ':' + set + '|' + joinArt(x.art, x.de);
+      const id = L.key + ':' + set + '|' + joinArt(x.art, x.de);
       if (words.some(w => w.id === id) || add.some(w => w.id === id)) { dup++; return; }
-      add.push({ id, lang: L.code, set, art: x.art, de: x.de, bg: x.bg, type: x.type, pl: '', alt: [], note: '' }); ok++;
+      add.push({ id, lang: L.key, set, art: x.art, de: x.de, bg: x.bg, type: x.type, pl: '', alt: [], note: '' }); ok++;
     });
     if (add.length) update(s => { s.userWords = [...s.userWords, ...add]; });
     return { ok, dup };
@@ -84,7 +84,7 @@ export default function Words({ L, store, update, sets, words, toast }) {
   async function copyCsv() {
     // Words added in the app, as rows for dictionary/words.csv, so they can move into the shared dictionary.
     const name = id => (sets.find(x => x.id === id) || {}).name || id;
-    const rows = store.userWords.filter(w => w.lang === L.code).map(w => [/^\d/.test(w.set) ? `${w.set.slice(0, 7)} ${name(w.set)}` : name(w.set), w.art, w.de, w.bg.join('; '), w.type, '', '', ''].map(q).join(','));
+    const rows = store.userWords.filter(w => w.lang === L.key).map(w => [/^\d/.test(w.set) ? `${w.set.slice(0, 7)} ${name(w.set)}` : name(w.set), w.art, w.de, w.bg.join('; '), w.type, '', '', ''].map(q).join(','));
     const extra = Object.entries(store.extra).filter(([id, x]) => mine(id) && (x.bg.length || x.alt.length));
     const txt = rows.join('\n') + (extra.length ? '\n\n# Добавени синоними:\n' + extra.map(([id, x]) => `${id}: ${[...x.bg, ...x.alt].join('; ')}`).join('\n') : '');
     if (!txt.trim()) { toast('Няма добавени думи или синоними'); return; }
@@ -156,7 +156,7 @@ export default function Words({ L, store, update, sets, words, toast }) {
           <button className="ghost" onClick={copyCsv}>Копирай моите думи и синоними за речника</button>
           <TwoStep className="ghost" label="Нулирай статистиката" onConfirm={() => { update(s => { s.stats = Object.fromEntries(Object.entries(s.stats).filter(([id]) => !mine(id))); }); toast('Статистиката е нулирана'); }} />
           <TwoStep className="ghost danger" label="Изтрий моите думи и синоними" onConfirm={() => { update(s => {
-            s.userWords = s.userWords.filter(w => w.lang !== L.code); s.userSets = s.userSets.filter(x => x.lang !== L.code);
+            s.userWords = s.userWords.filter(w => w.lang !== L.key); s.userSets = s.userSets.filter(x => x.lang !== L.key);
             s.extra = Object.fromEntries(Object.entries(s.extra).filter(([id]) => !mine(id))); }); toast('Изтрити'); }} />
         </div>
       </details>

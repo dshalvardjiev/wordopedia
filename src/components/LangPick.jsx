@@ -1,18 +1,16 @@
 import { useState } from 'react';
-import { LANGS, LANG_ORDER } from '../lib/langs.js';
+import { coursesFrom } from '../lib/courses.js';
 import { Flag, Icon, MathBadge } from './ui.jsx';
 import { MATH } from '../lib/math.js';
 
 // First start: which language to practise. Bulgarian is always the other side.
-export default function LangPick({ conf, counts, onPick, onCheck, toast }) {
+export default function LangPick({ courses, counts, onPick, onCheck, toast }) {
   const [busy, setBusy] = useState(false);
-  const active = c => !!(conf.languages.find(l => l.code === c) || {}).active;
   async function check() {
     setBusy(true);
     try {
       const c = await onCheck();
-      const on = LANG_ORDER.filter(x => (c.languages.find(l => l.code === x) || {}).active).map(x => LANGS[x].name);
-      toast('Налични езици: ' + on.join(', '));
+      toast('Налични курсове: ' + coursesFrom(c).filter(x => x.active).map(x => x.title).join(', '));
     } catch (e) { toast('Неуспешна проверка: ' + e.message); }
     setBusy(false);
   }
@@ -23,23 +21,20 @@ export default function LangPick({ conf, counts, onPick, onCheck, toast }) {
         <p>Какво ще упражняваш? При езиците отговорите са на български.</p>
       </div>
       <div className="langs">
-        {LANG_ORDER.map(c => {
-          const L = LANGS[c], on = active(c);
-          return (
-            <button key={c} className="langcard" disabled={!on} onClick={() => onPick(c)}>
-              <Flag code={c} size={40} />
-              <span><b>{L.name}</b><span className="small">{L.native}</span></span>
-              <span className="meta">{on ? (counts[c] ? `${counts[c]} думи` : 'изтегли думите') : <span className="soon">скоро</span>}</span>
-            </button>
-          );
-        })}
+        {courses.map(c => (
+          <button key={c.key} className="langcard" disabled={!c.active} onClick={() => onPick(c.key)}>
+            <Flag code={c.lang} size={40} />
+            <span><b>{c.title}</b><span className="small">{c.sub}</span></span>
+            <span className="meta">{c.active ? (counts[c.key] ? `${counts[c.key]} думи` : 'изтегли думите') : <span className="soon">скоро</span>}</span>
+          </button>
+        ))}
         <button className="langcard" onClick={() => onPick(MATH)}>
           <MathBadge size={40} />
           <span><b>Математика</b><span className="small">Таблица за умножение до 12</span></span>
         </button>
       </div>
       <button className="link wide" style={{ marginTop: 18, display: 'flex', justifyContent: 'center', gap: 8 }} disabled={busy} onClick={check}>
-        <Icon name="sync" size={18} />{busy ? 'Проверявам…' : 'Провери за нови езици'}
+        <Icon name="sync" size={18} />{busy ? 'Проверявам…' : 'Провери за нови курсове'}
       </button>
     </section>
   );

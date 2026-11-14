@@ -5,6 +5,8 @@ export const LANGS = {
     code: 'de', name: 'Немски', native: 'Deutsch', adj: 'немск', tts: 'de',
     articles: ['der', 'die', 'das'],     // accepted in the CSV and in typed answers
     quizArticles: ['der', 'die', 'das'], // buttons in the article exercise
+    // Conjugation table (dictionary/de/verbs.csv columns ich..sie): label shown, words spoken in the recording.
+    pronouns: [['ich', 'ich', 'ich'], ['du', 'du', 'du'], ['er', 'er/sie/es', 'er, sie, es'], ['wir', 'wir', 'wir'], ['ihr', 'ihr', 'ihr'], ['sie', 'sie/Sie', 'sie']],
     keys: ['ä', 'ö', 'ü', 'ß'], capNouns: true, placeholder: 'напр. der Hund', exampleNoun: 'der Affe', exampleAlt: 'das Bild',
     exampleRow: '2026-12 Декември,der,Hund,куче; кученце,n,die Hunde,,',
   },

@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import deCsv from '../dictionary/de/words.csv?raw';
-import frCsv from '../dictionary/fr/words.csv?raw';
-import enCsv from '../dictionary/en/words.csv?raw';
 import bundledConf from '../dictionary/languages.json';
 import { parseDictionary, full, EMPTY } from './lib/dictionary.js';
-import { LANGS, LANG_ORDER } from './lib/langs.js';
+import { LANGS } from './lib/langs.js';
+import { coursesFrom, courseL } from './lib/courses.js';
 import { loadStore, saveStore, sortSets, DEFAULT_DICT_BASE } from './lib/store.js';
 import { audioBase, speak as speakAudio, prefetchAll, resetPrepared } from './lib/audio.js';
-import { fetchLangConf, fetchDictionary } from './lib/sync.js';
+import { fetchLangConf, fetchDictionary, fetchVerbs } from './lib/sync.js';
 import { shuffle } from './lib/match.js';
 import LangPick from './components/LangPick.jsx';
 import { LangMenu, TabBar } from './components/Chrome.jsx';
@@ -19,10 +17,14 @@ import Quiz from './components/Quiz.jsx';
 import Result from './components/Result.jsx';
 import Words from './components/Words.jsx';
 import Dict from './components/Dict.jsx';
+import Conj from './components/Conj.jsx';
+import { parseVerbs, formText } from './lib/verbs.js';
 
-const BUNDLED_CSV = { de: deCsv, fr: frCsv, en: enCsv };
+// Every dictionary/<path>/words.csv is built into the app, so the first start works without a network.
+const BUNDLED_CSV = import.meta.glob('../dictionary/**/words.csv', { query: '?raw', import: 'default', eager: true });
 function parseSafe(csv, L) { try { return parseDictionary(csv, L); } catch (e) { return null; } }
-const BUNDLED = Object.fromEntries(LANG_ORDER.map(c => [c, parseSafe(BUNDLED_CSV[c], LANGS[c]) || EMPTY]));
+const bundledFor = L => parseSafe(BUNDLED_CSV[`../dictionary/${L.path}/words.csv`] || '', L) || EMPTY;
+const BUNDLED_VERBS = import.meta.glob('../dictionary/**/verbs.csv', { query: '?raw', import: 'default', eager: true });
 
 export default function App() {
   const [store, setStore] = useState(loadStore);
@@ -38,34 +40,41 @@ export default function App() {
 
   // Languages that are switched on in dictionary/languages.json (downloaded copy, or the one built into the app).
   const conf = store.langConf || bundledConf;
-  const isActive = c => !!(conf.languages.find(l => l.code === c) || {}).active && !!LANGS[c];
+  const courses = useMemo(() => coursesFrom(conf), [conf]);
+  const byKey = k => courses.find(c => c.key === k);
   const isMath = store.lang === MATH;
-  const lang = isMath ? MATH : store.lang && isActive(store.lang) ? store.lang : null;
-  const L = LANGS[lang && !isMath ? lang : 'de'];
+  const lang = isMath ? MATH : store.lang && (byKey(store.lang) || {}).active ? store.lang : null;
+  const L = courseL(byKey(lang && !isMath ? lang : 'de') || courses[0]);
   const base = store.dictBase || DEFAULT_DICT_BASE;
 
   // Dictionary of the chosen language: downloaded copy, or the one built into the app; plus the learner's own additions.
-  const dictFor = useCallback(code => (store.dicts[code] && parseSafe(store.dicts[code].csv, LANGS[code])) || BUNDLED[code], [store.dicts]);
-  const dict = useMemo(() => dictFor(L.code), [dictFor, L.code]);
+  const dictFor = useCallback(key => {
+    const c = courses.find(x => x.key === key); if (!c) return EMPTY;
+    const CL = courseL(c);
+    return (store.dicts[key] && parseSafe(store.dicts[key].csv, CL)) || bundledFor(CL);
+  }, [store.dicts, courses]);
+  const dict = useMemo(() => dictFor(L.key), [dictFor, L.key]);
+  const verbs = useMemo(() => parseVerbs((store.verbs[L.key] && store.verbs[L.key].csv) || BUNDLED_VERBS[`../dictionary/${L.path}/verbs.csv`] || '', L), [store.verbs, L]);
   const sets = useMemo(() => {
     const m = new Map(dict.sets.map(s => [s.id, s]));
-    store.userSets.filter(s => s.lang === L.code).forEach(s => { if (!m.has(s.id)) m.set(s.id, s); });
+    store.userSets.filter(s => s.lang === L.key).forEach(s => { if (!m.has(s.id)) m.set(s.id, s); });
     return sortSets([...m.values()]);
-  }, [dict, store.userSets, L.code]);
+  }, [dict, store.userSets, L.key]);
   const words = useMemo(() => {
     const ids = new Set(dict.words.map(w => w.id));
-    const all = [...dict.words, ...store.userWords.filter(w => w.lang === L.code && !ids.has(w.id))];
+    const all = [...dict.words, ...store.userWords.filter(w => w.lang === L.key && !ids.has(w.id))];
     return all.map(w => {
       const x = store.extra[w.id];
       return { ...w, user: !ids.has(w.id), on: !store.off[w.id], bg: x ? [...w.bg, ...x.bg.filter(b => !w.bg.includes(b))] : w.bg, alt: x ? [...w.alt, ...x.alt.filter(b => !w.alt.includes(b))] : w.alt };
     });
-  }, [dict, store.userWords, store.extra, store.off, L.code]);
+  }, [dict, store.userWords, store.extra, store.off, L.key]);
   const abase = audioBase(base, L.code);
   const say = useCallback(text => speakAudio(L, abase, text, toast), [L, abase, toast]);
 
   const s = store.settings;
-  const dir = s.dir === 'art' && !L.quizArticles.length ? 'x-bg' : s.dir;   // no article exercise for English
-  const setSel = store.setByLang[L.code] || 'all';
+  // No article exercise for English; conjugation only where the course has verb tables.
+  const dir = (s.dir === 'art' && !L.quizArticles.length) || (s.dir === 'conj' && !verbs.length) ? 'x-bg' : s.dir;
+  const setSel = store.setByLang[L.key] || 'all';
   const activeSet = setSel === 'latest' ? (sets[0] && sets[0].id) : (setSel !== 'all' && sets.some(x => x.id === setSel) ? setSel : null);
   const passFilter = w => {
     if (s.filter === 'n') return w.type === 'n';
@@ -80,12 +89,18 @@ export default function App() {
   // ----- downloads -----
   async function checkLangs() { const c = await fetchLangConf(base); update(n => { n.langConf = c; }); return c; }
   async function pullLang(code, onAudio) {
-    const { text, parsed } = await fetchDictionary(base, LANGS[code]);
+    const c = byKey(code); if (!c) throw new Error('непознат курс');
+    const CL = courseL(c);
+    const { text, parsed } = await fetchDictionary(base, CL);
     const before = new Set(dictFor(code).words.map(w => w.id)), after = new Set(parsed.words.map(w => w.id));
     if (!after.size && before.size) throw new Error('във файла няма разпознати думи');
     update(n => { n.dicts = { ...n.dicts, [code]: { csv: text, updatedAt: Date.now(), problems: parsed.problems } }; });
     resetPrepared();
-    const audio = await prefetchAll(audioBase(base, code), parsed.words.map(full), onAudio);
+    // Verb tables are optional: a course without verbs.csv keeps working.
+    let vb = [];
+    try { const vt = await fetchVerbs(base, CL); if (vt !== null) { update(n => { n.verbs = { ...n.verbs, [code]: { csv: vt, updatedAt: Date.now() } }; }); vb = parseVerbs(vt, CL); } } catch (e) { /* keep the previous tables */ }
+    const texts = [...parsed.words.map(full), ...vb.flatMap(v => v.forms.map(formText))];
+    const audio = await prefetchAll(audioBase(base, CL.code), texts, onAudio);
     return { parsed, audio, added: [...after].filter(x => !before.has(x)).length, removed: [...before].filter(x => !after.has(x)).length };
   }
   async function chooseLang(code) {
@@ -158,23 +173,24 @@ export default function App() {
 
   const S = session.current;
   const shown = !lang ? 'lang' : view;
-  const counts = Object.fromEntries(LANG_ORDER.map(c => [c, dictFor(c).words.length]));
+  const counts = Object.fromEntries(courses.map(c => [c.key, dictFor(c.key).words.length]));
   const withTabs = !isMath && ['home', 'words', 'dict'].includes(shown);
   const withTop = withTabs || (isMath && shown === 'home');
-  useEffect(() => { document.title = isMath ? 'Wordopedia: математика' : lang ? `Wordopedia: ${L.name.toLowerCase()}` : 'Wordopedia'; }, [lang, isMath, L.name]);
+  useEffect(() => { document.title = isMath ? 'Wordopedia: математика' : lang ? `Wordopedia: ${L.title}` : 'Wordopedia'; }, [lang, isMath, L.title]);
   return (
     <div className={'wrap' + (withTabs ? '' : ' notabs') + (isMath && shown === 'home' ? ' solo' : '')}>
       {withTop && (
         <div className="topbar">
-          <LangMenu L={L} isMath={isMath} conf={conf} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />
+          <LangMenu L={L} isMath={isMath} courses={courses} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />
         </div>
       )}
-      {shown === 'lang' && <LangPick conf={conf} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
+      {shown === 'lang' && <LangPick courses={courses} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
       {isMath && shown === 'home' && <MathHome store={store} update={update} toast={toast} onStart={startMath} />}
       {isMath && shown === 'quiz' && S && S.cur && <MathQuiz S={S} onSettle={settle} onNext={next} onQuit={quit} />}
       {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
       {!isMath && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
-        onStart={() => start()} onPractise={ids => start(ids)} />}
+        verbs={verbs} onStart={() => (dir === 'conj' ? setView('conj') : start())} onPractise={ids => start(ids)} />}
+      {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} onClose={() => setView('home')} />}
       {!isMath && shown === 'quiz' && S && S.cur && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
         onSettle={settle} onNext={next} onQuit={quit} onAcceptOwn={acceptOwn} />}
       {!isMath && shown === 'result' && S && <Result S={S} onAgain={() => start()} onMissed={ids => start(ids)} onHome={() => { session.current = null; setView('home'); }} />}
