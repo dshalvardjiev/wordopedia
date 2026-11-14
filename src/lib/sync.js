@@ -13,6 +13,12 @@ export async function fetchLangConf(base) {
   if (!j || !Array.isArray(j.languages)) throw new Error('languages.json е в грешен формат');
   return j;
 }
+// The instance file: which courses this instance offers.
+export async function fetchInstance(base, id) {
+  const j = await (await get(base + 'instances/' + id + '.json')).json();
+  if (!j || !(j.courses === 'all' || Array.isArray(j.courses))) throw new Error(`instances/${id}.json е в грешен формат`);
+  return j;
+}
 // verbs.csv is optional: null when the course has none.
 export async function fetchVerbs(base, L) {
   try { return await (await get(base + L.path + '/verbs.csv')).text(); }

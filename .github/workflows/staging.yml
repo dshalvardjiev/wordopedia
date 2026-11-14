@@ -1,0 +1,20 @@
+# A push to the staging branch redeploys the site, so /staging/ shows it. The deploy itself runs on main
+# (deploy.yml builds staging from the staging branch), because the Pages environment deploys from the default branch.
+name: Deploy staging
+on:
+  push:
+    branches: [staging]
+    paths:
+      - '**'
+      - '!dictionary/**'
+      - 'dictionary/instances/**'
+      - '!**.md'
+permissions:
+  actions: write
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh workflow run deploy.yml --repo "$GITHUB_REPOSITORY" --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,18 @@
+# Checks languages, instances and word lists on every push and pull request that touches them,
+# and builds all instances for pull requests, so mistakes surface before they reach main.
+name: Check
+on:
+  push:
+    paths: ['dictionary/**', 'scripts/**', 'src/lib/**']
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run check
+      - if: github.event_name == 'pull_request'
+        run: npm ci && npm run build:all

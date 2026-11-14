@@ -1,0 +1,7 @@
+{
+  "name": "Wordopedia",
+  "courses": [
+    { "course": "de" },
+    { "course": "math" }
+  ]
+}

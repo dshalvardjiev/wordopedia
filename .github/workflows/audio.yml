@@ -1,8 +1,8 @@
-# After a dictionary changes, creates recordings for words that have none and commits them.
+# After a dictionary changes on main or staging, creates recordings for words that have none and commits them to that branch.
 name: Recordings for new words
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
     paths: ['dictionary/**/words.csv', 'dictionary/languages.json']
   workflow_dispatch:
 permissions:

@@ -1,0 +1,6 @@
+{
+  "name": "Wordopedia",
+  "courses": [
+    { "course": "en-elementary", "label": "Английски" }
+  ]
+}

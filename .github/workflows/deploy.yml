@@ -1,9 +1,17 @@
-# Builds the app and publishes it to GitHub Pages. Dictionary edits do not need this: the app downloads the CSV itself.
+# Builds the start page and every instance (dictionary/instances/*.json, except staging) from main, one folder each,
+# and the "staging" instance from the staging branch, when it exists, into /staging/. Everything is published together
+# because GitHub Pages serves one site per repository. Word list edits need no deploy: the app downloads them itself.
+# Always runs on main (the Pages environment deploys from the default branch); pushes to staging start it through
+# staging.yml.
 name: Deploy app
 on:
   push:
     branches: [main]
-    paths-ignore: ['dictionary/**', 'README.md']
+    paths:
+      - '**'
+      - '!dictionary/**'
+      - 'dictionary/instances/**'
+      - '!**.md'
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,12 +25,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - run: npm run check
+      - run: node scripts/build-all.mjs --out dist --env production
+      # A broken staging branch must not block production: on failure, the site is published without /staging/.
+      - name: Build staging into dist/staging
+        id: staging
+        continue-on-error: true
+        run: |
+          if ! git rev-parse --verify -q origin/staging >/dev/null; then echo "No staging branch; skipped."; exit 0; fi
+          git worktree add "$RUNNER_TEMP/staging" origin/staging
+          cd "$RUNNER_TEMP/staging"
+          npm ci
+          npm run check
+          VITE_DICT_BASE="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/staging/dictionary/" \
+            node scripts/build-all.mjs --out "$RUNNER_TEMP/staging-dist" --env staging
+          mv "$RUNNER_TEMP/staging-dist" "$GITHUB_WORKSPACE/dist/staging"
+      - if: steps.staging.outcome == 'failure'
+        run: echo "::warning::Staging build failed; the site is published without /staging/."
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

@@ -4,11 +4,26 @@ Web app for practising words in German, French and English with Bulgarian transl
 multiplication table). Bulgarian is always one side; there is no French–English practice. The app installs on
 Android and iPhone and works offline.
 
-**App:** https://dshalvardjiev.github.io/wordopedia/
+The app is published as several **instances**, one folder each, each offering its own selection of courses
+(defined in `dictionary/instances/<id>.json`):
+
+| Address | Instance | Courses |
+|---|---|---|
+| https://dshalvardjiev.github.io/wordopedia/ | none: start page only | |
+| …/wordopedia/production/ | `production` | all courses and maths |
+| …/wordopedia/staging/ | `staging`, built from the `staging` branch | all courses and maths |
+| …/wordopedia/lora/ | `lora` | German, maths |
+| …/wordopedia/german/ | `german` | German |
+| …/wordopedia/rada/ | `rada` | Elementary English, shown as "Английски" |
+
+Instance folders are public: anyone with the address can open them, and all content is readable in this repository.
 
 ## Install on a phone
-- **Android (Chrome):** open the app link, then menu ⋮ → *Add to Home screen* / *Install app*.
-- **iPhone (Safari):** open the app link, then Share → *Add to Home Screen*.
+Open the instance's address (not the start page), then:
+- **Android (Chrome):** menu ⋮ → *Add to Home screen* / *Install app*.
+- **iPhone (Safari):** Share → *Add to Home Screen*.
+
+Each instance installs as a separate app with its own progress.
 
 ## What the app offers
 - **Words** (per course): translate foreign → Bulgarian or Bulgarian → foreign, choosing from four answers or
@@ -22,7 +37,8 @@ Android and iPhone and works offline.
 Learners cannot add or change words, answers or verbs in the app. All content comes from the `dictionary/` folder.
 
 ## Changing content (no new release needed)
-1. Edit the file on github.com (pencil icon) and commit to `main`.
+1. Edit the file on github.com (pencil icon) and commit to `staging` to try it at …/wordopedia/staging/, or to
+   `main` to publish it.
 2. The app updates by itself when it opens or comes back to the screen, at most every 6 hours per course.
    To update at once: language menu → **Обнови думите**.
 3. The *Recordings for new words* workflow records new words and verb forms within 1–2 minutes; the next update
@@ -77,12 +93,49 @@ its file first, then set `"active": true`. A language can have courses, each wit
 | fr | fr_FR-siwis-medium | le, la, l', les |
 | en | en_GB-cori-high | none; "the", "a/an" and "to" are optional in answers |
 
+### instances/&lt;id&gt;.json
+Which courses an instance offers, in display order. The file name is the folder name (lower case letters, digits,
+`-`). Course keys: a language code (`de`, `fr`), `<code>-<course id>` for languages with courses (`en-elementary`),
+and `math`.
+```json
+{ "name": "Wordopedia", "courses": [ { "course": "en-elementary", "label": "Английски" } ] }
+```
+- `"courses": "all"` offers every course and maths (used by `production` and `staging`, so new courses appear there
+  without editing them).
+- `label` and `subtitle` replace the course's title and subtitle in this instance only.
+- `name` is the installed app's name.
+- An instance with a single course opens it directly, without the course picker; its menu only offers
+  **Обнови думите**.
+
+To add an instance, add its file and push to `main`: the deploy publishes …/wordopedia/&lt;id&gt;/ within a few minutes.
+Changing the course list of an existing instance needs no release: the app downloads its instance file with the
+other content. `npm run check` (also run in CI) rejects unknown courses, duplicates and two courses with the same
+visible title in one instance.
+
 ## Development
 ```
 npm install
-npm run dev      # local server
-npm run build    # production build in dist/
+npm run dev                       # local server, "production" instance
+VITE_INSTANCE=lora npm run dev    # another instance
+npm run check                     # validate languages, instances and word lists
+npm run build                     # one instance in dist/ (VITE_INSTANCE, default production)
+npm run build:all                 # start page + every instance except staging in dist/
 python scripts/make_audio.py dictionary voice   # record missing words locally (needs piper-tts and ffmpeg)
 ```
-Pushing app changes to `main` publishes them to GitHub Pages (workflow *Deploy app*). Changes under `dictionary/`
-do not need a release. See `CLAUDE.md` for architecture notes.
+Changes under `dictionary/` do not need a release, except a new instance file. See `CLAUDE.md` for architecture
+notes.
+
+### Branches and deployment
+- A push to `main` runs *Deploy app*. A push to `staging` runs *Deploy staging*, which starts *Deploy app* on
+  `main`. *Deploy app* builds the start page and every instance from `main`, plus the `staging` instance from the
+  `staging` branch (if it exists), and publishes them together. GitHub Pages serves one site per repository.
+- The staging instance reads its content from the `staging` branch and shows a red "staging" tag. If its build
+  fails, production is still published, without /staging/.
+- To create or reset the staging branch: `git push origin main:staging`.
+
+### Former root app
+Until November 2026 the app itself lived at the root address, storing data under `woerter.v1`. Now:
+- The start page shows a link to `production/` to visitors who still have that data.
+- On its first start, `production` copies that data and leaves the original as it is.
+- `landing/sw.js` replaces the old app's service worker on installed phones. It deletes only that worker's cached
+  files and reloads the window.

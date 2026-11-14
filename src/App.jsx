@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import bundledConf from '../dictionary/languages.json';
 import { parseDictionary, full, EMPTY } from './lib/dictionary.js';
 import { LANGS } from './lib/langs.js';
-import { coursesFrom, courseL } from './lib/courses.js';
+import { coursesFrom, courseL, instanceCourses } from './lib/courses.js';
+import { BUNDLED_INSTANCE, INSTANCE, ENV } from './lib/content.js';
 import { loadStore, saveStore, sortSets, DEFAULT_DICT_BASE } from './lib/store.js';
 import { audioBase, speak as speakAudio, prefetchAll, resetPrepared } from './lib/audio.js';
-import { fetchLangConf, fetchDictionary, fetchVerbs } from './lib/sync.js';
+import { fetchLangConf, fetchInstance, fetchDictionary, fetchVerbs } from './lib/sync.js';
 import { shuffle } from './lib/match.js';
 import LangPick from './components/LangPick.jsx';
 import { LangMenu, TabBar } from './components/Chrome.jsx';
@@ -41,9 +42,15 @@ export default function App() {
   const conf = store.langConf || bundledConf;
   const courses = useMemo(() => coursesFrom(conf), [conf]);
   const byKey = k => courses.find(c => c.key === k);
-  const isMath = store.lang === MATH;
-  const lang = isMath ? MATH : store.lang && (byKey(store.lang) || {}).active ? store.lang : null;
-  const L = courseL(byKey(lang && !isMath ? lang : 'de') || courses[0]);
+  // What this instance offers (dictionary/instances/<instance>.json), with its own labels; maths is one of them.
+  const inst = store.instConf || BUNDLED_INSTANCE;
+  const offered = useMemo(() => instanceCourses(courses, inst), [courses, inst]);
+  const usable = offered.filter(c => c.active);
+  // An instance with a single course opens it directly, without the course picker.
+  const cur = usable.find(c => c.key === store.lang) || (offered.length === 1 && usable.length === 1 ? usable[0] : null);
+  const lang = cur ? cur.key : null;
+  const isMath = lang === MATH;
+  const L = courseL((cur && !isMath && cur) || byKey('de') || courses[0]);
   const base = store.dictBase || DEFAULT_DICT_BASE;
 
   // Dictionary of the chosen course: the downloaded copy, or the one built into the app.
@@ -79,7 +86,12 @@ export default function App() {
   const eligible = words.filter(w => w.on && (!activeSet || w.set === activeSet) && (dir !== 'art' || isArtWord(w)) && passFilter(w));
 
   // ----- downloads -----
-  async function checkLangs() { const c = await fetchLangConf(base); update(n => { n.langConf = c; }); return c; }
+  // Downloads languages.json and this instance's file; returns the titles of the courses now available here.
+  async function checkLangs() {
+    const [c, i] = await Promise.all([fetchLangConf(base), fetchInstance(base, INSTANCE).catch(() => null)]);
+    update(n => { n.langConf = c; if (i) n.instConf = i; });
+    return instanceCourses(coursesFrom(c), i || inst).filter(x => x.active).map(x => x.title);
+  }
   async function pullLang(code, onAudio) {
     const c = byKey(code); if (!c) throw new Error('непознат курс');
     const CL = courseL(c);
@@ -99,12 +111,14 @@ export default function App() {
   const syncing = useRef(false), storeRef = useRef(store);
   storeRef.current = store;
   async function syncCourse(key, force) {
-    if (syncing.current || !key || key === MATH || (typeof navigator !== 'undefined' && navigator.onLine === false)) return null;
+    if (syncing.current || !key || (typeof navigator !== 'undefined' && navigator.onLine === false)) return null;
     const last = (storeRef.current.syncAt || {})[key] || 0;
     if (!force && Date.now() - last < 6 * 3600e3) return null;
     syncing.current = true;
     try {
       try { await checkLangs(); } catch (e) { /* languages.json is optional for a word update */ }
+      // Maths has no words: only the course list (languages.json, the instance file) is updated.
+      if (key === MATH) { update(n => { n.syncAt = { ...(n.syncAt || {}), [key]: Date.now() }; }); return null; }
       const r = await pullLang(key);
       update(n => { n.syncAt = { ...(n.syncAt || {}), [key]: Date.now() }; });
       return r;
@@ -124,7 +138,7 @@ export default function App() {
   }, [lang]); // eslint-disable-line
   // "Обнови думите" in the language menu: courses and the current course's words, now.
   async function refreshNow() {
-    if (isMath) { const c = await checkLangs(); return 'Налични курсове: ' + coursesFrom(c).filter(x => x.active).map(x => x.title).join(', '); }
+    if (isMath) return 'Налични курсове: ' + (await checkLangs()).join(', ');
     const r = await syncCourse(lang, true);
     if (!r) return 'Обновяването вече тече';
     return `Думите са обновени: ${r.parsed.words.length}` + (r.added ? `, нови ${r.added}` : '') + (r.audio.missing ? `. Без запис: ${r.audio.missing}` : '');
@@ -191,15 +205,15 @@ export default function App() {
   const counts = Object.fromEntries(courses.map(c => [c.key, dictFor(c.key).words.length]));
   const withTabs = !isMath && ['home', 'words'].includes(shown);
   const withTop = withTabs || (isMath && shown === 'home');
-  useEffect(() => { document.title = isMath ? 'Wordopedia: математика' : lang ? `Wordopedia: ${L.title}` : 'Wordopedia'; }, [lang, isMath, L.title]);
+  useEffect(() => { document.title = cur ? `Wordopedia: ${cur.title}` : 'Wordopedia'; }, [cur && cur.title]); // eslint-disable-line
   return (
     <div className={'wrap' + (withTabs ? '' : ' notabs') + (isMath && shown === 'home' ? ' solo' : '')}>
       {withTop && (
         <div className="topbar">
-          <LangMenu L={L} isMath={isMath} courses={courses} counts={counts} onPick={chooseLang} onRefresh={refreshNow} toast={toast} />
+          <LangMenu L={L} isMath={isMath} courses={offered} counts={counts} onPick={chooseLang} onRefresh={refreshNow} toast={toast} />
         </div>
       )}
-      {shown === 'lang' && <LangPick courses={courses} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
+      {shown === 'lang' && <LangPick courses={offered} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
       {isMath && shown === 'home' && <MathHome store={store} update={update} toast={toast} onStart={startMath} />}
       {isMath && shown === 'quiz' && S && S.cur && <MathQuiz S={S} onSettle={settle} onNext={next} onQuit={quit} />}
       {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
@@ -211,6 +225,7 @@ export default function App() {
       {!isMath && shown === 'result' && S && <Result S={S} onAgain={() => start()} onMissed={ids => start(ids)} onHome={() => { session.current = null; setView('home'); }} />}
       {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={say} abase={abase} />}
       {withTabs && <TabBar view={shown} onView={setView} />}
+      {ENV !== 'production' && <div className="envtag" aria-hidden="true">{ENV}</div>}
       <div className={'toast' + (toastMsg ? ' show' : '')} role="status" aria-live="polite">{toastMsg}</div>
     </div>
   );

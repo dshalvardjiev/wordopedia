@@ -1,16 +1,14 @@
 import { useState } from 'react';
-import { coursesFrom } from '../lib/courses.js';
-import { Flag, Icon, MathBadge } from './ui.jsx';
-import { MATH } from '../lib/math.js';
+import { Icon } from './ui.jsx';
+import { CourseIcon } from './Chrome.jsx';
 
-// First start: which language to practise. Bulgarian is always the other side.
+// First start: which of this instance's courses to practise. For languages, Bulgarian is always the other side.
 export default function LangPick({ courses, counts, onPick, onCheck, toast }) {
   const [busy, setBusy] = useState(false);
   async function check() {
     setBusy(true);
     try {
-      const c = await onCheck();
-      toast('Налични курсове: ' + coursesFrom(c).filter(x => x.active).map(x => x.title).join(', '));
+      toast('Налични курсове: ' + ((await onCheck()).join(', ') || 'няма'));
     } catch (e) { toast('Неуспешна проверка: ' + e.message); }
     setBusy(false);
   }
@@ -23,15 +21,12 @@ export default function LangPick({ courses, counts, onPick, onCheck, toast }) {
       <div className="langs">
         {courses.map(c => (
           <button key={c.key} className="langcard" disabled={!c.active} onClick={() => onPick(c.key)}>
-            <Flag code={c.lang} size={40} />
+            <CourseIcon c={c} size={40} />
             <span><b>{c.title}</b><span className="small">{c.sub}</span></span>
-            <span className="meta">{c.active ? (counts[c.key] ? `${counts[c.key]} думи` : 'изтегли думите') : <span className="soon">скоро</span>}</span>
+            {c.kind !== 'math' && <span className="meta">{c.active ? (counts[c.key] ? `${counts[c.key]} думи` : 'изтегли думите') : <span className="soon">скоро</span>}</span>}
           </button>
         ))}
-        <button className="langcard" onClick={() => onPick(MATH)}>
-          <MathBadge size={40} />
-          <span><b>Математика</b><span className="small">Таблица за умножение до 12</span></span>
-        </button>
+        {!courses.length && <p className="empty">Тук още няма курсове.</p>}
       </div>
       <button className="link wide" style={{ marginTop: 18, display: 'flex', justifyContent: 'center', gap: 8 }} disabled={busy} onClick={check}>
         <Icon name="sync" size={18} />{busy ? 'Проверявам…' : 'Провери за нови курсове'}

@@ -1,7 +1,8 @@
-// Everything the learner owns lives in localStorage; dictionaries are cached copies of the remote CSV files.
+// Everything the learner owns lives in localStorage, one key per instance (see content.js);
+// dictionaries are cached copies of the remote CSV files.
 import { DEFAULT_MATH } from './math.js';
+import { STORE_KEY as KEY, LEGACY_STORE_KEY } from './content.js';
 
-const KEY = 'woerter.v1';
 export const DEFAULT_DICT_BASE = import.meta.env.VITE_DICT_BASE ||
   'https://raw.githubusercontent.com/dshalvardjiev/wordopedia/main/dictionary/';
 const DEFAULT_SETTINGS = { dir: 'x-bg', mode: 'test', filter: 'all', size: 'all', reqArt: true, retry: true, autoSpeak: false };
@@ -29,7 +30,10 @@ function migrate(s) {
 
 export function loadStore() {
   let s = null;
-  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) { /* storage unavailable */ }
+  try {
+    // First start of "production": take over the data of the former root app (the old key is left as it was).
+    s = JSON.parse(localStorage.getItem(KEY) ?? (LEGACY_STORE_KEY && localStorage.getItem(LEGACY_STORE_KEY)));
+  } catch (e) { /* storage unavailable */ }
   if (s && s.version !== 2) s = migrate(s);
   s = s || { version: 2 };
   return {
@@ -40,6 +44,7 @@ export function loadStore() {
     stats: s.stats || {},              // word id -> {c, w}; ids start with the language code
     dicts: s.dicts || {},              // lang -> {csv, updatedAt, problems}
     langConf: s.langConf || null,      // last downloaded dictionary/languages.json
+    instConf: s.instConf || null,      // last downloaded dictionary/instances/<instance>.json
     dictBase: s.dictBase || null,      // dictionary folder override (no UI; used for testing); null = default
     math: { ...DEFAULT_MATH, ...(s.math || {}) }, // maths settings: test, tables, order, size
     syncAt: s.syncAt || {},            // course key -> time of the last automatic word update
