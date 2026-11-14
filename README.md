@@ -8,7 +8,7 @@ Web app for learning German, French and English words with Bulgarian translation
 
 ## Languages
 `dictionary/languages.json` decides which languages the app offers. A language with `"active": false` is shown as "скоро" and cannot be chosen.
-To switch on French: add words to `dictionary/fr/words.csv`, set `"active": true`, then in the app open the language menu and tap **Провери за нови курсове**.
+To switch on French: add words to `dictionary/fr/words.csv`, set `"active": true`, then in the app open the language menu and tap **Обнови думите** (or wait for the automatic update).
 
 ### Courses
 A language can have several courses, each with its own word list and progress; recordings are shared.
@@ -19,7 +19,7 @@ and **Basic English** (`dictionary/en/basic/words.csv`, inactive until it has wo
   { "id": "elementary", "name": "Elementary English", "active": true },
   { "id": "basic", "name": "Basic English", "active": false } ] }
 ```
-To switch on Basic English: add words to its file, set its `"active": true`, then **Провери за нови курсове** in the app.
+To switch on Basic English: add words to its file, set its `"active": true`, then **Обнови думите** in the language menu (or wait for the automatic update).
 Sets without a date (e.g. `Букви M–R`) count in file order: the last one in the file is "Последни".
 
 | code | voice (Piper TTS) | articles in the exercises |
@@ -37,11 +37,12 @@ result shows the time taken and the facts to practise again. New tests go into `
 ## Verb conjugation (German)
 `dictionary/de/verbs.csv` holds the tables (`verb,bulgarian,ich,du,er,wir,ihr,sie`); currently fliegen, haben, sein.
 In the app: German, exercise **ich, du…**. Each form is hidden until tapped; tapping plays its recording.
-Add a verb as a new row and tap **Обнови речника**; the recordings workflow records its forms.
+Add a verb as a new row; the app picks it up with the next word update, and the recordings workflow records its forms.
 
 ## Change the word list (no new release needed)
 1. Edit `dictionary/<code>/words.csv` (or `dictionary/<code>/<course>/words.csv`) on github.com (pencil icon) and commit.
-2. In the app: **Речник → Обнови речника**.
+2. The app updates by itself when it opens or comes back to the screen (at most every 6 hours per course).
+   To update at once: language menu → **Обнови думите**. Learners cannot add or change words in the app.
 
 Columns: `set, article, german, bulgarian, type, plural, alt, note` (French and English files may call the third column `foreign`).
 
@@ -63,7 +64,7 @@ Example rows:
 2026-12 Декември,,dog,куче,n,dogs,,
 ```
 
-After a change to a CSV, the *Recordings for new words* workflow creates recordings in `dictionary/<code>/audio/` with that language's voice and commits them. It takes 1–2 minutes; tap **Обнови речника** again afterwards to download them for offline use.
+After a change to a CSV, the *Recordings for new words* workflow creates recordings in `dictionary/<code>/audio/` with that language's voice and commits them. It takes 1–2 minutes; the next update downloads them for offline use.
 
 и речника** again afterwards to download them for offline use.
 

@@ -6,6 +6,7 @@ export function Flag({ code, size = 28 }) {
   const h = Math.round(size * 0.7);
   const body = {
     de: <><rect width="60" height="10" y="0" fill="#000" /><rect width="60" height="10" y="10" fill="#DD0000" /><rect width="60" height="10" y="20" fill="#FFCE00" /></>,
+    bg: <><rect width="60" height="10" y="0" fill="#fff" /><rect width="60" height="10" y="10" fill="#00966E" /><rect width="60" height="10" y="20" fill="#D62612" /></>,
     fr: <><rect width="20" height="30" x="0" fill="#0055A4" /><rect width="20" height="30" x="20" fill="#fff" /><rect width="20" height="30" x="40" fill="#EF4135" /></>,
     en: <>
       <clipPath id={'t' + id}><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" /></clipPath>

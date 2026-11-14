@@ -35,7 +35,7 @@ export default function Conj({ verbs, abase, say, onClose }) {
                 return (
                   <div key={k} className="conj-row">
                     <span className="pron">{f.label}</span>
-                    <button type="button" className={'form' + (open ? ' open' : '')} aria-label={open ? `${f.label} ${f.form}, чуй` : `Покажи формата за ${f.label}`}
+                    <button type="button" className={'cform' + (open ? ' open' : '')} aria-label={open ? `${f.label} ${f.form}, чуй` : `Покажи формата за ${f.label}`}
                       onClick={() => (open ? say(formText(f)) : reveal(k, f))}>{open ? f.form : '?'}</button>
                   </div>
                 );

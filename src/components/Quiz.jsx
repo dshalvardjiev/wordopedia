@@ -21,7 +21,7 @@ const Spk = ({ onClick }) => (
 const XLabel = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <Art w={{ art: m.art }} /> : null; };
 const Label = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <><XLabel L={L} text={text} />{m.word}</> : text; };
 
-export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle, onNext, onQuit, onAcceptOwn }) {
+export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle, onNext, onQuit }) {
   const w = S.cur, isTest = settings.mode === 'test' || dir === 'art';
   const [opts] = useState(() => (isTest ? options(L, w, dir, words) : null));
   const [picked, setPicked] = useState({});
@@ -76,21 +76,10 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
     const r = evaluate(L, w, value, dir, settings.reqArt && L.articles.length > 0, words);
     if (r.ok) { succeed(r); return; }
     st.current.cleanBefore = st.current.clean; st.current.lastWrong = value; st.current.clean = false;
-    setFb({ kind: 'bad', msg: r.msg, own: r.own }); setShake(x => x + 1);
+    setFb({ kind: 'bad', msg: r.msg }); setShake(x => x + 1);
     if (FINE && inp.current) inp.current.select();
   }
-  function acceptOwn() {
-    const v = st.current.lastWrong.trim().replace(/\s+/g, ' ');
-    let val = v;
-    if (dir === 'bg-x' && L.articles.length) {
-      const m = splitArticle(L, v);
-      if (w.type === 'n' && !m.art) { setFb({ kind: 'bad', msg: `Напиши синонима с члена, напр. „${L.exampleAlt}“, и натисни отново „Провери“.` }); return; }
-      if (m.art) val = (/'$/.test(m.art) ? m.art : m.art + ' ') + m.word;
-    }
-    onAcceptOwn(w, val);
-    st.current.clean = st.current.cleanBefore;
-    succeed({ warn: `„${val}“ е добавен като верен отговор за тази дума.` });
-  }
+
   function giveHint(all) {
     if (st.current.locked) return;
     st.current.clean = false; st.current.cleanBefore = false;
@@ -169,7 +158,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
       {fb && fb.kind === 'bad' && (
         <div className="fb bad">
           {fb.reveal ? <><b>Грешно.</b> Вярно е:<br /><Pair w={w} />{w.note && <span className="note">{w.note}</span>}{dir !== 'x-bg' && <Spk onClick={() => say(full(w))} />}</>
-            : <><b>{fb.msg}</b>{fb.own && <button type="button" className="ghost own" onClick={acceptOwn}>{dir === 'bg-x' ? `Приеми моя отговор (верен ${L.adj}и синоним)` : 'Приеми моя отговор (верен синоним)'}</button>}</>}
+            : <><b>{fb.msg}</b></>}
         </div>
       )}
       {locked && <button ref={nextBtn} className="primary nextbtn" onClick={goNext}>Напред</button>}

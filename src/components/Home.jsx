@@ -1,4 +1,4 @@
-import { Icon, Seg } from './ui.jsx';
+import { Flag, Icon, Seg } from './ui.jsx';
 
 // A word counts as learned after two correct answers and more correct than wrong ones.
 export const isLearned = st => !!st && st.c >= 2 && st.c > st.w;
@@ -20,8 +20,9 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
   const size = s.size === 'all' ? eligibleCount : Math.min(eligibleCount, +s.size);
 
   const tiles = [
-    ['x-bg', `${X} → BG`, 'превеждаш на български'],
-    ['bg-x', `BG → ${X}`, `превеждаш на ${L.adj}и`],
+    // Direction shown with flags; the text form stays as the accessible name.
+    ['x-bg', <span key="xb" className="dirflags"><Flag code={L.code} size={30} /><span aria-hidden="true">→</span><Flag code="bg" size={30} /></span>, 'превеждаш на български', `${X} → BG`],
+    ['bg-x', <span key="bx" className="dirflags"><Flag code="bg" size={30} /><span aria-hidden="true">→</span><Flag code={L.code} size={30} /></span>, `превеждаш на ${L.adj}и`, `BG → ${X}`],
     ...(L.quizArticles.length ? [['art', <span key="a">{L.quizArticles.slice(0, 3).map((a, i) => <span key={a} className={'a-' + a.replace("'", '')}>{i ? ' ' : ''}{a}</span>)}</span>, 'учиш члена']] : []),
     ...(verbs.length ? [['conj', 'ich, du…', 'спрежение на глаголи']] : []),
   ];
@@ -57,8 +58,8 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
       <div className="section">
         <p className="label">Упражнение</p>
         <div className={'tiles' + (tiles.length === 4 ? ' two' : '')} role="radiogroup" aria-label="Упражнение">
-          {tiles.map(([v, big, sub]) => (
-            <button key={v} role="radio" aria-checked={dir === v} className={'tile' + (dir === v ? ' on' : '')} onClick={() => set('dir', v)}>
+          {tiles.map(([v, big, sub, name]) => (
+            <button key={v} role="radio" aria-checked={dir === v} aria-label={name ? `${name}, ${sub}` : undefined} className={'tile' + (dir === v ? ' on' : '')} onClick={() => set('dir', v)}>
               <span className="tile-big">{big}</span><span className="tile-sub">{sub}</span>
             </button>
           ))}

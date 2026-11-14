@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { coursesFrom } from '../lib/courses.js';
 import { Flag, Icon, MathBadge } from './ui.jsx';
 import { MATH } from '../lib/math.js';
 
 // Language dropdown: flag + name; inactive languages are listed but cannot be picked.
-export function LangMenu({ L, isMath, courses, counts, onPick, onCheck, toast }) {
+export function LangMenu({ L, isMath, courses, counts, onPick, onRefresh, toast }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const ref = useRef(null);
@@ -16,13 +15,12 @@ export function LangMenu({ L, isMath, courses, counts, onPick, onCheck, toast })
     return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', esc); };
   }, [open]);
   async function check() {
-    setBusy(true);
-    try {
-      const c = await onCheck();
-      toast('Налични курсове: ' + coursesFrom(c).filter(x => x.active).map(x => x.title).join(', '));
-    } catch (e) { toast('Неуспешна проверка: ' + e.message); }
+    // Close the menu at once; the result arrives as a message.
+    setOpen(false); setBusy(true); toast('Обновявам думите…');
+    try { toast(await onRefresh()); } catch (e) { toast('Неуспешно обновяване: ' + e.message); }
     setBusy(false);
   }
+
   return (
     <div className="menu-wrap" ref={ref}>
       <button className="langbtn" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(o => !o)}>
@@ -43,14 +41,14 @@ export function LangMenu({ L, isMath, courses, counts, onPick, onCheck, toast })
             <MathBadge size={28} /><span><b>Математика</b><span className="small">Таблица за умножение</span></span>
           </button>
           <div className="menu-sep" />
-          <button className="menu-foot" disabled={busy} onClick={check}><Icon name="sync" size={18} />{busy ? 'Проверявам…' : 'Провери за нови курсове'}</button>
+          <button className="menu-foot" disabled={busy} onClick={check}><Icon name="sync" size={18} />{busy ? 'Обновявам…' : isMath ? 'Провери за нови курсове' : 'Обнови думите'}</button>
         </div>
       )}
     </div>
   );
 }
 
-const TABS = [['home', 'pencil', 'Упражнение'], ['words', 'book', 'Думи'], ['dict', 'sync', 'Речник']];
+const TABS = [['home', 'pencil', 'Упражнение'], ['words', 'book', 'Думи']];
 export function TabBar({ view, onView }) {
   return (
     <nav className="tabs" aria-label="Раздели">

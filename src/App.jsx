@@ -16,7 +16,6 @@ import Home from './components/Home.jsx';
 import Quiz from './components/Quiz.jsx';
 import Result from './components/Result.jsx';
 import Words from './components/Words.jsx';
-import Dict from './components/Dict.jsx';
 import Conj from './components/Conj.jsx';
 import { parseVerbs, formText } from './lib/verbs.js';
 
@@ -47,7 +46,7 @@ export default function App() {
   const L = courseL(byKey(lang && !isMath ? lang : 'de') || courses[0]);
   const base = store.dictBase || DEFAULT_DICT_BASE;
 
-  // Dictionary of the chosen language: downloaded copy, or the one built into the app; plus the learner's own additions.
+  // Dictionary of the chosen course: the downloaded copy, or the one built into the app.
   const dictFor = useCallback(key => {
     const c = courses.find(x => x.key === key); if (!c) return EMPTY;
     const CL = courseL(c);
@@ -57,17 +56,10 @@ export default function App() {
   const verbs = useMemo(() => parseVerbs((store.verbs[L.key] && store.verbs[L.key].csv) || BUNDLED_VERBS[`../dictionary/${L.path}/verbs.csv`] || '', L), [store.verbs, L]);
   const sets = useMemo(() => {
     const m = new Map(dict.sets.map(s => [s.id, s]));
-    store.userSets.filter(s => s.lang === L.key).forEach(s => { if (!m.has(s.id)) m.set(s.id, s); });
     return sortSets([...m.values()]);
-  }, [dict, store.userSets, L.key]);
-  const words = useMemo(() => {
-    const ids = new Set(dict.words.map(w => w.id));
-    const all = [...dict.words, ...store.userWords.filter(w => w.lang === L.key && !ids.has(w.id))];
-    return all.map(w => {
-      const x = store.extra[w.id];
-      return { ...w, user: !ids.has(w.id), on: !store.off[w.id], bg: x ? [...w.bg, ...x.bg.filter(b => !w.bg.includes(b))] : w.bg, alt: x ? [...w.alt, ...x.alt.filter(b => !w.alt.includes(b))] : w.alt };
-    });
-  }, [dict, store.userWords, store.extra, store.off, L.key]);
+  }, [dict]);
+  // Words come only from the curated dictionary; learners cannot add words or answers.
+  const words = useMemo(() => dict.words.map(w => ({ ...w, on: true })), [dict]);
   const abase = audioBase(base, L.code);
   const say = useCallback(text => speakAudio(L, abase, text, toast), [L, abase, toast]);
 
@@ -103,15 +95,46 @@ export default function App() {
     const audio = await prefetchAll(audioBase(base, CL.code), texts, onAudio);
     return { parsed, audio, added: [...after].filter(x => !before.has(x)).length, removed: [...before].filter(x => !after.has(x)).length };
   }
+  // Automatic updates: when the app opens or comes back to the screen, at most every 6 hours per course.
+  const syncing = useRef(false), storeRef = useRef(store);
+  storeRef.current = store;
+  async function syncCourse(key, force) {
+    if (syncing.current || !key || key === MATH || (typeof navigator !== 'undefined' && navigator.onLine === false)) return null;
+    const last = (storeRef.current.syncAt || {})[key] || 0;
+    if (!force && Date.now() - last < 6 * 3600e3) return null;
+    syncing.current = true;
+    try {
+      try { await checkLangs(); } catch (e) { /* languages.json is optional for a word update */ }
+      const r = await pullLang(key);
+      update(n => { n.syncAt = { ...(n.syncAt || {}), [key]: Date.now() }; });
+      return r;
+    } finally { syncing.current = false; }
+  }
+  useEffect(() => {
+    const run = () => {
+      syncCourse(lang).then(r => {
+        if (!r || !r.added) return;
+        toast(r.added === r.parsed.words.length ? `Изтеглени думи: ${r.added}` : `Нови думи: ${r.added}`);
+      }).catch(e => { if (lang && lang !== MATH && !dictFor(lang).words.length) toast('Неуспешно изтегляне: ' + e.message); });
+    };
+    run();
+    const onVis = () => { if (document.visibilityState === 'visible') run(); };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [lang]); // eslint-disable-line
+  // "Обнови думите" in the language menu: courses and the current course's words, now.
+  async function refreshNow() {
+    if (isMath) { const c = await checkLangs(); return 'Налични курсове: ' + coursesFrom(c).filter(x => x.active).map(x => x.title).join(', '); }
+    const r = await syncCourse(lang, true);
+    if (!r) return 'Обновяването вече тече';
+    return `Думите са обновени: ${r.parsed.words.length}` + (r.added ? `, нови ${r.added}` : '') + (r.audio.missing ? `. Без запис: ${r.audio.missing}` : '');
+  }
   async function chooseLang(code) {
     update(n => { n.lang = code; });
     setView('home');
-    if (code === MATH) return;
-    // A language switched on after this version was built has no words inside the app yet: download them now.
-    if (!dictFor(code).words.length) {
-      toast('Изтеглям думите…');
-      try { const r = await pullLang(code); toast(`Изтеглени думи: ${r.parsed.words.length}`); } catch (e) { toast('Неуспешно изтегляне: ' + e.message); }
-    }
+    // A course switched on after this version was built has no words inside the app yet:
+    // the automatic update (effect on lang) downloads them; no second download here.
+    if (code !== MATH && !dictFor(code).words.length) toast('Изтеглям думите…');
   }
 
   // ----- session -----
@@ -161,27 +184,19 @@ export default function App() {
     if (!S || !S.seen.size) { session.current = null; setView('home'); return; }
     S.early = true; S.finishedAt = Date.now(); setView('result');
   }
-  function acceptOwn(w, value) {
-    update(n => {
-      const x = n.extra[w.id] ? { bg: [...n.extra[w.id].bg], alt: [...n.extra[w.id].alt] } : { bg: [], alt: [] };
-      if (dir === 'x-bg') x.bg.push(value); else x.alt.push(value);
-      n.extra = { ...n.extra, [w.id]: x };
-    });
-    const S = session.current;
-    if (S && S.cur && S.cur.id === w.id) S.cur = { ...S.cur, bg: dir === 'x-bg' ? [...S.cur.bg, value] : S.cur.bg, alt: dir === 'x-bg' ? S.cur.alt : [...S.cur.alt, value] };
-  }
+
 
   const S = session.current;
   const shown = !lang ? 'lang' : view;
   const counts = Object.fromEntries(courses.map(c => [c.key, dictFor(c.key).words.length]));
-  const withTabs = !isMath && ['home', 'words', 'dict'].includes(shown);
+  const withTabs = !isMath && ['home', 'words'].includes(shown);
   const withTop = withTabs || (isMath && shown === 'home');
   useEffect(() => { document.title = isMath ? 'Wordopedia: математика' : lang ? `Wordopedia: ${L.title}` : 'Wordopedia'; }, [lang, isMath, L.title]);
   return (
     <div className={'wrap' + (withTabs ? '' : ' notabs') + (isMath && shown === 'home' ? ' solo' : '')}>
       {withTop && (
         <div className="topbar">
-          <LangMenu L={L} isMath={isMath} courses={courses} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />
+          <LangMenu L={L} isMath={isMath} courses={courses} counts={counts} onPick={chooseLang} onRefresh={refreshNow} toast={toast} />
         </div>
       )}
       {shown === 'lang' && <LangPick courses={courses} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
@@ -192,11 +207,9 @@ export default function App() {
         verbs={verbs} onStart={() => (dir === 'conj' ? setView('conj') : start())} onPractise={ids => start(ids)} />}
       {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} onClose={() => setView('home')} />}
       {!isMath && shown === 'quiz' && S && S.cur && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
-        onSettle={settle} onNext={next} onQuit={quit} onAcceptOwn={acceptOwn} />}
+        onSettle={settle} onNext={next} onQuit={quit} />}
       {!isMath && shown === 'result' && S && <Result S={S} onAgain={() => start()} onMissed={ids => start(ids)} onHome={() => { session.current = null; setView('home'); }} />}
-      {shown === 'words' && <Words L={L} store={store} update={update} sets={sets} words={words} toast={toast} />}
-      {shown === 'dict' && <Dict L={L} store={store} update={update} dict={dict} base={base} defaultBase={DEFAULT_DICT_BASE} toast={toast}
-        onPull={pullLang} onCheck={checkLangs} />}
+      {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={say} abase={abase} />}
       {withTabs && <TabBar view={shown} onView={setView} />}
       <div className={'toast' + (toastMsg ? ' show' : '')} role="status" aria-live="polite">{toastMsg}</div>
     </div>

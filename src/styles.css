@@ -273,11 +273,38 @@ details.box > .form, details.box > .boxbody { padding: 0 16px 16px; }
 .conj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; margin-top: 10px; margin-left: -6px; }
 .conj-row { display: grid; grid-template-columns: 4.6em 1fr; align-items: baseline; gap: 4px; min-height: 38px; padding: 2px 0; }
 .pron { color: var(--ink-2); font-weight: 700; font-size: 15px; white-space: nowrap; }
-.form {
+.cform {
   justify-self: start; min-width: 2.8em; padding: 2px 8px; border: 0; border-bottom: 2px dashed var(--ink-2); background: var(--pen-soft); border-radius: 6px 6px 0 0;
   font-size: 20px; font-weight: 800; color: var(--ink-2); line-height: 1.3;
 }
-.form.open { background: transparent; border-bottom-style: solid; border-bottom-color: transparent; color: var(--pen); }
+.cform.open { background: transparent; border-bottom-style: solid; border-bottom-color: transparent; color: var(--pen); }
 
 .tiles.two { grid-template-columns: 1fr 1fr; }
 .tiles.two .tile { min-height: 76px; }
+
+/* ---------- vocabulary (Думи) ---------- */
+/* A ruled exercise-book page per group: margin marks (learned / confused), foreign word | Bulgarian. */
+.az { display: flex; flex-wrap: wrap; gap: 4px; margin: 12px 0 4px; }
+.az button { min-width: 34px; height: 34px; border: 1px solid var(--rule); background: var(--card); border-radius: 8px; font-weight: 800; color: var(--pen); }
+.vgroup { margin-top: 18px; scroll-margin-top: 12px; }
+.vhead { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 8px; font-size: 18px; }
+.vcount { font-size: 13px; color: var(--ink-2); font-weight: 700; }
+.vsheet { position: relative; background: #fff; border-radius: 6px; box-shadow: 0 1px 0 var(--rule), 0 10px 26px -18px rgba(27,42,74,.45); overflow: hidden; }
+.vsheet::before { content: ""; position: absolute; top: 0; bottom: 0; left: 30px; width: 2px; background: var(--margin); opacity: .55; pointer-events: none; }
+.ventry {
+  display: grid; grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; align-items: baseline; width: 100%;
+  text-align: left; background: none; border: 0; border-bottom: 1px solid var(--rule); padding: 9px 12px 9px 0; min-height: 44px; color: var(--ink);
+}
+.ventry:last-child { border-bottom: 0; }
+.ventry:active { background: var(--pen-soft); }
+.vmark { text-align: center; font-weight: 800; font-size: 14px; }
+.vmark.ok { color: var(--ok); } .vmark.bad { color: var(--bad); font-size: 22px; line-height: 14px; }
+.vmark.inline { display: inline-block; width: 1.2em; margin-left: 8px; }
+.vde { font-size: 17px; line-height: 1.3; padding-left: 6px; }
+.vde b { font-weight: 800; }
+.vpl { display: block; font-size: 13px; color: var(--ink-2); font-weight: 600; }
+.vbg { font-size: 16px; line-height: 1.35; color: var(--ink); }
+.vnote { display: block; font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+
+.dirflags { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); font-weight: 700; }
+.dirflags .flag { border-radius: 3px; }
