@@ -27,7 +27,7 @@ export default function MathQuiz({ S, onSettle, onNext, onQuit }) {
     if (st.current.locked) { next(); return; }
     const v = value.trim();
     if (!v) return;
-    if (!/^\d+$/.test(v)) { setFb({ kind: 'bad', msg: 'Напиши само число.' }); shake(); return; }
+    if (!/^\d+$/.test(v)) { setFb({ kind: 'bad', msg: 'Допустими са само цифри.' }); shake(); return; }
     const n = +v;
     if (n === f.answer) {
       st.current.locked = true; setLocked(true);
@@ -43,7 +43,7 @@ export default function MathQuiz({ S, onSettle, onNext, onQuit }) {
   function giveHint(all) {
     if (st.current.locked) return;
     st.current.clean = false;
-    setHint(all ? `${f.a} × ${f.b} = ${f.answer}. Напиши го, за да продължиш.` : hintFor(f));
+    setHint(all ? `${f.a} × ${f.b} = ${f.answer}. Упражнението продължава след въвеждането му.` : hintFor(f));
     try { inp.current.focus({ preventScroll: true }); } catch (e) {}
   }
 
@@ -68,11 +68,11 @@ export default function MathQuiz({ S, onSettle, onNext, onQuit }) {
           </label>
         </div>
         <div className="answer">
-          <button className="primary wide" type="submit">{locked ? 'Напред' : 'Провери'}</button>
+          <button className="primary wide" type="submit">{locked ? 'Напред' : 'Проверка'}</button>
           {!locked && (
             <div className="helpers">
               <button className="ghost" type="button" onClick={() => giveHint(false)}>Подсказка</button>
-              <button className="ghost" type="button" onClick={() => giveHint(true)}>Покажи отговора</button>
+              <button className="ghost" type="button" onClick={() => giveHint(true)}>Показване на отговора</button>
             </div>
           )}
           {hint && !locked && <div className="hinttxt">{hint}</div>}

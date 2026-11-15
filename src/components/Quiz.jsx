@@ -16,7 +16,7 @@ export function Pair({ w }) {
   return <><Art w={w} /><b>{w.de}</b>{w.pl ? <span className="pl"> (мн. ч. {w.pl})</span> : null} = {l.slice(0, 5).join(', ')}{l.length > 5 ? ', …' : ''}</>;
 }
 const Spk = ({ onClick }) => (
-  <button type="button" className="spk" onClick={onClick}><Icon name="speaker" size={16} />Чуй</button>
+  <button type="button" className="spk" onClick={onClick}><Icon name="speaker" size={16} />Слушане</button>
 );
 const XLabel = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <Art w={{ art: m.art }} /> : null; };
 const Label = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <><XLabel L={L} text={text} />{m.word}</> : text; };
@@ -63,7 +63,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
       setTimeout(() => nextBtn.current && nextBtn.current.focus({ preventScroll: true }), 20);
     } else {
       st.current.clean = false;
-      setPicked(p => ({ ...p, [v]: 'bad' })); setFb({ kind: 'bad', msg: 'Не е вярно. Опитай пак.' }); setShake(x => x + 1);
+      setPicked(p => ({ ...p, [v]: 'bad' })); setFb({ kind: 'bad', msg: 'Неверен отговор.' }); setShake(x => x + 1);
     }
   }
 
@@ -84,7 +84,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
     if (st.current.locked) return;
     st.current.clean = false; st.current.cleanBefore = false;
     st.current.hint = all ? answerText.length : Math.min(answerText.length, st.current.hint + 1);
-    setHint(st.current.hint >= answerText.length ? `Отговор: ${answerText}. Напиши го, за да продължиш.` : answerText.slice(0, st.current.hint) + ' …');
+    setHint(st.current.hint >= answerText.length ? `Отговор: ${answerText}. Упражнението продължава след въвеждането му.` : answerText.slice(0, st.current.hint) + ' …');
     if (FINE && inp.current) inp.current.focus();
   }
   function insert(ch) {
@@ -117,7 +117,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
       <div className="sheet">
         {again && <span className="badge">повторение</span>}
         {dir === 'x-bg' && <><div className="big"><Art w={w} />{w.de}</div><div className="sub">{TYPE[w.type]}</div><Spk onClick={() => say(full(w))} /></>}
-        {dir === 'bg-x' && <><div className="big">{w.bg[0]}</div><div className="sub">{TYPE[w.type]}{w.type === 'n' && w.art && L.articles.length && settings.reqArt && settings.mode === 'open' ? ', напиши го с члена' : ''}</div></>}
+        {dir === 'bg-x' && <><div className="big">{w.bg[0]}</div><div className="sub">{TYPE[w.type]}{w.type === 'n' && w.art && L.articles.length && settings.reqArt && settings.mode === 'open' ? ', с члена' : ''}</div></>}
         {dir === 'art' && <><div className="big"><span className="blank" aria-label="член" />{w.de}</div><div className="sub">{w.bg[0]}</div></>}
       </div>
 
@@ -136,12 +136,12 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
             <form className="inrow" onSubmit={check} autoComplete="off">
               <input ref={inp} className={locked ? 'okin' : ''} type="text" value={value} readOnly={locked}
                 onChange={e => setValue(e.target.value)} placeholder={dir === 'bg-x' ? L.placeholder : 'отговор на български'} aria-label="Отговор" />
-              {!locked && <button className="primary" type="submit">Провери</button>}
+              {!locked && <button className="primary" type="submit">Проверка</button>}
             </form>
             {dir === 'bg-x' && L.keys.length > 0 && <div className="keys">{L.keys.map(k => <button key={k} type="button" disabled={locked} onMouseDown={e => e.preventDefault()} onClick={() => insert(k)}>{k}</button>)}</div>}
             <div className="helpers">
               <button className="ghost" type="button" disabled={locked} onClick={() => giveHint(false)}>Подсказка</button>
-              <button className="ghost" type="button" disabled={locked} onClick={() => giveHint(true)}>Покажи отговора</button>
+              <button className="ghost" type="button" disabled={locked} onClick={() => giveHint(true)}>Показване на отговора</button>
             </div>
             {hint && <div className="hinttxt">{hint}</div>}
           </>

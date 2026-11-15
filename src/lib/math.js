@@ -12,11 +12,11 @@ export const factText = f => `${f.a} × ${f.b}`;
 
 // Feedback that points at the likely mistake rather than only saying "wrong".
 export function explain(f, n) {
-  if (n === f.a + f.b) return `Това е ${f.a} + ${f.b}. Тук умножаваме.`;
+  if (n === f.a + f.b) return `Това е ${f.a} + ${f.b}. Тук се умножава.`;
   for (const [x, y] of [[f.a, f.b - 1], [f.a, f.b + 1], [f.a - 1, f.b], [f.a + 1, f.b]]) {
     if (x >= 1 && y >= 1 && n === x * y) return `Близо: това е ${x} × ${y}.`;
   }
-  return 'Не е вярно. Опитай пак.';
+  return 'Неверен отговор.';
 }
 // Hint: build the answer from the previous fact (7 × 8 = 6 × 8 + 8).
 export function hintFor(f) {
@@ -25,6 +25,6 @@ export function hintFor(f) {
   if (f.b === 10) return `Умножение по 10: добави 0 към ${f.a}.`;
   if (f.a === 10) return `Умножение по 10: добави 0 към ${f.b}.`;
   const prev = (f.a - 1) * f.b;
-  return `${f.a - 1} × ${f.b} = ${prev}. Добави още ${f.b}.`;
+  return `${f.a - 1} × ${f.b} = ${prev}. Плюс още ${f.b}.`;
 }
 export const fmtTime = ms => { const s = Math.round(ms / 1000); return s < 60 ? `${s} сек.` : `${Math.floor(s / 60)} мин. ${String(s % 60).padStart(2, '0')} сек.`; };

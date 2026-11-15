@@ -43,7 +43,7 @@ function dropPrefix(L, typed, f) {
 
 // Returns {ok, warn?, msg?}.
 export function evaluate(L, w, v, dir, reqArt, allWords) {
-  const WRONG = 'Не е вярно. Опитай пак.';
+  const WRONG = 'Неверен отговор.';
   if (dir === 'x-bg') {   // answer typed in Bulgarian
     const x = nbgL(v), cands = bgCands(w);
     if (cands.includes(x)) return { ok: true };
@@ -58,14 +58,14 @@ export function evaluate(L, w, v, dir, reqArt, allWords) {
   const t = fs.find(f => norm(L, f.de) === norm(L, word) || norm(L, f.de) === norm(L, dropPrefix(L, word, f)));
   if (!t) {
     const near = fs.find(f => norm(L, f.de).length >= 4 && lev(norm(L, f.de), norm(L, word)) === 1);
-    return { ok: false, msg: near ? 'Почти. Провери правописа.' : WRONG };
+    return { ok: false, msg: near ? 'Почти. Правописът не е точен.' : WRONG };
   }
   if (L.code === 'fr' && t.de.length <= 3 && /[^\x00-\x7f]/.test(t.de) && word.toLowerCase() !== t.de.toLowerCase())
-    return { ok: false, msg: `Почти. Провери знака над буквата: ${t.de}.` };
+    return { ok: false, msg: `Почти. Знакът над буквата не е точен: ${t.de}.` };
   const isNoun = t.type === 'n' && L.articles.includes(t.art);
   if (isNoun) {
-    if (art && art !== t.art) return { ok: false, msg: 'Думата е вярна, членът не е. Опитай пак.' };
-    if (!art && reqArt) return { ok: false, msg: `Думата е вярна. Добави члена: ${L.articles.join(', ')}.` };
+    if (art && art !== t.art) return { ok: false, msg: 'Думата е вярна, членът не е.' };
+    if (!art && reqArt) return { ok: false, msg: `Думата е вярна, липсва член: ${L.articles.join(', ')}.` };
   } else if (art) return { ok: false, msg: 'Почти. Тази дума се пише без член.' };
   const warns = [];
   const typed = dropPrefix(L, word, t);

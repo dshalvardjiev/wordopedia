@@ -136,7 +136,7 @@ export default function App() {
     document.addEventListener('visibilitychange', onVis);
     return () => document.removeEventListener('visibilitychange', onVis);
   }, [lang]); // eslint-disable-line
-  // "Обнови думите" in the language menu: courses and the current course's words, now.
+  // "Обновяване на думите" in the language menu: courses and the current course's words, now.
   async function refreshNow() {
     if (isMath) return 'Налични курсове: ' + (await checkLangs()).join(', ');
     const r = await syncCourse(lang, true);
@@ -148,7 +148,7 @@ export default function App() {
     setView('home');
     // A course switched on after this version was built has no words inside the app yet:
     // the automatic update (effect on lang) downloads them; no second download here.
-    if (code !== MATH && !dictFor(code).words.length) toast('Изтеглям думите…');
+    if (code !== MATH && !dictFor(code).words.length) toast('Изтегляне на думите…');
   }
 
   // ----- session -----
@@ -169,7 +169,7 @@ export default function App() {
   function startMath(list) {
     const m = store.math;
     let pool = list ? list.slice() : TESTS[m.test].facts(m.tables);
-    if (!pool.length) { toast('Избери поне една таблица'); return; }
+    if (!pool.length) { toast('Няма избрана таблица'); return; }
     if (list || m.order === 'mixed') shuffle(pool);
     if (!list && m.size !== 'all') pool = pool.slice(0, +m.size);
     run(pool, true);

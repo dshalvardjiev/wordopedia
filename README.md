@@ -40,7 +40,7 @@ Learners cannot add or change words, answers or verbs in the app. All content co
 1. Edit the file on github.com (pencil icon) and commit to `staging` to try it at …/wordopedia/staging/, or to
    `main` to publish it.
 2. The app updates by itself when it opens or comes back to the screen, at most every 6 hours per course.
-   To update at once: language menu → **Обнови думите**.
+   To update at once: language menu → **Обновяване на думите**.
 3. The *Recordings for new words* workflow records new words and verb forms within 1–2 minutes; the next update
    in the app downloads them for offline use.
 
@@ -105,7 +105,7 @@ and `math`.
 - `label` and `subtitle` replace the course's title and subtitle in this instance only.
 - `name` is the installed app's name.
 - An instance with a single course opens it directly, without the course picker; its menu only offers
-  **Обнови думите**.
+  **Обновяване на думите**.
 
 To add an instance, add its file and push to `main`: the deploy publishes …/wordopedia/&lt;id&gt;/ within a few minutes.
 Changing the course list of an existing instance needs no release: the app downloads its instance file with the

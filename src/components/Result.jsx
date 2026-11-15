@@ -31,7 +31,7 @@ export default function Result({ S, item, onAgain, onMissed, onHome }) {
         <div className="wlist miss">{missed.map(w => <div key={w.id}>{item ? <b>{item(w)}</b> : <Pair w={w} />}</div>)}</div>
       </>}
       <div className="stack" style={{ marginTop: 20 }}>
-        {missed.length > 0 && <button className="primary" onClick={() => onMissed(missed.map(w => w.id))}>Упражни тези {missed.length}</button>}
+        {missed.length > 0 && <button className="primary" onClick={() => onMissed(missed.map(w => w.id))}>Упражнение на грешените ({missed.length})</button>}
         <button className={missed.length ? 'ghost' : 'primary'} onClick={onAgain}>Нов кръг</button>
         <button className="ghost" onClick={onHome}>Към началото</button>
       </div>

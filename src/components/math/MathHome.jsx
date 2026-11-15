@@ -31,7 +31,7 @@ export default function MathHome({ store, update, onStart, toast }) {
         {weak.length > 0 && (
           <div className="weak">
             <span><b>{weak.length}</b> {weak.length === 1 ? 'пример често се бърка' : 'примера често се бъркат'}</span>
-            <button className="small-btn" onClick={() => onStart(weak)}>Упражни ги</button>
+            <button className="small-btn" onClick={() => onStart(weak)}>Упражнение</button>
           </div>
         )}
       </div>
@@ -45,7 +45,7 @@ export default function MathHome({ store, update, onStart, toast }) {
 
       <div className="section">
         <div className="label-row"><p className="label">Таблици</p>
-          <button className="link" onClick={() => setM('tables', m.tables.length === 12 ? [] : all)}>{m.tables.length === 12 ? 'Махни всички' : 'Избери всички'}</button></div>
+          <button className="link" onClick={() => setM('tables', m.tables.length === 12 ? [] : all)}>{m.tables.length === 12 ? 'Премахване на всички' : 'Избор на всички'}</button></div>
         <div className="numgrid" role="group" aria-label="Таблици за умножение">
           {all.map(n => <button key={n} className={'num' + (m.tables.includes(n) ? ' on' : '')} aria-pressed={m.tables.includes(n)} onClick={() => toggle(n)}>{n}</button>)}
         </div>
@@ -64,13 +64,13 @@ export default function MathHome({ store, update, onStart, toast }) {
             <p className="label">Брой въпроси</p>
             <Seg label="Брой въпроси" value={m.size} onChange={v => setM('size', v)} options={[['10', '10'], ['20', '20'], ['all', 'Всички']]} />
           </div>
-          <button className="ghost danger" onClick={reset}>{armed ? 'Натисни отново за потвърждение' : 'Нулирай статистиката за таблицата'}</button>
+          <button className="ghost danger" onClick={reset}>{armed ? 'Повторно натискане за потвърждение' : 'Нулиране на статистиката за таблицата'}</button>
         </div>
       </details>
 
       <div className="startbar">
         <button className="primary" disabled={!facts.length} onClick={() => onStart()}>
-          {facts.length ? `Започни: ${size} ${size === 1 ? 'пример' : 'примера'}` : 'Избери поне една таблица'}
+          {facts.length ? `Начало: ${size} ${size === 1 ? 'пример' : 'примера'}` : 'Няма избрана таблица'}
         </button>
       </div>
     </section>

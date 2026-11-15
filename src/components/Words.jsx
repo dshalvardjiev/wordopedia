@@ -33,7 +33,7 @@ export default function Words({ L, store, sets, words, say, abase }) {
   return (
     <section>
       <h1>Думи</h1>
-      <p className="small" style={{ margin: '4px 0 14px' }}>{words.length} думи, {learned} научени. Докосни дума, за да я чуеш.</p>
+      <p className="small" style={{ margin: '4px 0 14px' }}>{words.length} думи, {learned} научени. Думата се произнася при докосване.</p>
       <div className="search form"><Icon name="search" size={18} /><input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder={`Търси на ${L.adj}и или на български`} aria-label="Търсене" /></div>
       <Seg label="Подредба" value={mode} onChange={setMode} options={[['sets', 'По списъци'], ['abc', 'По азбука']]} />
       {mode === 'abc' && groups.length > 1 && (
@@ -48,7 +48,7 @@ export default function Words({ L, store, sets, words, say, abase }) {
             {g.items.map(w => {
               const st = store.stats[w.id], mark = isLearned(st) ? 'ok' : isWeak(st) ? 'bad' : '';
               return (
-                <button key={w.id} className="ventry" onClick={() => say(full(w))} aria-label={`${full(w)}: ${w.bg.join(', ')}. Чуй`}>
+                <button key={w.id} className="ventry" onClick={() => say(full(w))} aria-label={`${full(w)}: ${w.bg.join(', ')}. Слушане`}>
                   <span className={'vmark ' + mark} aria-hidden="true">{mark === 'ok' ? '✓' : mark === 'bad' ? '•' : ''}</span>
                   <span className="vde"><Art w={w} /><b>{w.de}</b>{w.pl && <span className="vpl">{w.pl}</span>}</span>
                   <span className="vbg">{w.bg.map(clean).filter((x, i, a) => a.indexOf(x) === i).slice(0, 3).join(', ')}{w.note && <span className="vnote">{w.note}</span>}</span>

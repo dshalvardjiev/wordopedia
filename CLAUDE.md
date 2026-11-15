@@ -63,4 +63,5 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 ## Design
 Exercise-book theme: ruled sheet with red margin for words, squared sheet for maths; ink-blue actions
 (`--pen`); der/die/das colours are a teaching code (blue/red/green), keep them. Copy: plain Bulgarian, sentence
-case, no all-caps labels.
+case, no all-caps labels. Formal and impersonal: no second- or first-person forms (owner's request), so
+"Превод", "Проверка", "Показване на отговора", not "превеждаш", "Провери", "Обновявам".

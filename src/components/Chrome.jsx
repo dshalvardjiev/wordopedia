@@ -19,7 +19,7 @@ export function LangMenu({ L, isMath, courses, counts, onPick, onRefresh, toast 
   }, [open]);
   async function check() {
     // Close the menu at once; the result arrives as a message.
-    setOpen(false); setBusy(true); toast('Обновявам думите…');
+    setOpen(false); setBusy(true); toast('Обновяване на думите…');
     try { toast(await onRefresh()); } catch (e) { toast('Неуспешно обновяване: ' + e.message); }
     setBusy(false);
   }
@@ -39,12 +39,12 @@ export function LangMenu({ L, isMath, courses, counts, onPick, onRefresh, toast 
                 onClick={() => { setOpen(false); if (!here) onPick(c.key); }}>
                 <CourseIcon c={c} size={28} />
                 <span><b>{c.title}</b><span className="small">{c.sub}</span></span>
-                {c.kind !== 'math' && <span className="meta">{c.active ? (counts[c.key] ? `${counts[c.key]} думи` : 'изтегли') : 'скоро'}</span>}
+                {c.kind !== 'math' && <span className="meta">{c.active ? (counts[c.key] ? `${counts[c.key]} думи` : 'за изтегляне') : 'скоро'}</span>}
               </button>
             );
           })}
           {courses.length > 1 && <div className="menu-sep" />}
-          <button className="menu-foot" disabled={busy} onClick={check}><Icon name="sync" size={18} />{busy ? 'Обновявам…' : isMath ? 'Провери за нови курсове' : 'Обнови думите'}</button>
+          <button className="menu-foot" disabled={busy} onClick={check}><Icon name="sync" size={18} />{busy ? 'Обновяване…' : isMath ? 'Проверка за нови курсове' : 'Обновяване на думите'}</button>
         </div>
       )}
     </div>
