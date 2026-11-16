@@ -5,6 +5,9 @@ const INSTANCES = import.meta.glob('../../dictionary/instances/*.json', { eager:
 export const INSTANCE = import.meta.env.VITE_INSTANCE || 'production';
 export const ENV = import.meta.env.VITE_ENV || 'production';
 export const BUNDLED_INSTANCE = INSTANCES[`../../dictionary/instances/${INSTANCE}.json`] || { courses: [] };
+// Question banks are built into the app (not downloaded): bank key (file name) -> content of dictionary/quiz/<key>.json.
+const BANK_FILES = import.meta.glob('../../dictionary/quiz/*.json', { eager: true, import: 'default' });
+export const BUNDLED_BANKS = Object.fromEntries(Object.entries(BANK_FILES).map(([p, v]) => [p.slice(p.lastIndexOf('/') + 1, -5), v]));
 
 // localStorage key, one per instance: all instances share one origin, never each other's data.
 export const STORE_KEY = 'wordopedia.' + INSTANCE;

@@ -6,7 +6,7 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 ## Stack and deployment
 - React 18 + Vite 5 + vite-plugin-pwa (`registerType: 'autoUpdate'`). No backend, no test suite in the repo.
 - GitHub Pages via `.github/workflows/deploy.yml` on push to `main` (paths outside `dictionary/`, plus
-  `dictionary/instances/`); a push to `staging` starts it on `main` through `staging.yml`, because the Pages
+  `dictionary/instances/` and `dictionary/quiz/`); a push to `staging` starts it on `main` through `staging.yml`, because the Pages
   environment deploys from the default branch. One Vite build per instance (`scripts/build-all.mjs`): start page `landing/` at the
   root, `<instance>/` folders from `main`, the `staging` instance from the `staging` branch into `staging/`.
   `.github/workflows/audio.yml` records missing words/verb forms with Piper TTS and commits them to the same branch.
@@ -20,9 +20,13 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
   `languages.json`, and `instanceCourses()` for an instance's selection and labels. `content.js`: build-time
   instance (`VITE_INSTANCE`), environment (`VITE_ENV`), bundled instance file, storage key. `dictionary.js`/`csv.js`/`verbs.js`: parsing. `match.js`: answer checking and quiz options.
   `audio.js`: recordings (Cache Storage) and device-voice fallback. `sync.js`: downloads. `store.js`: localStorage.
-  `math.js`: maths tests.
+  `math.js`: maths tests. `quiz.js`: question banks (`parseBank`, `grade`; pure, also used by `check-content.mjs`).
 - `src/components/`: `Home`, `Quiz`, `Result`, `Words` (vocabulary), `Conj` (conjugation), `LangPick`,
-  `Chrome` (language menu, tab bar), `ui` (flags, icons, segmented control), `math/`.
+  `Chrome` (language menu, tab bar), `ui` (flags, icons, segmented control), `math/`, `quiz/` (question banks).
+- Question banks: `dictionary/quiz/<key>.json`, bundled at build time (`BUNDLED_BANKS` in `content.js`), never
+  downloaded. `quizCourse()` turns a file into a course of kind `quiz`; `instanceCourses(courses, inst, quizzes)`
+  appends them after maths. `solo` in `App.jsx` marks courses without a word list (maths, banks): no tabs, no
+  vocabulary view, no word download (`noWords`). Settings live in `store.quiz`.
 - `scripts/make_audio.py`: used by the recordings workflow; runs locally with piper-tts and ffmpeg.
 
 ## Invariants (break these and saved progress or audio silently breaks)
@@ -33,7 +37,8 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - localStorage key `wordopedia.<instance>`, `version: 2`. All instances share one origin, so the key is the only
   separation. `production` copies the former root app's `woerter.v1` on first start: never delete that key.
   Migrate in `store.js` when the shape changes. The audio cache `woerter-audio-v1` is shared by all instances.
-- Instance ids (folder names) and course keys must not be renamed once published.
+- Instance ids (folder names) and course keys must not be renamed once published. The same holds for a question
+  bank's file name and its question ids: progress is keyed by `quiz:<bank key>:<question id>`.
 - `navigateFallback: null` in `vite.config.js`: otherwise one folder's service worker answers navigations to another
   folder. `landing/sw.js` must stay: it retires the former root app's service worker on installed phones.
 - Must match between JS and Python: `slug` (audio.js ↔ make_audio.py), article lists (langs.js `articles` ↔
@@ -47,6 +52,9 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - Never fall back to a voice of another language; show a message instead.
 - CSS class names are global: `.form` was once reused for conjugation cells and broke the search field.
 - Two downloads for one course must not run at once: only `syncCourse` downloads (it has a lock).
+- `production` uses `"courses": "all"`, which includes every question bank. The CCAR-P bank exists only on
+  `staging`; merging `staging` into `main` would show it on the production instance, and resetting `staging` from
+  `main` (`git push origin main:staging`) would remove it. Ask the owner before either.
 
 ## Verifying changes
 - `npm run check`, `npm run build:all` (and `node scripts/build-all.mjs --env staging --out <dir>`); serve the output

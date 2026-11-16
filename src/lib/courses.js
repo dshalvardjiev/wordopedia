@@ -23,14 +23,20 @@ export const courseL = c => ({ ...LANGS[c.lang], key: c.key, path: c.path, title
 
 // Maths is offered like a course so instances can include or leave it out. Its key is MATH ('math').
 export const MATH_COURSE = { key: 'math', kind: 'math', title: 'Математика', sub: 'Таблица за умножение', active: true };
+// A question bank (dictionary/quiz/<key>.json) is offered like a course as well. The file describes itself
+// (title, subtitle, sizes of a round), so it needs no entry in languages.json; its key is the file name.
+export const quizCourse = (key, bank) => ({
+  key, kind: 'quiz', title: (bank && bank.title) || key, sub: (bank && bank.subtitle) || 'Въпроси с избор', active: true,
+  sizes: bank && Array.isArray(bank.sizes) && bank.sizes.length ? bank.sizes : [10, 20],
+});
 export const ID_RE = /^[a-z0-9][a-z0-9-]*$/;
 export const PRODUCTION = 'production', STAGING = 'staging';
 
 // The courses an instance (dictionary/instances/<id>.json) offers, in its order. "courses": "all" means every course
-// of languages.json plus maths, so new courses appear without editing the instance. Per entry, "label" and "subtitle"
+// of languages.json plus maths and the question banks, so new courses appear without editing the instance. Per entry, "label" and "subtitle"
 // replace the course's title and subtitle in this instance only. Unknown course keys are left out.
-export function instanceCourses(courses, inst) {
-  const all = [...courses.map(c => ({ ...c, kind: 'vocab' })), MATH_COURSE];
+export function instanceCourses(courses, inst, quizzes = []) {
+  const all = [...courses.map(c => ({ ...c, kind: 'vocab' })), MATH_COURSE, ...quizzes];
   const sel = inst && inst.courses;
   if (sel === 'all') return all;
   if (!Array.isArray(sel)) return [];

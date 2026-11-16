@@ -49,6 +49,17 @@ export function Seg({ value, onChange, options, label }) {
   );
 }
 
+// Question banks: a checked answer sheet, same footprint as a flag.
+export function QuizBadge({ size = 28 }) {
+  return (
+    <svg className="flag" width={size} height={Math.round(size * 0.7)} viewBox="0 0 60 42" aria-hidden="true">
+      <rect width="60" height="42" fill="#fff" />
+      <path d="M26 13h24M26 21h24M26 29h24" stroke="#D9E1EF" strokeWidth="4" strokeLinecap="round" />
+      <path d="M9 21l5 5 8-11" fill="none" stroke="#2747D0" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 // Same footprint as a flag, so the maths entry lines up with the languages in menus.
 export function MathBadge({ size = 28 }) {
   return (

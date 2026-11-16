@@ -285,3 +285,25 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 
 /* Instances: environment tag on staging */
 .envtag { position: fixed; top: calc(env(safe-area-inset-top) + 6px); right: 8px; z-index: 50; background: #B42318; color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .04em; border-radius: 999px; padding: 3px 9px; pointer-events: none; }
+
+/* ---------- question banks ---------- */
+/* Long English questions: a plain card instead of the ruled page, whose 36px lines suit single words. */
+.sheet.plain { background-image: none; padding: 18px; }
+.sheet.plain::before { display: none; }
+.sheet.plain .badge { position: static; display: inline-block; margin-bottom: 8px; }
+.qtext { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.5; }
+.opts.long .opt { font-size: 16px; font-weight: 600; align-items: flex-start; line-height: 1.4; }
+.opts.long .opt .k { margin-top: 1px; }
+.opt.on { border-color: var(--pen); background: var(--pen-soft); }
+.mrows { display: grid; gap: 10px; }
+.mrow { background: var(--card); border: 1.5px solid var(--rule); border-radius: var(--r-md); padding: 12px 14px; }
+.mrow p { margin: 0 0 10px; font-weight: 600; line-height: 1.4; }
+.mrow.ok { border-color: var(--ok); }
+.mrow.bad { border-color: var(--bad); }
+.mchoices { display: flex; flex-wrap: wrap; gap: 8px; }
+.mchoice { flex: 1 1 auto; border: 1.5px solid var(--rule); background: var(--card); border-radius: var(--r-sm); padding: 9px 12px; font-weight: 700; font-size: 15px; }
+.mchoice.on { border-color: var(--pen); background: var(--pen-soft); color: var(--pen); }
+.mchoice.ok { border-color: var(--ok); background: var(--ok-bg); }
+.mchoice.bad { border-color: var(--bad); background: var(--bad-bg); }
+.mchoice:disabled:not(.ok):not(.bad) { opacity: .5; }
+.fb a.note { color: inherit; font-weight: 700; }

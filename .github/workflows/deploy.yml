@@ -11,6 +11,7 @@ on:
       - '**'
       - '!dictionary/**'
       - 'dictionary/instances/**'
+      - 'dictionary/quiz/**'
       - '!**.md'
   workflow_dispatch:
 permissions:

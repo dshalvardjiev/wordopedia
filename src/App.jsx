@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import bundledConf from '../dictionary/languages.json';
 import { parseDictionary, full, EMPTY } from './lib/dictionary.js';
 import { LANGS } from './lib/langs.js';
-import { coursesFrom, courseL, instanceCourses } from './lib/courses.js';
-import { BUNDLED_INSTANCE, INSTANCE, ENV } from './lib/content.js';
+import { coursesFrom, courseL, instanceCourses, quizCourse } from './lib/courses.js';
+import { BUNDLED_INSTANCE, BUNDLED_BANKS, INSTANCE, ENV } from './lib/content.js';
 import { loadStore, saveStore, sortSets, DEFAULT_DICT_BASE } from './lib/store.js';
 import { audioBase, speak as speakAudio, prefetchAll, resetPrepared } from './lib/audio.js';
 import { fetchLangConf, fetchInstance, fetchDictionary, fetchVerbs } from './lib/sync.js';
@@ -13,7 +13,10 @@ import { LangMenu, TabBar } from './components/Chrome.jsx';
 import MathHome from './components/math/MathHome.jsx';
 import MathQuiz from './components/math/MathQuiz.jsx';
 import { MATH, TESTS, factText } from './lib/math.js';
-import Home from './components/Home.jsx';
+import QuizHome from './components/quiz/QuizHome.jsx';
+import QuizCard from './components/quiz/QuizCard.jsx';
+import { parseBank, short, EMPTY_BANK } from './lib/quiz.js';
+import Home, { isWeak } from './components/Home.jsx';
 import Quiz from './components/Quiz.jsx';
 import Result from './components/Result.jsx';
 import Words from './components/Words.jsx';
@@ -25,6 +28,19 @@ const BUNDLED_CSV = import.meta.glob('../dictionary/**/words.csv', { query: '?ra
 function parseSafe(csv, L) { try { return parseDictionary(csv, L); } catch (e) { return null; } }
 const bundledFor = L => parseSafe(BUNDLED_CSV[`../dictionary/${L.path}/words.csv`] || '', L) || EMPTY;
 const BUNDLED_VERBS = import.meta.glob('../dictionary/**/verbs.csv', { query: '?raw', import: 'default', eager: true });
+// Question banks (dictionary/quiz/*.json) are built in and offered like courses; each is parsed on first use.
+const QUIZ_COURSES = Object.entries(BUNDLED_BANKS).map(([key, b]) => quizCourse(key, b));
+const banks = new Map();
+function bankFor(key) {
+  if (!banks.has(key)) {
+    let b = null;
+    try { b = BUNDLED_BANKS[key] ? parseBank(BUNDLED_BANKS[key], key) : null; } catch (e) { /* invalid file: no questions */ }
+    banks.set(key, b || EMPTY_BANK);
+  }
+  return banks.get(key);
+}
+// Courses without a word list: nothing to download, no vocabulary tab.
+const noWords = key => key === MATH || QUIZ_COURSES.some(q => q.key === key);
 
 export default function App() {
   const [store, setStore] = useState(loadStore);
@@ -44,13 +60,16 @@ export default function App() {
   const byKey = k => courses.find(c => c.key === k);
   // What this instance offers (dictionary/instances/<instance>.json), with its own labels; maths is one of them.
   const inst = store.instConf || BUNDLED_INSTANCE;
-  const offered = useMemo(() => instanceCourses(courses, inst), [courses, inst]);
+  const offered = useMemo(() => instanceCourses(courses, inst, QUIZ_COURSES), [courses, inst]);
   const usable = offered.filter(c => c.active);
   // An instance with a single course opens it directly, without the course picker.
   const cur = usable.find(c => c.key === store.lang) || (offered.length === 1 && usable.length === 1 ? usable[0] : null);
   const lang = cur ? cur.key : null;
   const isMath = lang === MATH;
-  const L = courseL((cur && !isMath && cur) || byKey('de') || courses[0]);
+  const isQuiz = !!cur && cur.kind === 'quiz';
+  const solo = isMath || isQuiz;   // no word list: no tabs, no vocabulary view
+  const bank = isQuiz ? bankFor(lang) : EMPTY_BANK;
+  const L = courseL((cur && !solo && cur) || byKey('de') || courses[0]);
   const base = store.dictBase || DEFAULT_DICT_BASE;
 
   // Dictionary of the chosen course: the downloaded copy, or the one built into the app.
@@ -90,7 +109,7 @@ export default function App() {
   async function checkLangs() {
     const [c, i] = await Promise.all([fetchLangConf(base), fetchInstance(base, INSTANCE).catch(() => null)]);
     update(n => { n.langConf = c; if (i) n.instConf = i; });
-    return instanceCourses(coursesFrom(c), i || inst).filter(x => x.active).map(x => x.title);
+    return instanceCourses(coursesFrom(c), i || inst, QUIZ_COURSES).filter(x => x.active).map(x => x.title);
   }
   async function pullLang(code, onAudio) {
     const c = byKey(code); if (!c) throw new Error('непознат курс');
@@ -117,8 +136,8 @@ export default function App() {
     syncing.current = true;
     try {
       try { await checkLangs(); } catch (e) { /* languages.json is optional for a word update */ }
-      // Maths has no words: only the course list (languages.json, the instance file) is updated.
-      if (key === MATH) { update(n => { n.syncAt = { ...(n.syncAt || {}), [key]: Date.now() }; }); return null; }
+      // Maths and question banks have no words: only the course list (languages.json, the instance file) is updated.
+      if (noWords(key)) { update(n => { n.syncAt = { ...(n.syncAt || {}), [key]: Date.now() }; }); return null; }
       const r = await pullLang(key);
       update(n => { n.syncAt = { ...(n.syncAt || {}), [key]: Date.now() }; });
       return r;
@@ -129,7 +148,7 @@ export default function App() {
       syncCourse(lang).then(r => {
         if (!r || !r.added) return;
         toast(r.added === r.parsed.words.length ? `Изтеглени думи: ${r.added}` : `Нови думи: ${r.added}`);
-      }).catch(e => { if (lang && lang !== MATH && !dictFor(lang).words.length) toast('Неуспешно изтегляне: ' + e.message); });
+      }).catch(e => { if (lang && !noWords(lang) && !dictFor(lang).words.length) toast('Неуспешно изтегляне: ' + e.message); });
     };
     run();
     const onVis = () => { if (document.visibilityState === 'visible') run(); };
@@ -138,7 +157,7 @@ export default function App() {
   }, [lang]); // eslint-disable-line
   // "Обновяване на думите" in the language menu: courses and the current course's words, now.
   async function refreshNow() {
-    if (isMath) return 'Налични курсове: ' + (await checkLangs()).join(', ');
+    if (solo) return 'Налични курсове: ' + (await checkLangs()).join(', ');
     const r = await syncCourse(lang, true);
     if (!r) return 'Обновяването вече тече';
     return `Думите са обновени: ${r.parsed.words.length}` + (r.added ? `, нови ${r.added}` : '') + (r.audio.missing ? `. Без запис: ${r.audio.missing}` : '');
@@ -148,7 +167,7 @@ export default function App() {
     setView('home');
     // A course switched on after this version was built has no words inside the app yet:
     // the automatic update (effect on lang) downloads them; no second download here.
-    if (code !== MATH && !dictFor(code).words.length) toast('Изтегляне на думите…');
+    if (!noWords(code) && !dictFor(code).words.length) toast('Изтегляне на думите…');
   }
 
   // ----- session -----
@@ -172,6 +191,16 @@ export default function App() {
     if (!pool.length) { toast('Няма избрана таблица'); return; }
     if (list || m.order === 'mixed') shuffle(pool);
     if (!list && m.size !== 'all') pool = pool.slice(0, +m.size);
+    run(pool, true);
+  }
+  // Question bank: a given list (e.g. the often-missed ones), or the chosen filter, shuffled.
+  function startQuiz(list) {
+    const z = store.quiz;
+    let pool = list ? list.slice() : bank.questions.filter(q => (z.filter === 'new' ? !store.stats[q.id] : z.filter === 'weak' ? isWeak(store.stats[q.id]) : true));
+    if (!pool.length) { toast('Няма въпроси за тези настройки'); return; }
+    shuffle(pool);
+    const sizes = cur.sizes.map(String), size = z.size === 'all' || sizes.includes(z.size) ? z.size : sizes[0];
+    if (!list && size !== 'all') pool = pool.slice(0, +size);
     run(pool, true);
   }
   function next() {
@@ -202,28 +231,32 @@ export default function App() {
 
   const S = session.current;
   const shown = !lang ? 'lang' : view;
-  const counts = Object.fromEntries(courses.map(c => [c.key, dictFor(c.key).words.length]));
-  const withTabs = !isMath && ['home', 'words'].includes(shown);
-  const withTop = withTabs || (isMath && shown === 'home');
+  const counts = Object.fromEntries([...courses.map(c => [c.key, dictFor(c.key).words.length]), ...QUIZ_COURSES.map(q => [q.key, bankFor(q.key).questions.length])]);
+  const withTabs = !solo && ['home', 'words'].includes(shown);
+  const withTop = withTabs || (solo && shown === 'home');
+  const goHome = () => { session.current = null; setView('home'); };
   useEffect(() => { document.title = cur ? `Wordopedia: ${cur.title}` : 'Wordopedia'; }, [cur && cur.title]); // eslint-disable-line
   return (
-    <div className={'wrap' + (withTabs ? '' : ' notabs') + (isMath && shown === 'home' ? ' solo' : '')}>
+    <div className={'wrap' + (withTabs ? '' : ' notabs') + (solo && shown === 'home' ? ' solo' : '')}>
       {withTop && (
         <div className="topbar">
-          <LangMenu L={L} isMath={isMath} courses={offered} counts={counts} onPick={chooseLang} onRefresh={refreshNow} toast={toast} />
+          <LangMenu L={L} solo={solo ? cur : null} courses={offered} counts={counts} onPick={chooseLang} onRefresh={refreshNow} toast={toast} />
         </div>
       )}
       {shown === 'lang' && <LangPick courses={offered} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
       {isMath && shown === 'home' && <MathHome store={store} update={update} toast={toast} onStart={startMath} />}
       {isMath && shown === 'quiz' && S && S.cur && <MathQuiz S={S} onSettle={settle} onNext={next} onQuit={quit} />}
       {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
-      {!isMath && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
+      {isQuiz && shown === 'home' && <QuizHome course={cur} bank={bank} store={store} update={update} toast={toast} onStart={startQuiz} />}
+      {isQuiz && shown === 'quiz' && S && S.cur && <QuizCard key={S.qid} S={S} onSettle={settle} onNext={next} onQuit={quit} />}
+      {isQuiz && shown === 'result' && S && <Result S={S} item={q => short(q.q)} onAgain={() => startQuiz()} onMissed={ids => startQuiz([...S.missed.values()].filter(q => ids.includes(q.id)))} onHome={goHome} />}
+      {!solo && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
         verbs={verbs} onStart={() => (dir === 'conj' ? setView('conj') : start())} onPractise={ids => start(ids)} />}
-      {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} onClose={() => setView('home')} />}
-      {!isMath && shown === 'quiz' && S && S.cur && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
+      {!solo && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} onClose={() => setView('home')} />}
+      {!solo && shown === 'quiz' && S && S.cur && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
         onSettle={settle} onNext={next} onQuit={quit} />}
-      {!isMath && shown === 'result' && S && <Result S={S} onAgain={() => start()} onMissed={ids => start(ids)} onHome={() => { session.current = null; setView('home'); }} />}
-      {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={say} abase={abase} />}
+      {!solo && shown === 'result' && S && <Result S={S} onAgain={() => start()} onMissed={ids => start(ids)} onHome={() => { session.current = null; setView('home'); }} />}
+      {!solo && shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={say} abase={abase} />}
       {withTabs && <TabBar view={shown} onView={setView} />}
       {ENV !== 'production' && <div className="envtag" aria-hidden="true">{ENV}</div>}
       <div className={'toast' + (toastMsg ? ' show' : '')} role="status" aria-live="polite">{toastMsg}</div>

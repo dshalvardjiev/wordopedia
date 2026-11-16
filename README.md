@@ -33,6 +33,8 @@ Each instance installs as a separate app with its own progress.
   and often-confused words.
 - **Verb conjugation** (German): tables with every form hidden until tapped; tapping plays the form.
 - **Maths**: multiplication table up to 12, typed answers only, with specific hints and the time taken.
+- **Question banks**: multiple-choice questions (one answer, several answers, or one choice per row) with the
+  correct answer and an explanation after each attempt. Currently only on the `staging` branch.
 
 Learners cannot add or change words, answers or verbs in the app. All content comes from the `dictionary/` folder.
 
@@ -53,6 +55,7 @@ dictionary/
   en/elementary/words.csv   Elementary English (alphabet book, letters A–R)
   en/basic/words.csv        Basic English (inactive until it has words)
   en/audio/, fr/audio/
+  quiz/ccar-p.json          a question bank (built into the app; a change needs a deploy, which a push starts)
 ```
 
 ### words.csv
@@ -93,14 +96,34 @@ its file first, then set `"active": true`. A language can have courses, each wit
 | fr | fr_FR-siwis-medium | le, la, l', les |
 | en | en_GB-cori-high | none; "the", "a/an" and "to" are optional in answers |
 
+### quiz/&lt;key&gt;.json (question banks)
+Each file is offered like a course; its key is the file name (lower case letters, digits, `-`).
+```json
+{ "title": "CCAR-P", "subtitle": "Claude Certified Architect", "about": "…", "sizes": [10, 20, 63],
+  "questions": [
+    { "id": "q004", "type": "choice", "q": "…", "options": ["…", "…"], "answer": [0], "why": "…" },
+    { "id": "q001", "type": "matrix", "q": "…", "rows": ["…"], "choices": ["Yes", "No"], "answer": [0] } ] }
+```
+- `choice`: `answer` lists the indexes of the correct options (one or several). `matrix`: one index into `choices`
+  per row. Indexes start at 0.
+- Optional per question: `why` (explanation shown after the answer), `ref` (link), `note`, and `key` (`source`,
+  `twin` or `derived`: where the answer comes from; `derived` is shown to the learner).
+- `sizes` are the round lengths offered next to **Всички** (default 10 and 20). `about` is shown under
+  **Още настройки**.
+- Question ids must not change once published: progress is stored per question.
+- In the app: all, new or often-missed questions; one attempt per question; a missed question returns in the same
+  round; options appear in a new order each time.
+- Banks are built into the app instead of downloaded, so `"courses": "all"` instances show a new bank only after
+  the deploy that a push to `dictionary/quiz/` starts.
+
 ### instances/&lt;id&gt;.json
 Which courses an instance offers, in display order. The file name is the folder name (lower case letters, digits,
 `-`). Course keys: a language code (`de`, `fr`), `<code>-<course id>` for languages with courses (`en-elementary`),
-and `math`.
+`math`, and the file name of a question bank (`ccar-p`).
 ```json
 { "name": "Wordopedia", "courses": [ { "course": "en-elementary", "label": "Английски" } ] }
 ```
-- `"courses": "all"` offers every course and maths (used by `production` and `staging`, so new courses appear there
+- `"courses": "all"` offers every course, maths and every question bank (used by `production` and `staging`, so new courses appear there
   without editing them).
 - `label` and `subtitle` replace the course's title and subtitle in this instance only.
 - `name` is the installed app's name.
@@ -117,7 +140,7 @@ visible title in one instance.
 npm install
 npm run dev                       # local server, "production" instance
 VITE_INSTANCE=lora npm run dev    # another instance
-npm run check                     # validate languages, instances and word lists
+npm run check                     # validate languages, instances, word lists and question banks
 npm run build                     # one instance in dist/ (VITE_INSTANCE, default production)
 npm run build:all                 # start page + every instance except staging in dist/
 python scripts/make_audio.py dictionary voice   # record missing words locally (needs piper-tts and ffmpeg)

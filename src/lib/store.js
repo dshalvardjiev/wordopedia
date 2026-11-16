@@ -1,6 +1,7 @@
 // Everything the learner owns lives in localStorage, one key per instance (see content.js);
 // dictionaries are cached copies of the remote CSV files.
 import { DEFAULT_MATH } from './math.js';
+import { DEFAULT_QUIZ } from './quiz.js';
 import { STORE_KEY as KEY, LEGACY_STORE_KEY } from './content.js';
 
 export const DEFAULT_DICT_BASE = import.meta.env.VITE_DICT_BASE ||
@@ -41,12 +42,13 @@ export function loadStore() {
     lang: s.lang || null,              // null until the learner picks a language
     settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) },
     setByLang: s.setByLang || {},      // lang -> 'all' | 'latest' | set id
-    stats: s.stats || {},              // word id -> {c, w}; ids start with the language code
+    stats: s.stats || {},              // word, maths fact or bank question id -> {c, w}; ids start with the course key, "math:" or "quiz:"
     dicts: s.dicts || {},              // lang -> {csv, updatedAt, problems}
     langConf: s.langConf || null,      // last downloaded dictionary/languages.json
     instConf: s.instConf || null,      // last downloaded dictionary/instances/<instance>.json
     dictBase: s.dictBase || null,      // dictionary folder override (no UI; used for testing); null = default
     math: { ...DEFAULT_MATH, ...(s.math || {}) }, // maths settings: test, tables, order, size
+    quiz: { ...DEFAULT_QUIZ, ...(s.quiz || {}) }, // question-bank settings: filter, size
     syncAt: s.syncAt || {},            // course key -> time of the last automatic word update
     verbs: s.verbs || {},              // course key -> {csv, updatedAt}: downloaded verbs.csv
   };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Icon } from './ui.jsx';
-import { CourseIcon } from './Chrome.jsx';
+import { CourseIcon, courseMeta } from './Chrome.jsx';
 
 // First start: which of this instance's courses to practise. For languages, Bulgarian is always the other side.
 export default function LangPick({ courses, counts, onPick, onCheck, toast }) {
@@ -23,7 +23,7 @@ export default function LangPick({ courses, counts, onPick, onCheck, toast }) {
           <button key={c.key} className="langcard" disabled={!c.active} onClick={() => onPick(c.key)}>
             <CourseIcon c={c} size={40} />
             <span><b>{c.title}</b><span className="small">{c.sub}</span></span>
-            {c.kind !== 'math' && <span className="meta">{c.active ? (counts[c.key] ? `${counts[c.key]} думи` : 'за изтегляне') : <span className="soon">скоро</span>}</span>}
+            {c.kind !== 'math' && <span className="meta">{courseMeta(c, counts, <span className="soon">скоро</span>)}</span>}
           </button>
         ))}
         {!courses.length && <p className="empty">Тук още няма курсове.</p>}
