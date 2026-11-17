@@ -1,7 +1,7 @@
 # Wordopedia: notes for Claude
 
 Vocabulary and maths practice PWA for a Bulgarian-speaking learner (a child). Owner: D (dshalvardjiev).
-UI text is Bulgarian; code, comments, commits and docs are English. See README.md for content formats.
+UI text is Bulgarian; code, comments, commits and docs are English. See README.md for content formats and docs/tracking.md for the planned usage tracking.
 
 ## Stack and deployment
 - React 18 + Vite 5 + vite-plugin-pwa (`registerType: 'autoUpdate'`). No backend, no test suite in the repo.
