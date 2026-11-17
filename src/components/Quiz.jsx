@@ -31,9 +31,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
   const [hint, setHint] = useState('');
   const [shake, setShake] = useState(0);
   const st = useRef({ clean: true, cleanBefore: undefined, lastWrong: '', hint: 0, locked: false });
-  const inp = useRef(null), nextBtn = useRef(null), timer = useRef(0);
-  // The auto-advance timer must not outlive this question (e.g. after "Край").
-  useEffect(() => () => clearTimeout(timer.current), []);
+  const inp = useRef(null), nextBtn = useRef(null);
   const again = S.seen.has(w.id);
   const answerText = dir === 'x-bg' ? w.bg[0] : full(w);
 
@@ -42,13 +40,13 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
   // Restart the shake animation on the same element; never re-create the field, or a phone keyboard would close.
   useEffect(() => { const el = inp.current; if (!shake || !el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }, [shake]);
 
-  function goNext() { if (st.current.locked) { clearTimeout(timer.current); onNext(); } }
+  function goNext() { if (st.current.locked) onNext(); }
   function lock() { st.current.locked = true; setLocked(true); }
   function showOk(warn, clean) {
     setFb({ kind: 'ok', clean, warn });
     if (settings.autoSpeak && dir !== 'x-bg') say(full(w));
-    if (settings.mode === 'test' && clean) { timer.current = setTimeout(() => onNext(), 1000); }
-    else setTimeout(() => nextBtn.current && nextBtn.current.focus({ preventScroll: true }), 20);
+    // No auto-advance: the learner reads the answer, listens to it and moves on with "Напред" (or Enter).
+    setTimeout(() => nextBtn.current && nextBtn.current.focus({ preventScroll: true }), 20);
   }
 
   // ----- multiple choice and article buttons -----
