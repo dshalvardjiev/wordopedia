@@ -9,7 +9,10 @@ const slug = t => t.toLowerCase()
 export const audioBase = (dictBase, lang) => dictBase + lang + '/audio/';
 const urlFor = (base, text) => base + slug(text) + '.mp3';
 
+// Slightly slower than recorded, so learners (children) can follow; pitch is preserved by the browser.
+const RATE = 0.85;
 const player = typeof Audio !== 'undefined' ? new Audio() : null;
+if (player) { player.defaultPlaybackRate = RATE; player.playbackRate = RATE; }
 const ready = new Map(); // url -> blob URL, prepared before the tap so play() runs inside the gesture (iOS)
 
 async function getBlobUrl(base, text) {
@@ -38,9 +41,9 @@ function tts(L, text, toast) {
   // Never read a foreign word with a voice of another language.
   const v = voiceFor(L.tts);
   if (!v) { toast && toast(`Няма запис за тази дума и на устройството няма ${L.adj}и глас.`); return; }
-  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.voice = v; u.lang = v.lang; u.rate = 0.9; speechSynthesis.speak(u); } catch (e) { /* ignore */ }
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.voice = v; u.lang = v.lang; u.rate = RATE; speechSynthesis.speak(u); } catch (e) { /* ignore */ }
 }
-function playUrl(u) { try { speechSynthesis.cancel(); } catch (e) {} try { player.pause(); player.src = u; player.currentTime = 0; const p = player.play(); if (p) p.catch(() => {}); } catch (e) {} }
+function playUrl(u) { try { speechSynthesis.cancel(); } catch (e) {} try { player.pause(); player.src = u; player.currentTime = 0; player.playbackRate = RATE; const p = player.play(); if (p) p.catch(() => {}); } catch (e) {} }
 
 export function speak(L, base, text, toast) {
   const u = ready.get(urlFor(base, text));

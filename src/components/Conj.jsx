@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { formText } from '../lib/verbs.js';
 import { prepare } from '../lib/audio.js';
-import { Icon } from './ui.jsx';
+import { Icon, Spk } from './ui.jsx';
 
 // Conjugation: say the form aloud, then tap to see (and hear) it. Singular on the left, plural on the right, as in the notebook.
 export default function Conj({ verbs, abase, say, onClose }) {
@@ -26,7 +26,7 @@ export default function Conj({ verbs, abase, say, onClose }) {
       <div className="sheet conj-sheet">
         <div className="big">{v.verb}</div>
         <div className="sub">{v.bg}</div>
-        <button type="button" className="spk" onClick={() => say(v.verb)}><Icon name="speaker" size={16} />Слушане</button>
+        <Spk onClick={() => say(v.verb)} />
         <div className="conj-grid">
           {cols.map((col, c) => (
             <div key={c} className="conj-col">

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { full } from '../lib/dictionary.js';
 import { evaluate, options } from '../lib/match.js';
 import { splitArticle } from '../lib/langs.js';
-import { Icon } from './ui.jsx';
+import { Icon, Spk } from './ui.jsx';
 import { prepare } from '../lib/audio.js';
 
 const TYPE = { n: 'съществително', v: 'глагол', a: 'прилагателно / наречие', o: 'друга дума' };
@@ -15,9 +15,6 @@ export function Pair({ w }) {
   const l = w.bg.map(x => x.replace(/\s*\(.*?\)/g, '')).filter((x, i, a) => a.indexOf(x) === i);
   return <><Art w={w} /><b>{w.de}</b>{w.pl ? <span className="pl"> (мн. ч. {w.pl})</span> : null} = {l.slice(0, 5).join(', ')}{l.length > 5 ? ', …' : ''}</>;
 }
-const Spk = ({ onClick }) => (
-  <button type="button" className="spk" onClick={onClick}><Icon name="speaker" size={16} />Слушане</button>
-);
 const XLabel = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <Art w={{ art: m.art }} /> : null; };
 const Label = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <><XLabel L={L} text={text} />{m.word}</> : text; };
 
@@ -147,16 +144,18 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
       </div>
 
       {fb && fb.kind === 'ok' && (
-        <div className="fb ok">
-          <b>{fb.clean ? 'Вярно.' : settings.retry ? 'Вярно, но с грешка или подсказка. Думата ще се появи пак.' : 'Вярно, но с грешка или подсказка.'}</b><br />
-          <Pair w={w} />{fb.warn && <span className="note">{fb.warn}</span>}{w.note && <span className="note">{w.note}</span>}
+        <div className="fb ok row">
+          <div className="fbtxt">
+            <b>{fb.clean ? 'Вярно.' : settings.retry ? 'Вярно, но с грешка или подсказка. Думата ще се появи пак.' : 'Вярно, но с грешка или подсказка.'}</b><br />
+            <Pair w={w} />{fb.warn && <span className="note">{fb.warn}</span>}{w.note && <span className="note">{w.note}</span>}
+          </div>
           {dir !== 'x-bg' && <Spk onClick={() => say(full(w))} />}
         </div>
       )}
       {fb && fb.kind === 'bad' && (
-        <div className="fb bad">
-          {fb.reveal ? <><b>Грешно.</b> Вярно е:<br /><Pair w={w} />{w.note && <span className="note">{w.note}</span>}{dir !== 'x-bg' && <Spk onClick={() => say(full(w))} />}</>
-            : <><b>{fb.msg}</b></>}
+        <div className={'fb bad' + (fb.reveal ? ' row' : '')}>
+          {fb.reveal ? <><div className="fbtxt"><b>Грешно.</b> Вярно е:<br /><Pair w={w} />{w.note && <span className="note">{w.note}</span>}</div>{dir !== 'x-bg' && <Spk onClick={() => say(full(w))} />}</>
+            : <b>{fb.msg}</b>}
         </div>
       )}
       {locked && <button ref={nextBtn} className="primary nextbtn" onClick={goNext}>Напред</button>}

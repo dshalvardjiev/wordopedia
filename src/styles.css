@@ -156,7 +156,9 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 .sheet .sub { color: var(--ink-2); font-weight: 600; font-size: 16px; line-height: 36px; margin-top: -11px; }
 .sheet .blank { display: inline-block; min-width: 64px; border-bottom: 3px solid var(--ink-2); margin-right: 8px; vertical-align: -2px; height: 1em; }
 .sheet .badge { position: absolute; top: 10px; right: 12px; font-size: 12px; font-weight: 800; color: #8A5A00; background: #FFF3D6; border-radius: 8px; padding: 3px 8px; }
-.spk { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; background: var(--pen-soft); color: var(--pen); border: 0; border-radius: 999px; padding: 7px 13px; font-weight: 800; font-size: 14px; }
+.spk { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: none; min-height: 44px; background: var(--pen-soft); color: var(--pen); border: 0; border-radius: 999px; padding: 10px 18px; font-weight: 800; font-size: 16px; transition: transform .1s; }
+.spk:active { transform: scale(.96); }
+.sheet .spk { margin-top: 6px; }
 
 .answer { margin-top: 16px; }
 .opts { display: grid; gap: 10px; }
@@ -178,10 +180,13 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 .helpers button { flex: 1; }
 .hinttxt { margin-top: 10px; color: var(--pen); font-weight: 700; }
 .fb { margin-top: 14px; padding: 14px 16px; border-radius: var(--r-md); line-height: 1.45; border-left: 4px solid; }
+/* Answer text on the left, "Слушане" centred on the right. */
+.fb.row { display: flex; align-items: center; gap: 12px; }
+.fb .fbtxt { flex: 1; min-width: 0; }
 .fb.ok { background: var(--ok-bg); color: #14532D; border-color: var(--ok); }
 .fb.bad { background: var(--bad-bg); color: #7F1D1D; border-color: var(--bad); }
 .fb .note { display: block; margin-top: 6px; font-size: 14px; opacity: .9; }
-.fb .spk { background: rgba(255,255,255,.75); }
+.fb .spk { background: #fff; }
 .pl { font-weight: 400; }
 .nextbtn { width: 100%; margin-top: 14px; }
 .shake { animation: sh .35s; }
