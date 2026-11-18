@@ -1,0 +1,24 @@
+set,verb,bulgarian,je,tu,il,nous,vous,ils,note
+Основни,être,съм,suis,es,est,sommes,êtes,sont,
+Основни,avoir,имам,ai,as,a,avons,avez,ont,
+Основни,aller,отивам,vais,vas,va,allons,allez,vont,
+Основни,faire,правя,fais,fais,fait,faisons,faites,font,"Неправилна форма: vous faites, а не „vous faisez“."
+Глаголи на -er,parler,говоря,parle,parles,parle,parlons,parlez,parlent,"Окончания на -er: -e, -es, -e, -ons, -ez, -ent."
+Глаголи на -er,aimer,обичам; харесвам,aime,aimes,aime,aimons,aimez,aiment,
+Глаголи на -er,habiter,живея,habite,habites,habite,habitons,habitez,habitent,
+Глаголи на -er,porter,нося,porte,portes,porte,portons,portez,portent,
+Глаголи на -er,manger,ям,mange,manges,mange,mangeons,mangez,mangent,„nous mangeons“: e остава след g.
+Глаголи на -er,jouer,играя,joue,joues,joue,jouons,jouez,jouent,
+Глаголи на -er,regarder,гледам,regarde,regardes,regarde,regardons,regardez,regardent,
+Глаголи на -er,écouter,слушам,écoute,écoutes,écoute,écoutons,écoutez,écoutent,
+Глаголи на -ir,finir,свършвам; завършвам,finis,finis,finit,finissons,finissez,finissent,"Окончания на -ir: -is, -is, -it, -issons, -issez, -issent."
+Глаголи на -ir,choisir,избирам,choisis,choisis,choisit,choisissons,choisissez,choisissent,
+Неправилни,prendre,вземам,prends,prends,prend,prenons,prenez,prennent,
+Неправилни,mettre,слагам; обличам,mets,mets,met,mettons,mettez,mettent,
+Неправилни,venir,идвам,viens,viens,vient,venons,venez,viennent,
+Неправилни,vouloir,искам,veux,veux,veut,voulons,voulez,veulent,
+Неправилни,pouvoir,мога,peux,peux,peut,pouvons,pouvez,peuvent,
+Неправилни,savoir,знам,sais,sais,sait,savons,savez,savent,
+Възвратни,s'habiller,обличам се,m'habille,t'habilles,s'habille,nous habillons,vous habillez,s'habillent,
+Възвратни,s'appeler,казвам се,m'appelle,t'appelles,s'appelle,nous appelons,vous appelez,s'appellent,„ll“ пред тихо e: je m'appelle; но nous nous appelons.
+Възвратни,se lever,ставам,me lève,te lèves,se lève,nous levons,vous levez,se lèvent,„è“ пред тихо e: je me lève; но nous nous levons.

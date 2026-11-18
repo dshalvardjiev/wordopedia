@@ -13,7 +13,11 @@ HF = 'https://huggingface.co/rhasspy/piper-voices/resolve/main/'
 # Same as LANGS[code].articles in src/lib/langs.js; an article not listed here is ignored, as in the app.
 ARTICLES = {'de': ['der', 'die', 'das'], 'fr': ['le', 'la', "l'", 'les'], 'en': []}
 # Same as LANGS[code].pronouns in src/lib/langs.js: verbs.csv column and the words spoken before the form.
-PRONOUNS = {'de': [('ich', 'ich'), ('du', 'du'), ('er', 'er, sie, es'), ('wir', 'wir'), ('ihr', 'ihr'), ('sie', 'sie')]}
+PRONOUNS = {'de': [('ich', 'ich'), ('du', 'du'), ('er', 'er, sie, es'), ('wir', 'wir'), ('ihr', 'ihr'), ('sie', 'sie')],
+            'fr': [('je', 'je'), ('tu', 'tu'), ('il', 'il'), ('nous', 'nous'), ('vous', 'vous'), ('ils', 'ils')]}
+# Same as LANGS[code].elide and parseVerbs() in src/lib/verbs.js: "je" + "ai" -> "j'ai" before a vowel or h.
+ELIDE = {'fr': {'je': "j'"}}
+VOWEL = re.compile(r"^[aeiouyàâäéèêëîïôöûùüœæh]", re.I)
 APOS = str.maketrans({'’': "'", '`': "'", '´': "'", 'ʼ': "'"})
 
 def slug(t):
@@ -37,12 +41,14 @@ def texts_for(csv_path, code):
     return list(dict.fromkeys(out))
 
 def verb_texts(csv_path, code):
-    # "ich fliege", "du fliegst", "er, sie, es fliegt", … for each verb in verbs.csv
+    # "ich fliege", "du fliegst", "er, sie, es fliegt", "j'ai", … for each verb in verbs.csv
     out = []
     for r in csv.DictReader(open(csv_path, encoding='utf-8-sig')):
         for col, say in PRONOUNS.get(code, []):
-            form = (r.get(col) or '').strip()
-            if form: out.append(f'{say} {form}')
+            form = ' '.join((r.get(col) or '').translate(APOS).split())
+            if not form: continue
+            e = ELIDE.get(code, {}).get(col)
+            out.append(e + form if e and VOWEL.match(form) else f'{say} {form}')
     return out
 
 def voice_file(voice, cache):

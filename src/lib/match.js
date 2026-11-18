@@ -18,7 +18,7 @@ function adjForms(c) {
   return out;
 }
 const bgCands = w => w.bg.flatMap(x => (w.type === 'a' && !/ /.test(nbgL(x)) ? adjForms(nbgL(x)) : [nbgL(x)]));
-function lev(a, b) {
+export function lev(a, b) {
   if (Math.abs(a.length - b.length) > 1) return 2;
   const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
   for (let j = 1; j <= b.length; j++) d[0][j] = j;

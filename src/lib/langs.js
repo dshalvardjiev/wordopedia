@@ -13,6 +13,9 @@ export const LANGS = {
     code: 'fr', name: 'Френски', native: 'Français', adj: 'френск', tts: 'fr',
     articles: ['le', 'la', "l'", 'les'],
     quizArticles: ['le', 'la', "l'", 'les'],
+    // Conjugation table (dictionary/fr/verbs.csv columns je..ils). "je" is elided before a vowel or h: j'ai, j'habite.
+    pronouns: [['je', 'je', 'je'], ['tu', 'tu', 'tu'], ['il', 'il/elle/on', 'il'], ['nous', 'nous', 'nous'], ['vous', 'vous', 'vous'], ['ils', 'ils/elles', 'ils']],
+    elide: { je: "j'" },
     keys: ['é', 'è', 'ê', 'à', 'â', 'ç', 'î', 'ô', 'ù', 'û', 'ë', 'œ'], capNouns: false, placeholder: 'напр. le chien', exampleNoun: 'le chat',
   },
   en: {

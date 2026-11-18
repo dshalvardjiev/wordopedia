@@ -18,6 +18,8 @@ import Quiz from './components/Quiz.jsx';
 import Result from './components/Result.jsx';
 import Words from './components/Words.jsx';
 import Conj from './components/Conj.jsx';
+import ConjQuiz from './components/ConjQuiz.jsx';
+import { conjFacts, conjText } from './lib/conj.js';
 import { parseVerbs, formText } from './lib/verbs.js';
 
 // Every dictionary/<path>/words.csv is built into the app, so the first start works without a network.
@@ -84,6 +86,12 @@ export default function App() {
   };
   const isArtWord = w => w.type === 'n' && L.quizArticles.includes(w.art);
   const eligible = words.filter(w => w.on && (!activeSet || w.set === activeSet) && (dir !== 'art' || isArtWord(w)) && passFilter(w));
+  // Conjugation exercise: one question per verb and pronoun; verb group stored under "<course key>:conj".
+  const conjAll = useMemo(() => conjFacts(L, verbs), [L, verbs]);
+  const conjGroups = useMemo(() => [...new Set(verbs.map(v => v.set).filter(Boolean))], [verbs]);
+  const conjSel = conjGroups.includes(store.setByLang[L.key + ':conj']) ? store.setByLang[L.key + ':conj'] : 'all';
+  const conjEligible = conjAll.filter(f => conjSel === 'all' || f.set === conjSel);
+  const conjMode = s.conjMode || 'table';
 
   // ----- downloads -----
   // Downloads languages.json and this instance's file; returns the titles of the courses now available here.
@@ -152,8 +160,8 @@ export default function App() {
   }
 
   // ----- session -----
-  function run(pool, retry) {
-    session.current = { queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0 };
+  function run(pool, retry, kind) {
+    session.current = { kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0 };
     next();
     setView('quiz');
   }
@@ -164,6 +172,14 @@ export default function App() {
     shuffle(pool);
     if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
     run(pool, s.retry);
+  }
+  // Conjugation: the given questions (missed or often confused ones), or the chosen verb group.
+  function startConj(ids) {
+    let pool = ids ? conjAll.filter(f => ids.includes(f.id)) : conjEligible.slice();
+    if (!pool.length) { toast('Няма глаголи за тези настройки'); return; }
+    shuffle(pool);
+    if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
+    run(pool, s.retry, 'conj');
   }
   // Maths: a given list of facts (e.g. the often-confused ones), or the chosen tables in the chosen order.
   function startMath(list) {
@@ -218,11 +234,15 @@ export default function App() {
       {isMath && shown === 'quiz' && S && S.cur && <MathQuiz S={S} onSettle={settle} onNext={next} onQuit={quit} />}
       {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
       {!isMath && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
-        verbs={verbs} onStart={() => (dir === 'conj' ? setView('conj') : start())} onPractise={ids => start(ids)} />}
+        verbs={verbs} conjAll={conjAll} conjGroups={conjGroups} conjSel={conjSel} conjCount={conjEligible.length}
+        onStart={() => (dir !== 'conj' ? start() : conjMode === 'table' ? setView('conj') : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : start(ids))} />}
       {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} onClose={() => setView('home')} />}
-      {!isMath && shown === 'quiz' && S && S.cur && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
+      {!isMath && shown === 'quiz' && S && S.cur && S.kind === 'conj' && <ConjQuiz L={L} S={S} facts={conjAll} mode={conjMode} retry={s.retry} autoSpeak={s.autoSpeak}
+        say={say} abase={abase} onSettle={settle} onNext={next} onQuit={quit} />}
+      {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
         onSettle={settle} onNext={next} onQuit={quit} />}
-      {!isMath && shown === 'result' && S && <Result S={S} onAgain={() => start()} onMissed={ids => start(ids)} onHome={() => { session.current = null; setView('home'); }} />}
+      {!isMath && shown === 'result' && S && <Result S={S} item={S.kind === 'conj' ? conjText : null}
+        onAgain={() => (S.kind === 'conj' ? startConj() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
       {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={say} abase={abase} />}
       {withTabs && <TabBar view={shown} onView={setView} />}
       {ENV !== 'production' && <div className="envtag" aria-hidden="true">{ENV}</div>}

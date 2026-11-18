@@ -5,7 +5,8 @@ import { STORE_KEY as KEY, LEGACY_STORE_KEY } from './content.js';
 
 export const DEFAULT_DICT_BASE = import.meta.env.VITE_DICT_BASE ||
   'https://raw.githubusercontent.com/dshalvardjiev/wordopedia/main/dictionary/';
-const DEFAULT_SETTINGS = { dir: 'x-bg', mode: 'test', filter: 'all', size: 'all', reqArt: true, retry: true, autoSpeak: false };
+// conjMode: 'table' (forms revealed by tapping), 'test' (choice of four) or 'open' (typed) for the conjugation exercise.
+const DEFAULT_SETTINGS = { dir: 'x-bg', mode: 'test', conjMode: 'table', filter: 'all', size: 'all', reqArt: true, retry: true, autoSpeak: false };
 
 // Version 1 ids never carry a language prefix, so every key gets one.
 const prefixKeys = (o, l) => Object.fromEntries(Object.entries(o || {}).map(([k, v]) => [l + ':' + k, v]));

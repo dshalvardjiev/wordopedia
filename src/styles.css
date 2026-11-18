@@ -258,6 +258,12 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 }
 .cform.open { background: transparent; border-bottom-style: solid; border-bottom-color: transparent; color: var(--pen); }
 
+/* Conjugation exercise: the verb's table in the feedback, singular forms left, plural right. */
+.sheet .cq-verb { color: var(--ink); }
+.cq-tab { display: grid; grid-template-rows: repeat(3, auto); grid-auto-flow: column; gap: 2px 18px; margin-top: 10px; font-size: 15px; }
+.cq-tab span { padding: 2px 6px; border-radius: 6px; }
+.cq-tab .cur { font-weight: 800; background: rgba(255,255,255,.75); }
+
 .tiles.two { grid-template-columns: 1fr 1fr; }
 .tiles.two .tile { min-height: 76px; }
 

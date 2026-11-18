@@ -19,9 +19,11 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - `src/lib/langs.js`: per-language rules (articles, letter keys, pronouns, normalisation). `courses.js`: courses from
   `languages.json`, and `instanceCourses()` for an instance's selection and labels. `content.js`: build-time
   instance (`VITE_INSTANCE`), environment (`VITE_ENV`), bundled instance file, storage key. `dictionary.js`/`csv.js`/`verbs.js`: parsing. `match.js`: answer checking and quiz options.
+  `conj.js`: conjugation exercise (questions per verb and pronoun, answer checking, options).
   `audio.js`: recordings (Cache Storage) and device-voice fallback. `sync.js`: downloads. `store.js`: localStorage.
   `math.js`: maths tests.
-- `src/components/`: `Home`, `Quiz`, `Result`, `Words` (vocabulary), `Conj` (conjugation), `LangPick`,
+- `src/components/`: `Home`, `Quiz`, `Result`, `Words` (vocabulary), `Conj` (conjugation table), `ConjQuiz`
+  (conjugation test / typed; not keyed by question, like `MathQuiz`), `LangPick`,
   `Chrome` (language menu, tab bar), `ui` (flags, icons, segmented control), `math/`.
 - `scripts/make_audio.py`: used by the recordings workflow; runs locally with piper-tts and ffmpeg.
 
@@ -37,7 +39,10 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - `navigateFallback: null` in `vite.config.js`: otherwise one folder's service worker answers navigations to another
   folder. `landing/sw.js` must stay: it retires the former root app's service worker on installed phones.
 - Must match between JS and Python: `slug` (audio.js ↔ make_audio.py), article lists (langs.js `articles` ↔
-  `ARTICLES`), German pronouns (langs.js `pronouns` ↔ `PRONOUNS`).
+  `ARTICLES`), pronouns (langs.js `pronouns` ↔ `PRONOUNS`), French elision (langs.js `elide` + verbs.js `VOWEL` ↔
+  `ELIDE` + `VOWEL`): recordings of verb forms are found by their text (`j'ai`, `er, sie, es ist`).
+- Conjugation progress id = `<courseKey>:conj:<verb>:<column>` (e.g. `fr:conj:être:nous`); sessions carry `kind`
+  (`words` | `conj`). The verb group is `setByLang['<courseKey>:conj']`; the format is `settings.conjMode`.
 - Learners must not be able to add or change words, answers or verbs in the app (owner's decision).
 
 ## Pitfalls already hit

@@ -31,7 +31,10 @@ Each instance installs as a separate app with its own progress.
   "show answer" help. Missed words come back in the same round.
 - **Думи** tab: the vocabulary of the course, by set or A–Z, with search; tap a word to hear it; marks for learned
   and often-confused words.
-- **Verb conjugation** (German): tables with every form hidden until tapped; tapping plays the form.
+- **Verb conjugation** (German, French): three formats. **Таблица**: every form hidden until tapped; tapping plays
+  the form. **Тест** / **Свободен отговор**: a pronoun and a verb (`nous` + `être`), the form chosen from four or typed
+  (`sommes` or `nous sommes`), with specific feedback (another person's form, the infinitive, a missing `j'`); progress
+  per verb and pronoun, missed forms come back in the same round.
 - **Maths**: multiplication table up to 12, typed answers only, with specific hints and the time taken.
 
 Learners cannot add or change words, answers or verbs in the app. All content comes from the `dictionary/` folder.
@@ -49,7 +52,7 @@ dictionary/
   languages.json            which languages and courses are on, and each language's voice
   de/words.csv              German words          de/verbs.csv   German conjugation tables
   de/audio/                 German recordings (all courses of a language share one folder)
-  fr/words.csv              French words (inactive)
+  fr/words.csv              French words (topics)  fr/verbs.csv   French conjugation tables
   en/elementary/words.csv   Elementary English (alphabet book, letters A–R)
   en/basic/words.csv        Basic English (inactive until it has words)
   en/audio/, fr/audio/
@@ -75,8 +78,20 @@ Columns: `set, article, german, bulgarian, type, plural, alt, note` (the third c
 2026-12 Декември,,dog,куче,n,dogs,,
 ```
 
-### verbs.csv (German)
-Columns: `verb, bulgarian, ich, du, er, wir, ihr, sie` — for example `sein,съм,bin,bist,ist,sind,seid,sind`.
+### verbs.csv
+Columns: `verb, bulgarian`, one column per pronoun, and optionally `set` (verb group, offered in the Тест / Свободен
+отговор formats) and `note` (shown after answering).
+
+| language | pronoun columns | example |
+|---|---|---|
+| de | `ich, du, er, wir, ihr, sie` | `sein,съм,bin,bist,ist,sind,seid,sind` |
+| fr | `je, tu, il, nous, vous, ils` | `Основни,être,съм,suis,es,est,sommes,êtes,sont,` (with `set` first and `note` last) |
+
+- Every pronoun column must be filled in; an incomplete row is left out (`npm run check` reports it).
+- Forms are written without the subject pronoun; reflexive verbs keep their own: `m'habille`, `nous habillons`.
+- French `je` becomes `j'` before a vowel or `h` (`j'ai`, `j'habite`), in the table and in the recordings.
+- Progress is stored per verb and pronoun under `<course key>:conj:<verb>:<column>` (e.g. `fr:conj:être:nous`):
+  renaming a verb resets it, moving it to another group does not.
 
 ### languages.json
 A language or course with `"active": false` is shown as "скоро" and cannot be chosen. To switch one on, add words to

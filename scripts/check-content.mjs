@@ -3,6 +3,8 @@
 // Usage: node scripts/check-content.mjs
 import fs from 'node:fs';
 import { parseDictionary } from '../src/lib/dictionary.js';
+import { parseVerbs } from '../src/lib/verbs.js';
+import { parseCSV } from '../src/lib/csv.js';
 import { coursesFrom, courseL, instanceCourses, ID_RE, PRODUCTION, STAGING } from '../src/lib/courses.js';
 
 const D = 'dictionary/';
@@ -20,6 +22,17 @@ for (const c of courses) {
     p.problems.forEach(x => err(`${file}: ${x}`));
     if (c.active && !p.words.length) warn(`course "${c.key}" is active but has no words`);
   } catch (e) { err(`${file}: ${e.message}`); }
+  // Optional verb tables: every row needs all pronoun columns filled in, or the app leaves the verb out.
+  const vfile = `${c.path}/verbs.csv`;
+  if (fs.existsSync(D + vfile)) {
+    const L = courseL(c), text = fs.readFileSync(D + vfile, 'utf8');
+    if (!L.pronouns) { err(`${vfile}: ${c.lang} has no pronouns in src/lib/langs.js, so its verbs cannot be shown`); continue; }
+    const head = (parseCSV(text)[0] || []).map(h => h.trim().toLowerCase());
+    ['verb', 'bulgarian', ...L.pronouns.map(p => p[0])].filter(n => !head.includes(n)).forEach(n => err(`${vfile}: column "${n}" is missing`));
+    const names = parseCSV(text).slice(1).map(r => (r[head.indexOf('verb')] || '').trim()), kept = new Set(parseVerbs(text, L).map(v => v.verb));
+    names.forEach((v, i) => { if (!kept.has(v)) err(`${vfile}: row ${i + 2} (${v || 'no verb'}) is incomplete and is not shown`); });
+    names.filter((v, i) => v && names.indexOf(v) !== i).forEach(v => err(`${vfile}: ${v} is listed twice`));
+  }
 }
 
 const keys = new Set([...courses.map(c => c.key), 'math']);
