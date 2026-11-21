@@ -126,7 +126,29 @@ Taken as defaults on 2026-11-21 (the owner did not choose otherwise); each can b
 - Schema changes: add a new file under `worker/migrations/`; never edit one that has been applied.
 - Deploys: `.github/workflows/worker.yml` on changes under `worker/` (or run it by hand).
 
-## 9. Cloudflare prerequisites
+## 9. Dashboard
+A local page with the reports, filtered by period, course and exercise: `dashboard/` (no dependencies; Node 18+).
+
+1. Create a read-only API token: Cloudflare > My Profile > API Tokens > Create Token > Custom token, permission
+   **Account > D1 > Read**, limited to this account. Read-only tokens cannot change data (D1 writes over the API need
+   D1 Edit).
+2. Create `dashboard/.env` (git-ignored):
+   ```
+   CLOUDFLARE_API_TOKEN=<the read-only token>
+   CLOUDFLARE_ACCOUNT_ID=<account id>
+   ```
+3. `npm run dashboard`, then open http://127.0.0.1:8788/.
+
+The token stays in the local Node process; the page talks only to 127.0.0.1, which runs a fixed set of SELECT queries
+(`dashboard/queries.mjs`, the views' logic plus filters) and answers only requests addressed to 127.0.0.1 or
+localhost. `npm run dashboard:local` reads the database of `wrangler dev` in `worker/` instead (slower: one
+`wrangler d1 execute` per query); `CLOUDFLARE_API_BASE` points the server at a stand-in API for tests.
+
+Sections: learners, sessions, active time, finished share, right-first-time share; sessions per day; exercises (how
+sessions ended, dropped within 3 answers, active time, help used, idle minutes); hardest words (adjusted first-answer
+error rate, with a minimum number of first answers); most frequent wrong picks. Every chart has a table view.
+
+## 10. Cloudflare prerequisites
 Done by the owner (done 2026-11-21):
 1. Create a Cloudflare account (Free plan) and open Workers & Pages once to register the account's `workers.dev`
    subdomain.

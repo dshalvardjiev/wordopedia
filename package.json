@@ -8,7 +8,9 @@
     "build": "vite build",
     "build:all": "node scripts/build-all.mjs",
     "check": "node scripts/check-content.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dashboard": "node dashboard/server.mjs",
+    "dashboard:local": "node dashboard/server.mjs --local"
   },
   "dependencies": {
     "react": "^18.3.1",

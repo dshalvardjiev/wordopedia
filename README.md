@@ -131,8 +131,8 @@ visible title in one instance.
 Instances with `"tracking": true` send anonymous usage events (exercise, word, result, timing; no names, no typed
 text, no instance name) to a Cloudflare Worker with a database in the EU. Reports are per course: which words are hard,
 which exercises are finished or dropped. Parents can switch it off in the course menu (**Анонимна статистика**);
-`"tracking": {"enabled": false}` in `languages.json` stops it everywhere. Details and report queries:
-[docs/tracking.md](docs/tracking.md).
+`"tracking": {"enabled": false}` in `languages.json` stops it everywhere. Reports: `npm run dashboard` (a local page;
+needs a read-only Cloudflare token). Details: [docs/tracking.md](docs/tracking.md).
 
 ## Development
 ```
