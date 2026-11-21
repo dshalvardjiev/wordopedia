@@ -30,6 +30,8 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - `worker/`: Cloudflare Worker + D1 (EU) for usage events; deployed by `.github/workflows/worker.yml`.
 - `dashboard/`: local reports page (`npm run dashboard`, http://127.0.0.1:8788); `queries.mjs` mirrors the views in
   `worker/migrations/` with filters, so a view change needs the same change there. Token in `dashboard/.env` (D1 Read).
+  Tabs: Overview (aggregates) and Sessions (per device, session replay). Ids from the browser are validated before
+  they are inlined into SQL (`validId`); device names live only in the browser's localStorage.
 
 ## Invariants (break these and saved progress or audio silently breaks)
 - Course key vs language: `L.code` is the language (rules, voice, `dictionary/<code>/audio/`); `L.key` and `L.path`

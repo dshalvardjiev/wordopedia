@@ -114,3 +114,61 @@ export function reportQueries(f) {
       GROUP BY course, ex, word, pick ORDER BY times DESC, word LIMIT 12`,
   };
 }
+
+// ----- Sessions tab: devices, their sessions, one session's events -----
+// Ids come from the browser: only the Worker's id format is accepted, so they are safe to inline.
+const ID_RE = /^[0-9a-z-]{8,40}$/i;
+const validId = id => typeof id === 'string' && ID_RE.test(id);
+
+export function deviceQueries(f) {
+  const W = where(f);
+  return {
+    meta: reportQueries(f).meta,
+    freshness: reportQueries(f).freshness,
+    devices: `WITH s AS (
+        SELECT dev, COUNT(*) AS sessions, MIN(ts) AS first_ts, MAX(ts) AS last_ts, GROUP_CONCAT(DISTINCT course) AS courses
+        FROM v_events WHERE ${W} AND kind = 'session_start' GROUP BY dev
+      ), e AS (
+        SELECT dev, SUM(secs) AS active_secs FROM v_session_ends WHERE ${W} GROUP BY dev
+      ), a AS (
+        SELECT dev, COUNT(*) AS first_answers, SUM(result IN ('ok', 'typo')) AS first_right
+        FROM v_events WHERE ${W} AND kind = 'answer' AND first = 1 GROUP BY dev
+      )
+      SELECT s.dev, s.sessions, s.first_ts, s.last_ts, s.courses, COALESCE(e.active_secs, 0) AS active_secs,
+             COALESCE(a.first_answers, 0) AS first_answers, COALESCE(a.first_right, 0) AS first_right
+      FROM s LEFT JOIN e ON e.dev = s.dev LEFT JOIN a ON a.dev = s.dev
+      ORDER BY s.last_ts DESC`,
+  };
+}
+
+// Sessions of one device started in the period, newest first, with how each ended.
+export function sessionsQueries(f, dev) {
+  if (!validId(dev)) return null;
+  return {
+    sessions: `WITH st AS (
+        SELECT sess, ts AS start_ts, course, ex, fmt, size FROM v_events
+        WHERE ${where(f)} AND kind = 'session_start' AND dev = '${dev}'
+      ), en AS (
+        SELECT sess, status, secs, ts AS end_ts FROM v_session_ends WHERE dev = '${dev}'
+      ), an AS (
+        SELECT sess, COUNT(*) AS answers, SUM(first = 1) AS firsts, SUM(first = 1 AND result IN ('ok', 'typo')) AS first_right,
+               SUM(result IN ('hint', 'shown')) AS helped
+        FROM v_events WHERE dev = '${dev}' AND kind = 'answer' GROUP BY sess
+      )
+      SELECT st.*, en.status, en.secs, en.end_ts, COALESCE(an.answers, 0) AS answers, COALESCE(an.firsts, 0) AS firsts,
+             COALESCE(an.first_right, 0) AS first_right, COALESCE(an.helped, 0) AS helped
+      FROM st LEFT JOIN en ON en.sess = st.sess LEFT JOIN an ON an.sess = st.sess
+      ORDER BY st.start_ts DESC LIMIT 300`,
+  };
+}
+
+// Every event of one session in order, plus the end the reports count (done or quit preferred over abandoned).
+export function sessionQueries(id) {
+  if (!validId(id)) return null;
+  return {
+    events: `SELECT kind, ts, dev, course, ex, fmt, size, word, first, result, ms, pick, n, secs, status
+      FROM v_events WHERE sess = '${id}'
+      ORDER BY ts, CASE kind WHEN 'session_start' THEN 0 WHEN 'session_end' THEN 2 ELSE 1 END`,
+    end: `SELECT status, n, secs, ts FROM v_session_ends WHERE sess = '${id}'`,
+  };
+}

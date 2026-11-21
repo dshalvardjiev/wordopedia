@@ -57,7 +57,8 @@ per database.
     everywhere, fetched at runtime, no release needed;
   - the parent's switch in the app's course menu.
 - Device id: `crypto.randomUUID()` stored in localStorage. Used only to count learners per word and to exclude a device
-  that sends junk; never a grouping key in reports. Deleted when the parent's switch is turned off.
+  that sends junk, and in the local dashboard's Sessions tab to list sessions per device; never a grouping key in the
+  aggregate reports. Deleted when the parent's switch is turned off.
 
 ## 2. Events
 | Type | When | Fields beyond the common ones |
@@ -146,9 +147,16 @@ The token stays in the local Node process; the page talks only to 127.0.0.1, whi
 localhost. `npm run dashboard:local` reads the database of `wrangler dev` in `worker/` instead (slower: one
 `wrangler d1 execute` per query); `CLOUDFLARE_API_BASE` points the server at a stand-in API for tests.
 
-Sections: learners, sessions, active time, finished share, right-first-time share; sessions per day; exercises (how
-sessions ended, dropped within 3 answers, active time, help used, idle minutes); hardest words (adjusted first-answer
-error rate, with a minimum number of first answers); most frequent wrong picks. Every chart has a table view.
+Overview tab: learners, sessions, active time, finished share, right-first-time share; sessions per day; exercises
+(how sessions ended, dropped within 3 answers, active time, help used, idle minutes); hardest words (adjusted
+first-answer error rate, with a minimum number of first answers); most frequent wrong picks. Every chart has a table
+view.
+
+Sessions tab (owner's request, 2026-11-21): devices by their random id (names can be given; they are kept only in that
+browser's localStorage), the sessions of the chosen device, and a replay of one session: its answers on a time line
+with idle minutes shaded, the list of answers (result, time to answer, wrong option picked) and Play at 1×, 10× or 60×.
+This is the one place where the device id groups data; it shows one device's usage, so it stays in the local
+dashboard.
 
 ## 10. Cloudflare prerequisites
 Done by the owner (done 2026-11-21):
