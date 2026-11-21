@@ -45,12 +45,13 @@ jobs:
           fi
           [ -n "$id" ] || { echo "::error::Database $DB_NAME not found and could not be created"; exit 1; }
           echo "Database id: $id"
-          npx wrangler d1 info "$DB_NAME" || true
           sed -i "s/$PLACEHOLDER/$id/" wrangler.toml
+          npx wrangler d1 info "$DB_NAME" || true
       - name: Apply migrations
         run: npx wrangler d1 migrations apply "$DB_NAME" --remote
       - name: Deploy
         run: |
+          set -o pipefail
           npx wrangler deploy 2>&1 | tee deploy.log
           url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
           echo "WORKER_URL=$url" >> "$GITHUB_ENV"
