@@ -662,6 +662,145 @@
   "die Brezel": {
    "file": "die-brezel.svg",
    "source": "fluent"
+  },
+  "der Unfall": {
+   "file": "der-unfall.svg",
+   "source": "fluent"
+  },
+  "das Ufer": {
+   "file": "das-ufer.svg",
+   "source": "wordopedia"
+  },
+  "der Freund": {
+   "file": "der-freund.svg",
+   "source": "fluent"
+  },
+  "die Freundin": {
+   "file": "die-freundin.svg",
+   "source": "fluent"
+  },
+  "die Idee": {
+   "file": "die-idee.svg",
+   "source": "fluent"
+  },
+  "der Kopf": {
+   "file": "der-kopf.svg",
+   "source": "fluent"
+  },
+  "spielen": {
+   "file": "spielen.svg",
+   "source": "fluent"
+  },
+  "das Tal": {
+   "file": "das-tal.svg",
+   "source": "wordopedia"
+  },
+  "streiten": {
+   "file": "streiten.svg",
+   "source": "fluent"
+  },
+  "die Klasse": {
+   "file": "die-klasse.svg",
+   "source": "wordopedia"
+  },
+  "der Herr": {
+   "file": "der-herr.svg",
+   "source": "fluent"
+  },
+  "hier": {
+   "file": "hier.svg",
+   "source": "fluent"
+  },
+  "interessant": {
+   "file": "interessant.svg",
+   "source": "fluent"
+  },
+  "die Halle": {
+   "file": "die-halle.svg",
+   "source": "fluent"
+  },
+  "hell": {
+   "file": "hell.svg",
+   "source": "fluent"
+  },
+  "der Name": {
+   "file": "der-name.svg",
+   "source": "wordopedia"
+  },
+  "jodeln": {
+   "file": "jodeln.svg",
+   "source": "fluent"
+  },
+  "der Vater": {
+   "file": "der-vater.svg",
+   "source": "fluent"
+  },
+  "wir": {
+   "file": "wir.svg",
+   "source": "fluent"
+  },
+  "das Wort": {
+   "file": "das-wort.svg",
+   "source": "fluent"
+  },
+  "wieder": {
+   "file": "wieder.svg",
+   "source": "fluent"
+  },
+  "fahren": {
+   "file": "fahren.svg",
+   "source": "fluent"
+  },
+  "bellen": {
+   "file": "bellen.svg",
+   "source": "fluent"
+  },
+  "die Mutter": {
+   "file": "die-mutter.svg",
+   "source": "fluent"
+  },
+  "der Zoo": {
+   "file": "der-zoo.svg",
+   "source": "fluent"
+  },
+  "der Satz": {
+   "file": "der-satz.svg",
+   "source": "wordopedia"
+  },
+  "das Netz": {
+   "file": "das-netz.svg",
+   "source": "wordopedia"
+  },
+  "der Dezember": {
+   "file": "der-dezember.svg",
+   "source": "fluent"
+  },
+  "der Platz": {
+   "file": "der-platz.svg",
+   "source": "fluent"
+  },
+  "der Comic": {
+   "file": "der-comic.png",
+   "title": "Comic Book.svg",
+   "author": "Rickterto",
+   "license": "CC BY 4.0",
+   "url": "https://commons.wikimedia.org/wiki/File:Comic_Book.svg"
+  },
+  "schieben": {
+   "file": "schieben.svg",
+   "source": "fluent"
+  },
+  "die Zunge": {
+   "file": "die-zunge.svg",
+   "source": "fluent"
+  },
+  "das Verstecken": {
+   "file": "das-verstecken.svg",
+   "source": "fluent"
+  },
+  "die Ecke": {
+   "file": "die-ecke.svg",
+   "source": "wordopedia"
   }
  }
 }
