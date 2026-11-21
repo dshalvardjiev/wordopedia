@@ -6,7 +6,7 @@ import { INSTANCE, ENV } from './content.js';
 const QKEY = `wordopedia.${INSTANCE}.q`;      // queue of unsent events
 const DKEY = `wordopedia.${INSTANCE}.dev`;    // random device id
 const AKEY = `wordopedia.${INSTANCE}.sess`;   // running sessions by id, to report them as abandoned after a restart
-const MAX_QUEUE = 500, BATCH = 100, TICK_MS = 60e3, STALE_MS = 3 * TICK_MS;
+const MAX_QUEUE = 2000, BATCH = 100, TICK_MS = 60e3, STALE_MS = 3 * TICK_MS;
 const VER = typeof __APP_BUILD__ !== 'undefined' ? __APP_BUILD__ : 'dev';
 
 const read = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };

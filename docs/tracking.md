@@ -31,7 +31,8 @@ day, a few MB a year. Workers Free allows 100,000 requests a day; D1 Free allows
 per database.
 
 ## 1. Client (`src/lib/track.js`)
-- Events are appended to a queue in localStorage (`wordopedia.<instance>.q`, capped at 500; oldest dropped first).
+- Events are appended to a queue in localStorage (`wordopedia.<instance>.q`, capped at 2,000, about 600 KB; oldest
+  dropped first).
 - Flush triggers:
   - every 60 seconds while a session is running (timer starts with the session, stops on end, quit or hide, resumes
     when visible);
@@ -63,7 +64,7 @@ per database.
 |---|---|---|
 | `open` | app opened | |
 | `session_start` | exercise started | exercise, format, list size |
-| `answer` | every answer | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`), response ms, wrong option picked (test format only) |
+| `answer` | every answer | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`), response ms, wrong option picked (choice exercises; with repeated tries, the first wrong one) |
 | `session_end` | finished, quit, or detected abandoned | answers given, size, status |
 | `tick` | every minute of a session | answers so far, active seconds |
 

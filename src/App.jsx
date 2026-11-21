@@ -197,7 +197,7 @@ export default function App() {
     if (!pool.length) { toast('Няма думи за тези настройки'); return; }
     shuffle(pool);
     if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
-    run(pool, s.retry, 'words', { course: L.key, ex: dir, fmt: dir === 'art' ? 'test' : s.mode });
+    run(pool, s.retry, 'words', { course: L.key, ex: dir, fmt: s.mode });
   }
   // Conjugation: the given questions (missed or often confused ones), or the chosen verb group.
   function startConj(ids) {

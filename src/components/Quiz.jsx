@@ -28,7 +28,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, on
   const [value, setValue] = useState('');
   const [hint, setHint] = useState('');
   const [shake, setShake] = useState(0);
-  const st = useRef({ clean: true, cleanBefore: undefined, lastWrong: '', hint: 0, locked: false });
+  const st = useRef({ clean: true, cleanBefore: undefined, lastWrong: '', hint: 0, locked: false, firstPick: '' });
   const inp = useRef(null), nextBtn = useRef(null);
   const again = S.seen.has(w.id);
   const answerText = dir === 'x-bg' ? w.bg[0] : full(w);
@@ -55,13 +55,14 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, on
     if (st.current.locked || picked[v]) return;
     if (v === opts.right) {
       setPicked(p => ({ ...p, [v]: 'ok' })); lock();
-      const clean = st.current.clean; onSettle(clean, { result: outcome('') }); showOk('', clean);
+      // With repeated tries (articles, free-answer format) the first wrong button is the confusion worth reporting.
+      const clean = st.current.clean; onSettle(clean, { result: outcome(''), pick: st.current.firstPick || undefined }); showOk('', clean);
     } else if (settings.mode === 'test') {
       setPicked(p => ({ ...p, [v]: 'bad', [opts.right]: 'ok' })); lock();
       onSettle(false, { result: 'wrong', pick: v }); setFb({ kind: 'bad', reveal: true });
       setTimeout(() => nextBtn.current && nextBtn.current.focus({ preventScroll: true }), 20);
     } else {
-      st.current.clean = false;
+      st.current.clean = false; if (!st.current.firstPick) st.current.firstPick = v;
       setPicked(p => ({ ...p, [v]: 'bad' })); setFb({ kind: 'bad', msg: 'Неверен отговор.' }); setShake(x => x + 1);
     }
   }

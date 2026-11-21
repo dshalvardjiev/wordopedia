@@ -342,7 +342,7 @@ function renderWords(rows, f) {
 }
 
 function renderConfusions(rows) {
-  card('#c-conf', 'Most frequent wrong picks', 'Test format: the option chosen instead of the right one.',
+  card('#c-conf', 'Most frequent wrong picks', 'Choice exercises: the (first) wrong option chosen instead of the right one.',
     rows.length && (() => tableOf(['Word', 'Picked instead', 'Times'], rows.map(r => [el('div', {}, wordParts(r.word).main, el('div', { class: 'small' }, exName(r.ex))), r.pick, nf.format(r.times)]), [2])),
     null, 'No wrong picks in this period.');
 }
