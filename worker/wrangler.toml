@@ -1,0 +1,35 @@
+# Wordopedia usage events (see docs/tracking.md). Deployed by .github/workflows/worker.yml.
+name = "wordopedia-events"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[vars]
+# Pages allowed to send events (comma-separated).
+ORIGINS = "https://dshalvardjiev.github.io"
+# "false" pauses collection: batches are accepted and dropped.
+ACCEPT = "true"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "wordopedia-events"
+# Replaced at deploy time by the workflow with the id of the database (created in the EU jurisdiction);
+# local development uses a local database.
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+[[ratelimits]]
+name = "RL"
+namespace_id = "1001"
+simple = { limit = 30, period = 60 }
+
+# Monthly: summarise and delete events older than 12 months.
+[triggers]
+crons = ["17 3 1 * *"]
+
+# Request metadata is not logged; only the Worker's own error counts.
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false

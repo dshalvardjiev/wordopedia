@@ -12,6 +12,8 @@ on:
       - '!dictionary/**'
       - 'dictionary/instances/**'
       - '!**.md'
+      - '!worker/**'
+      - '!.github/workflows/worker.yml'
   workflow_dispatch:
 permissions:
   contents: read
