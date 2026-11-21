@@ -6,7 +6,8 @@ import { coursesFrom, courseL, instanceCourses } from './lib/courses.js';
 import { BUNDLED_INSTANCE, INSTANCE, ENV } from './lib/content.js';
 import { loadStore, saveStore, sortSets, DEFAULT_DICT_BASE } from './lib/store.js';
 import { audioBase, speak as speakAudio, prefetchAll, resetPrepared } from './lib/audio.js';
-import { fetchLangConf, fetchInstance, fetchDictionary, fetchVerbs } from './lib/sync.js';
+import { fetchLangConf, fetchInstance, fetchDictionary, fetchVerbs, fetchImages } from './lib/sync.js';
+import { imgBase, parseImages, prefetchImages } from './lib/images.js';
 import { shuffle } from './lib/match.js';
 import LangPick from './components/LangPick.jsx';
 import { LangMenu, TabBar } from './components/Chrome.jsx';
@@ -27,6 +28,8 @@ const BUNDLED_CSV = import.meta.glob('../dictionary/**/words.csv', { query: '?ra
 function parseSafe(csv, L) { try { return parseDictionary(csv, L); } catch (e) { return null; } }
 const bundledFor = L => parseSafe(BUNDLED_CSV[`../dictionary/${L.path}/words.csv`] || '', L) || EMPTY;
 const BUNDLED_VERBS = import.meta.glob('../dictionary/**/verbs.csv', { query: '?raw', import: 'default', eager: true });
+// Picture lists (not the pictures): dictionary/<lang>/images.json.
+const BUNDLED_IMAGES = import.meta.glob('../dictionary/*/images.json', { import: 'default', eager: true });
 
 export default function App() {
   const [store, setStore] = useState(loadStore);
@@ -67,8 +70,12 @@ export default function App() {
     const m = new Map(dict.sets.map(s => [s.id, s]));
     return sortSets([...m.values()]);
   }, [dict]);
+  // Pictures of this course's language: the downloaded list, or the one built into the app.
+  const images = useMemo(() => parseImages((store.images[L.code] && store.images[L.code].json) || BUNDLED_IMAGES[`../dictionary/${L.code}/images.json`] || null), [store.images, L.code]);
+  const ibase = imgBase(base, L.code);
+  const picFor = useCallback(text => images.byWord.get(text) || '', [images]);
   // Words come only from the curated dictionary; learners cannot add words or answers.
-  const words = useMemo(() => dict.words.map(w => ({ ...w, on: true })), [dict]);
+  const words = useMemo(() => dict.words.map(w => ({ ...w, on: true, img: images.byWord.get(full(w)) || '' })), [dict, images]);
   const abase = audioBase(base, L.code);
   const say = useCallback(text => speakAudio(L, abase, text, toast), [L, abase, toast]);
 
@@ -113,6 +120,11 @@ export default function App() {
     try { const vt = await fetchVerbs(base, CL); if (vt !== null) { update(n => { n.verbs = { ...n.verbs, [code]: { csv: vt, updatedAt: Date.now() } }; }); vb = parseVerbs(vt, CL); } } catch (e) { /* keep the previous tables */ }
     const texts = [...parsed.words.map(full), ...vb.flatMap(v => v.forms.map(formText))];
     const audio = await prefetchAll(audioBase(base, CL.code), texts, onAudio);
+    // Pictures are optional: without images.json (or offline) the words simply show none.
+    try {
+      const ij = await fetchImages(base, CL);
+      if (ij) { update(n => { n.images = { ...n.images, [CL.code]: { json: ij, updatedAt: Date.now() } }; }); await prefetchImages(imgBase(base, CL.code), [...new Set(parseImages(ij).byWord.values())]); }
+    } catch (e) { /* keep the previous list */ }
     return { parsed, audio, added: [...after].filter(x => !before.has(x)).length, removed: [...before].filter(x => !after.has(x)).length };
   }
   // Automatic updates: when the app opens or comes back to the screen, at most every 6 hours per course.
@@ -236,14 +248,14 @@ export default function App() {
       {!isMath && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
         verbs={verbs} conjAll={conjAll} conjGroups={conjGroups} conjSel={conjSel} conjCount={conjEligible.length}
         onStart={() => (dir !== 'conj' ? start() : conjMode === 'table' ? setView('conj') : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : start(ids))} />}
-      {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} onClose={() => setView('home')} />}
+      {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} ibase={ibase} picFor={picFor} onClose={() => setView('home')} />}
       {!isMath && shown === 'quiz' && S && S.cur && S.kind === 'conj' && <ConjQuiz L={L} S={S} facts={conjAll} mode={conjMode} retry={s.retry} autoSpeak={s.autoSpeak}
-        say={say} abase={abase} onSettle={settle} onNext={next} onQuit={quit} />}
-      {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase}
+        say={say} abase={abase} ibase={ibase} picFor={picFor} onSettle={settle} onNext={next} onQuit={quit} />}
+      {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase} ibase={ibase}
         onSettle={settle} onNext={next} onQuit={quit} />}
       {!isMath && shown === 'result' && S && <Result S={S} item={S.kind === 'conj' ? conjText : null}
         onAgain={() => (S.kind === 'conj' ? startConj() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
-      {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={say} abase={abase} />}
+      {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={say} abase={abase} ibase={ibase} images={images} />}
       {withTabs && <TabBar view={shown} onView={setView} />}
       {ENV !== 'production' && <div className="envtag" aria-hidden="true">{ENV}</div>}
       <div className={'toast' + (toastMsg ? ' show' : '')} role="status" aria-live="polite">{toastMsg}</div>

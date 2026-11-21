@@ -50,6 +50,7 @@ export function loadStore() {
     math: { ...DEFAULT_MATH, ...(s.math || {}) }, // maths settings: test, tables, order, size
     syncAt: s.syncAt || {},            // course key -> time of the last automatic word update
     verbs: s.verbs || {},              // course key -> {csv, updatedAt}: downloaded verbs.csv
+    images: s.images || {},            // language code -> {json, updatedAt}: downloaded images.json
   };
 }
 export function saveStore(st) { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* ignore */ } }

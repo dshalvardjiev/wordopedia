@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { checkConj, conjOptions, formShown } from '../lib/conj.js';
 import { prepare } from '../lib/audio.js';
 import { Icon, Spk } from './ui.jsx';
+import Pic from './Pic.jsx';
 
 const FINE = (() => { try { return matchMedia('(pointer: fine)').matches; } catch (e) { return true; } })();
 
@@ -16,7 +17,7 @@ function Table({ q }) {
 
 // Conjugation exercise: pronoun + verb ("nous", être) -> the form ("sommes"), chosen from four or typed.
 // Not keyed by question: the same input stays mounted, so a phone keyboard does not close between questions.
-export default function ConjQuiz({ L, S, facts, mode, retry, autoSpeak, say, abase, onSettle, onNext, onQuit }) {
+export default function ConjQuiz({ L, S, facts, mode, retry, autoSpeak, say, abase, ibase, picFor, onSettle, onNext, onQuit }) {
   const q = S.cur, isTest = mode === 'test';
   const opts = useMemo(() => (isTest ? conjOptions(L, q, facts) : null), [S.qid]); // eslint-disable-line react-hooks/exhaustive-deps
   // Decided when the question appears: answering it adds it to S.seen.
@@ -114,6 +115,7 @@ export default function ConjQuiz({ L, S, facts, mode, retry, autoSpeak, say, aba
       </div>
 
       <div className="sheet">
+        <Pic base={ibase} file={picFor(q.verb)} className="qpic" />
         {again && <span className="badge">повторение</span>}
         <div className="big">{q.label} <span className="blank" aria-label="форма на глагола" /></div>
         <div className="sub"><b className="cq-verb">{q.verb}</b>{q.bg ? ` (${q.bg})` : ''}, сегашно време</div>

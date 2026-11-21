@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { formText } from '../lib/verbs.js';
+import Pic from './Pic.jsx';
 import { prepare } from '../lib/audio.js';
 import { Icon, Spk } from './ui.jsx';
 
 // Conjugation: say the form aloud, then tap to see (and hear) it. Singular on the left, plural on the right, as in the notebook.
-export default function Conj({ verbs, abase, say, onClose }) {
+export default function Conj({ verbs, abase, say, ibase, picFor, onClose }) {
   const [i, setI] = useState(0);
   const [shown, setShown] = useState(() => new Set());
   const v = verbs[i];
@@ -24,6 +25,7 @@ export default function Conj({ verbs, abase, say, onClose }) {
       </div>
 
       <div className="sheet conj-sheet">
+        <Pic base={ibase} file={picFor(v.verb)} className="qpic" />
         <div className="big">{v.verb}</div>
         <div className="sub">{v.bg}</div>
         <Spk onClick={() => say(v.verb)} />

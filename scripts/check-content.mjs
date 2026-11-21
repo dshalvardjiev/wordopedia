@@ -6,6 +6,8 @@ import { parseDictionary } from '../src/lib/dictionary.js';
 import { parseVerbs } from '../src/lib/verbs.js';
 import { parseCSV } from '../src/lib/csv.js';
 import { coursesFrom, courseL, instanceCourses, ID_RE, PRODUCTION, STAGING } from '../src/lib/courses.js';
+import { parseImages } from '../src/lib/images.js';
+import { full } from '../src/lib/dictionary.js';
 
 const D = 'dictionary/';
 const errors = [], warnings = [];
@@ -32,6 +34,31 @@ for (const c of courses) {
     const names = parseCSV(text).slice(1).map(r => (r[head.indexOf('verb')] || '').trim()), kept = new Set(parseVerbs(text, L).map(v => v.verb));
     names.forEach((v, i) => { if (!kept.has(v)) err(`${vfile}: row ${i + 2} (${v || 'no verb'}) is incomplete and is not shown`); });
     names.filter((v, i) => v && names.indexOf(v) !== i).forEach(v => err(`${vfile}: ${v} is listed twice`));
+  }
+}
+
+// Pictures (optional): dictionary/<lang>/images.json, files in dictionary/<lang>/img/. Each entry must point to an
+// existing file and name a source or its own licence; a picture for a word that no course of the language has is a warning.
+for (const lang of [...new Set(courses.map(c => c.lang))]) {
+  const f = `${lang}/images.json`;
+  if (!fs.existsSync(D + f)) continue;
+  const data = readJson(f);
+  if (!data) continue;
+  const im = parseImages(data);
+  im.problems.forEach(x => err(`${f}: ${x}`));
+  const known = new Set();
+  for (const c of courses.filter(x => x.lang === lang)) {
+    const L = courseL(c);
+    try { parseDictionary(fs.readFileSync(D + c.path + '/words.csv', 'utf8'), L).words.forEach(w => known.add(full(w))); } catch (e) { /* reported above */ }
+    try { if (fs.existsSync(D + c.path + '/verbs.csv') && L.pronouns) parseVerbs(fs.readFileSync(D + c.path + '/verbs.csv', 'utf8'), L).forEach(v => known.add(v.verb)); } catch (e) { /* reported above */ }
+  }
+  for (const [word, file] of im.byWord) {
+    if (!fs.existsSync(`${D}${lang}/img/${file}`)) err(`${f}: ${word}: file img/${file} not found`);
+    if (!known.has(word)) warn(`${f}: ${word} is not a word or verb of any ${lang} course`);
+  }
+  const used = new Set(im.byWord.values());
+  for (const x of fs.existsSync(`${D}${lang}/img`) ? fs.readdirSync(`${D}${lang}/img`) : []) {
+    if (/\.(svg|png|jpg|webp)$/.test(x) && !used.has(x)) warn(`${lang}/img/${x} is not listed in ${f}`);
   }
 }
 

@@ -52,6 +52,7 @@ dictionary/
   languages.json            which languages and courses are on, and each language's voice
   de/words.csv              German words          de/verbs.csv   German conjugation tables
   de/audio/                 German recordings (all courses of a language share one folder)
+  de/images.json, de/img/   German word pictures and where each comes from (shared like the recordings)
   fr/words.csv              French words (topics)  fr/verbs.csv   French conjugation tables
   en/elementary/words.csv   Elementary English (alphabet book, letters A–R)
   en/basic/words.csv        Basic English (inactive until it has words)
@@ -93,6 +94,27 @@ Columns: `verb, bulgarian`, one column per pronoun, and optionally `set` (verb g
 - Progress is stored per verb and pronoun under `<course key>:conj:<verb>:<column>` (e.g. `fr:conj:être:nous`):
   renaming a verb resets it, moving it to another group does not.
 
+### images.json and img/ (word pictures)
+Optional, per language: `dictionary/<code>/images.json` lists the pictures in `dictionary/<code>/img/`. A picture
+shows on the question card in every word exercise, in the verb table and the conjugation exercise (for a verb's
+infinitive), and next to the word in **Думи**. Words without a picture show none.
+```json
+{ "sources": { "fluent": { "name": "Microsoft Fluent Emoji", "license": "MIT", "url": "https://github.com/microsoft/fluentui-emoji" } },
+  "images": {
+    "die Katze": { "file": "die-katze.svg", "source": "fluent" },
+    "das Cello": { "file": "das-cello.png", "title": "Cello 1.svg", "author": "papapishu", "license": "CC0",
+                   "url": "https://commons.wikimedia.org/wiki/File:Cello_1.svg" } } }
+```
+- The key is the word as shown, with its article (`die Katze`), or a verb's infinitive (`kochen`).
+- `file`: lower case letters, digits and `-`, ending in `.svg`, `.png`, `.jpg` or `.webp`; by convention the same
+  name as the word's recording (`die-katze`).
+- Each picture names a shared `source`, or its own `license` and `url` (and `author`). The app lists them under
+  **Думи → Източници на изображенията**; keep `img/LICENSE-fluent-emoji.txt` beside Fluent Emoji pictures (MIT).
+- Only openly licensed pictures: public domain, CC0, CC BY or CC BY-SA. Every picture is checked by the owner
+  before it is published.
+- The app downloads the list and the pictures with the words and keeps them for offline use.
+  `npm run check` reports missing files, entries without a licence, and words that no course has.
+
 ### languages.json
 A language or course with `"active": false` is shown as "скоро" and cannot be chosen. To switch one on, add words to
 its file first, then set `"active": true`. A language can have courses, each with its own words and progress:
@@ -132,7 +154,7 @@ visible title in one instance.
 npm install
 npm run dev                       # local server, "production" instance
 VITE_INSTANCE=lora npm run dev    # another instance
-npm run check                     # validate languages, instances and word lists
+npm run check                     # validate languages, instances, word lists, verb tables and pictures
 npm run build                     # one instance in dist/ (VITE_INSTANCE, default production)
 npm run build:all                 # start page + every instance except staging in dist/
 python scripts/make_audio.py dictionary voice   # record missing words locally (needs piper-tts and ffmpeg)
