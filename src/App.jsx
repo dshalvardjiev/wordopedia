@@ -104,8 +104,12 @@ export default function App() {
   // ----- usage tracking (docs/tracking.md) -----
   // On when this instance allows it ("tracking": true), languages.json gives a URL and has not switched it off,
   // and the parent's switch in the menu is on.
-  const trackUrl = import.meta.env.VITE_TRACK_URL || (conf.tracking && conf.tracking.url) || '';
-  const trackAllowed = inst.tracking === true && !(conf.tracking && conf.tracking.enabled === false) && !!trackUrl;
+  // A copy of languages.json or the instance file downloaded before tracking existed has no "tracking" key: then the
+  // files built into this version decide, rather than tracking staying off until the next update (up to 6 hours).
+  const trackConf = store.langConf && 'tracking' in store.langConf ? store.langConf.tracking : bundledConf.tracking;
+  const instTracking = store.instConf && 'tracking' in store.instConf ? store.instConf.tracking : BUNDLED_INSTANCE.tracking;
+  const trackUrl = import.meta.env.VITE_TRACK_URL || (trackConf && trackConf.url) || '';
+  const trackAllowed = instTracking === true && !(trackConf && trackConf.enabled === false) && !!trackUrl;
   const trackOn = trackAllowed && s.track !== false;
   useEffect(() => { track.configure({ on: trackOn, url: trackUrl }); track.appOpened(lang); }, [trackOn, trackUrl, lang]);
 

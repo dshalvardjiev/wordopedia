@@ -51,6 +51,7 @@ per database.
 - The timer and queue live outside React state: no re-render of the quiz screen (see the keyboard pitfall in CLAUDE.md).
 - Switches:
   - per instance, in `dictionary/instances/<id>.json` (`"tracking": true`), effective after the automatic redeploy;
+    to stop an instance set `"tracking": false` (a downloaded copy without the key falls back to the built-in file);
   - global, in `dictionary/languages.json`: `"tracking": {"url": "…/e", "enabled": true}`; `false` (or no URL) stops it
     everywhere, fetched at runtime, no release needed;
   - the parent's switch in the app's course menu.
