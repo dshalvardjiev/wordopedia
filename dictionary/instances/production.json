@@ -1,4 +1,5 @@
 {
   "name": "Wordopedia",
-  "courses": "all"
+  "courses": "all",
+  "tracking": true
 }

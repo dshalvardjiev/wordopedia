@@ -10,11 +10,11 @@ export default function MathQuiz({ S, onSettle, onNext, onQuit }) {
   const [fb, setFb] = useState(null);
   const [hint, setHint] = useState('');
   const [locked, setLocked] = useState(false);
-  const st = useRef({ clean: true, locked: false, qid: S.qid });
+  const st = useRef({ clean: true, locked: false, qid: S.qid, hint: 0 });
   const inp = useRef(null), timer = useRef(0);
 
   useEffect(() => {
-    st.current = { clean: true, locked: false, qid: S.qid };
+    st.current = { clean: true, locked: false, qid: S.qid, hint: 0 };
     setValue(''); setFb(null); setHint(''); setLocked(false);
     try { inp.current && inp.current.focus({ preventScroll: true }); } catch (e) {}
   }, [S.qid]);
@@ -31,7 +31,8 @@ export default function MathQuiz({ S, onSettle, onNext, onQuit }) {
     const n = +v;
     if (n === f.answer) {
       st.current.locked = true; setLocked(true);
-      const clean = st.current.clean; onSettle(clean);
+      const clean = st.current.clean;
+      onSettle(clean, { result: st.current.hint === 2 ? 'shown' : st.current.hint ? 'hint' : clean ? 'ok' : 'wrong' });
       setFb({ kind: 'ok', clean });
       if (clean) { const q = S.qid; timer.current = setTimeout(() => { if (st.current.qid === q) next(); }, 700); }
     } else {
@@ -42,7 +43,7 @@ export default function MathQuiz({ S, onSettle, onNext, onQuit }) {
   }
   function giveHint(all) {
     if (st.current.locked) return;
-    st.current.clean = false;
+    st.current.clean = false; st.current.hint = all ? 2 : Math.max(st.current.hint, 1);
     setHint(all ? `${f.a} × ${f.b} = ${f.answer}. Упражнението продължава след въвеждането му.` : hintFor(f));
     try { inp.current.focus({ preventScroll: true }); } catch (e) {}
   }

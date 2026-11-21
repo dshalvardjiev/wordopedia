@@ -38,6 +38,9 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, on
   // Restart the shake animation on the same element; never re-create the field, or a phone keyboard would close.
   useEffect(() => { const el = inp.current; if (!shake || !el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }, [shake]);
 
+  // How the answer went, for usage statistics: a hint or the shown answer, an earlier wrong try, a spelling slip.
+  const outcome = warn => (st.current.hint >= answerText.length ? 'shown' : st.current.hint > 0 ? 'hint' : !st.current.clean ? 'wrong'
+    : warn && /Правопис|изписване|главна буква/.test(warn) ? 'typo' : 'ok');
   function goNext() { if (st.current.locked) onNext(); }
   function lock() { st.current.locked = true; setLocked(true); }
   function showOk(warn, clean) {
@@ -52,10 +55,10 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, on
     if (st.current.locked || picked[v]) return;
     if (v === opts.right) {
       setPicked(p => ({ ...p, [v]: 'ok' })); lock();
-      const clean = st.current.clean; onSettle(clean); showOk('', clean);
+      const clean = st.current.clean; onSettle(clean, { result: outcome('') }); showOk('', clean);
     } else if (settings.mode === 'test') {
       setPicked(p => ({ ...p, [v]: 'bad', [opts.right]: 'ok' })); lock();
-      onSettle(false); setFb({ kind: 'bad', reveal: true });
+      onSettle(false, { result: 'wrong', pick: v }); setFb({ kind: 'bad', reveal: true });
       setTimeout(() => nextBtn.current && nextBtn.current.focus({ preventScroll: true }), 20);
     } else {
       st.current.clean = false;
@@ -64,7 +67,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, on
   }
 
   // ----- typed answers -----
-  function succeed(r) { lock(); const clean = st.current.clean; onSettle(clean); showOk(r.warn, clean); }
+  function succeed(r) { lock(); const clean = st.current.clean; onSettle(clean, { result: outcome(r.warn) }); showOk(r.warn, clean); }
   function check(e) {
     e && e.preventDefault();
     if (st.current.locked) { goNext(); return; }

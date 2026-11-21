@@ -37,6 +37,16 @@ for (const c of courses) {
   }
 }
 
+// Usage tracking settings (docs/tracking.md): {"url": "https://…/e", "enabled": false to switch it off everywhere}.
+if (conf && 'tracking' in conf) {
+  const t = conf.tracking;
+  if (!t || typeof t !== 'object') err('languages.json: "tracking" must be an object');
+  else {
+    if ('url' in t && !/^https:\/\/[^\s]+\/e$/.test(String(t.url))) err('languages.json: tracking.url must be an https address ending in /e');
+    if ('enabled' in t && typeof t.enabled !== 'boolean') err('languages.json: tracking.enabled must be true or false');
+  }
+}
+
 // Pictures (optional): dictionary/<lang>/images.json, files in dictionary/<lang>/img/. Each entry must point to an
 // existing file and name a source or its own licence; a picture for a word that no course of the language has is a warning.
 for (const lang of [...new Set(courses.map(c => c.lang))]) {
@@ -82,6 +92,7 @@ for (const id of ids) {
   const titles = shown.map(c => c.title);
   titles.filter((t, i) => titles.indexOf(t) !== i).forEach(t => err(`${at}: two courses are shown as "${t}"; set a "label"`));
   if (!shown.some(c => c.active)) warn(`${at}: no active course`);
+  if ('tracking' in inst && typeof inst.tracking !== 'boolean') err(`${at}: "tracking" must be true or false`);
 }
 
 warnings.forEach(w => console.warn('warning: ' + w));

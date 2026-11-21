@@ -42,13 +42,15 @@ export default function ConjQuiz({ L, S, facts, mode, retry, autoSpeak, say, aba
     if (!isTest && FINE) try { inp.current && inp.current.focus({ preventScroll: true }); } catch (e) {}
   }, [S.qid]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // How the answer went, for usage statistics (any accepted variant reported by checkConj is a spelling slip).
+  const outcome = warn => (st.current.hint >= q.form.length ? 'shown' : st.current.hint > 0 ? 'hint' : !st.current.clean ? 'wrong' : warn ? 'typo' : 'ok');
   function next() { if (st.current.locked) onNext(); }
   function shake(el) { if (!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
   // No auto-advance, as in the word exercises: the answer can be read and heard first.
   function focusNext() { if (isTest) setTimeout(() => nextBtn.current && nextBtn.current.focus({ preventScroll: true }), 20); }
   function succeed(warn) {
     st.current.locked = true; setLocked(true);
-    const clean = st.current.clean; onSettle(clean);
+    const clean = st.current.clean; onSettle(clean, { result: outcome(warn) });
     setFb({ kind: 'ok', clean, warn });
     if (autoSpeak) say(q.full);
     focusNext();
@@ -60,7 +62,7 @@ export default function ConjQuiz({ L, S, facts, mode, retry, autoSpeak, say, aba
     if (v === opts.right) { setPicked(p => ({ ...p, [v]: 'ok' })); succeed(''); return; }
     st.current.locked = true; setLocked(true);
     setPicked(p => ({ ...p, [v]: 'bad', [opts.right]: 'ok' }));
-    onSettle(false); setFb({ kind: 'bad', reveal: true });
+    onSettle(false, { result: 'wrong', pick: v }); setFb({ kind: 'bad', reveal: true });
     focusNext();
   }
 

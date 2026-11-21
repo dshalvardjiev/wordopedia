@@ -22,6 +22,7 @@ import Conj from './components/Conj.jsx';
 import ConjQuiz from './components/ConjQuiz.jsx';
 import { conjFacts, conjText } from './lib/conj.js';
 import { parseVerbs, formText } from './lib/verbs.js';
+import * as track from './lib/track.js';
 
 // Every dictionary/<path>/words.csv is built into the app, so the first start works without a network.
 const BUNDLED_CSV = import.meta.glob('../dictionary/**/words.csv', { query: '?raw', import: 'default', eager: true });
@@ -100,6 +101,14 @@ export default function App() {
   const conjEligible = conjAll.filter(f => conjSel === 'all' || f.set === conjSel);
   const conjMode = s.conjMode || 'table';
 
+  // ----- usage tracking (docs/tracking.md) -----
+  // On when this instance allows it ("tracking": true), languages.json gives a URL and has not switched it off,
+  // and the parent's switch in the menu is on.
+  const trackUrl = import.meta.env.VITE_TRACK_URL || (conf.tracking && conf.tracking.url) || '';
+  const trackAllowed = inst.tracking === true && !(conf.tracking && conf.tracking.enabled === false) && !!trackUrl;
+  const trackOn = trackAllowed && s.track !== false;
+  useEffect(() => { track.configure({ on: trackOn, url: trackUrl }); track.appOpened(lang); }, [trackOn, trackUrl, lang]);
+
   // ----- downloads -----
   // Downloads languages.json and this instance's file; returns the titles of the courses now available here.
   async function checkLangs() {
@@ -172,8 +181,9 @@ export default function App() {
   }
 
   // ----- session -----
-  function run(pool, retry, kind) {
-    session.current = { kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0 };
+  function run(pool, retry, kind, info) {
+    session.current = { kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0 };
+    track.sessionStart({ ...info, size: pool.length });
     next();
     setView('quiz');
   }
@@ -183,7 +193,7 @@ export default function App() {
     if (!pool.length) { toast('Няма думи за тези настройки'); return; }
     shuffle(pool);
     if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
-    run(pool, s.retry);
+    run(pool, s.retry, 'words', { course: L.key, ex: dir, fmt: dir === 'art' ? 'test' : s.mode });
   }
   // Conjugation: the given questions (missed or often confused ones), or the chosen verb group.
   function startConj(ids) {
@@ -191,7 +201,7 @@ export default function App() {
     if (!pool.length) { toast('Няма глаголи за тези настройки'); return; }
     shuffle(pool);
     if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
-    run(pool, s.retry, 'conj');
+    run(pool, s.retry, 'conj', { course: L.key, ex: 'conj', fmt: conjMode });
   }
   // Maths: a given list of facts (e.g. the often-confused ones), or the chosen tables in the chosen order.
   function startMath(list) {
@@ -200,17 +210,21 @@ export default function App() {
     if (!pool.length) { toast('Няма избрана таблица'); return; }
     if (list || m.order === 'mixed') shuffle(pool);
     if (!list && m.size !== 'all') pool = pool.slice(0, +m.size);
-    run(pool, true);
+    run(pool, true, 'math', { course: MATH, ex: 'math', fmt: 'open' });
   }
+  // The conjugation table: no answers, but opening and time spent count as a session.
+  function openTable() { track.sessionStart({ course: L.key, ex: 'conj-table', fmt: 'table', size: verbs.length }); setView('conj'); }
   function next() {
     const S = session.current;
     if (!S) return;
-    if (!S.queue.length) { S.finishedAt = Date.now(); setView('result'); setTick(t => t + 1); return; }
-    S.cur = S.queue.shift(); S.qid++;
+    if (!S.queue.length) { S.finishedAt = Date.now(); track.sessionEnd('done'); setView('result'); setTick(t => t + 1); return; }
+    S.cur = S.queue.shift(); S.qid++; S.shownAt = Date.now();
     setTick(t => t + 1);
   }
-  function settle(clean) {
+  // info: { result: ok | typo | wrong | hint | shown, pick: wrong option chosen in the test format }.
+  function settle(clean, info) {
     const S = session.current, w = S.cur, first = !S.seen.has(w.id);
+    track.answer({ word: w.id, first, result: (info && info.result) || (clean ? 'ok' : 'wrong'), ms: Math.max(0, Date.now() - S.shownAt), pick: info && info.pick });
     S.seen.add(w.id);
     if (clean && first) S.firstOk++;
     if (!clean) S.missed.set(w.id, w);
@@ -223,6 +237,7 @@ export default function App() {
   }
   function quit() {
     const S = session.current;
+    track.sessionEnd('quit');
     if (!S || !S.seen.size) { session.current = null; setView('home'); return; }
     S.early = true; S.finishedAt = Date.now(); setView('result');
   }
@@ -238,7 +253,8 @@ export default function App() {
     <div className={'wrap' + (withTabs ? '' : ' notabs') + (isMath && shown === 'home' ? ' solo' : '')}>
       {withTop && (
         <div className="topbar">
-          <LangMenu L={L} isMath={isMath} courses={offered} counts={counts} onPick={chooseLang} onRefresh={refreshNow} toast={toast} />
+          <LangMenu L={L} isMath={isMath} courses={offered} counts={counts} onPick={chooseLang} onRefresh={refreshNow} toast={toast}
+            stats={trackAllowed ? s.track !== false : null} onStats={v => update(n => { n.settings = { ...n.settings, track: v }; })} />
         </div>
       )}
       {shown === 'lang' && <LangPick courses={offered} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
@@ -247,8 +263,8 @@ export default function App() {
       {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
       {!isMath && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
         verbs={verbs} conjAll={conjAll} conjGroups={conjGroups} conjSel={conjSel} conjCount={conjEligible.length}
-        onStart={() => (dir !== 'conj' ? start() : conjMode === 'table' ? setView('conj') : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : start(ids))} />}
-      {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} ibase={ibase} picFor={picFor} onClose={() => setView('home')} />}
+        onStart={() => (dir !== 'conj' ? start() : conjMode === 'table' ? openTable() : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : start(ids))} />}
+      {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} ibase={ibase} picFor={picFor} onClose={() => { track.sessionEnd('done'); setView('home'); }} />}
       {!isMath && shown === 'quiz' && S && S.cur && S.kind === 'conj' && <ConjQuiz L={L} S={S} facts={conjAll} mode={conjMode} retry={s.retry} autoSpeak={s.autoSpeak}
         say={say} abase={abase} ibase={ibase} picFor={picFor} onSettle={settle} onNext={next} onQuit={quit} />}
       {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase} ibase={ibase}

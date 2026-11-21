@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wordopedia usage</title>
+<style>
+  /* Palette and chart specs: the dataviz reference palette (categorical slots 1-3 validated all-pairs, light and dark). */
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10); --wash: rgba(11,11,11,0.04);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --wash: rgba(255,255,255,0.05);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --critical: #e66767;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 24px 64px; transition: opacity .15s; }
+  main.loading { opacity: .5; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  h1 { font-size: 22px; font-weight: 650; margin: 0; }
+  .fresh { color: var(--ink-2); font-size: 13px; }
+  button, select { font: inherit; color: var(--ink); }
+  .btn { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .btn:hover { background: var(--wash); }
+  :focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+
+  .filters { display: flex; flex-wrap: wrap; align-items: end; gap: 18px; margin: 22px 0 20px; }
+  .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-2); }
+  .filters select { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 6px 10px; min-width: 150px; }
+  .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 2px; }
+  .seg button { background: none; border: 0; border-radius: 6px; padding: 5px 12px; cursor: pointer; color: var(--ink-2); }
+  .seg button[aria-pressed="true"] { background: var(--wash); color: var(--ink); font-weight: 600; }
+
+  .problem { background: var(--surface); border: 1px solid var(--ring); border-left: 3px solid var(--critical); border-radius: 8px; padding: 14px 16px; margin-bottom: 20px; }
+  .problem b { display: block; margin-bottom: 4px; }
+  .problem code { background: var(--wash); padding: 1px 4px; border-radius: 4px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 14px 16px; }
+  .tile .k { color: var(--ink-2); font-size: 12px; }
+  .tile .v { font-size: 26px; font-weight: 600; margin-top: 2px; }
+  .tile .s { color: var(--muted); font-size: 12px; }
+
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px 18px 18px; margin-bottom: 16px; }
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .card h2 { font-size: 15px; font-weight: 600; margin: 0; }
+  .card .sub { color: var(--ink-2); font-size: 12.5px; margin: 2px 0 0; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+  .empty { color: var(--muted); padding: 24px 0; text-align: center; }
+
+  svg text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  svg .lbl { fill: var(--ink); font-size: 12.5px; font-variant-numeric: normal; }
+  svg .val { fill: var(--ink-2); font-size: 11.5px; }
+  svg .grid { stroke: var(--grid); stroke-width: 1; shape-rendering: crispEdges; }
+  svg .base { stroke: var(--axis); stroke-width: 1; shape-rendering: crispEdges; }
+  svg .hit { fill: transparent; cursor: default; }
+  svg .hit:hover + .mark, svg .hit:focus + .mark { opacity: .75; }
+  svg .hit:focus { outline: none; }
+  svg .hit:focus-visible { stroke: var(--s1); stroke-width: 2; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 600; color: var(--ink-2); font-size: 12px; padding: 6px 8px; border-bottom: 1px solid var(--axis); white-space: nowrap; }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  td .small { color: var(--muted); font-size: 12px; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink-2); margin: 0 0 8px; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .segbar { display: flex; gap: 2px; height: 8px; width: 100%; min-width: 120px; }
+  .segbar i { display: block; height: 100%; border-radius: 4px; background: var(--c); }
+  .segbar.none { background: var(--grid); border-radius: 4px; }
+
+  #tip { position: fixed; pointer-events: none; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px;
+         box-shadow: 0 4px 16px rgba(0,0,0,.12); padding: 8px 10px; font-size: 12.5px; min-width: 140px; display: none; z-index: 10; }
+  #tip .t { color: var(--ink-2); margin-bottom: 4px; }
+  #tip .r { display: flex; justify-content: space-between; gap: 14px; }
+  #tip .r b { font-variant-numeric: tabular-nums; }
+  @media (max-width: 900px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main id="main">
+  <header>
+    <h1>Wordopedia usage</h1>
+    <div><span class="fresh" id="fresh"></span> <button class="btn" id="refresh">Refresh</button></div>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <label>Period
+      <span class="seg" id="days">
+        <button data-v="7">7 days</button><button data-v="30">30 days</button><button data-v="90">90 days</button><button data-v="0">All</button>
+      </span>
+    </label>
+    <label>Course <select id="course"><option value="">All courses</option></select></label>
+    <label>Exercise <select id="ex"><option value="">All exercises</option></select></label>
+    <label>Words: min. first answers
+      <select id="min"><option>1</option><option selected>3</option><option>5</option><option>10</option><option>20</option></select>
+    </label>
+  </div>
+
+  <div id="problem"></div>
+
+  <section class="tiles" id="tiles" aria-label="Summary"></section>
+
+  <section class="card" id="c-daily"></section>
+  <section class="card" id="c-ex"></section>
+  <div class="grid2">
+    <section class="card" id="c-words"></section>
+    <section class="card" id="c-conf"></section>
+  </div>
+</main>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+// ----- names -----
+const COURSES = { de: 'German', fr: 'French', 'en-elementary': 'Elementary English', 'en-basic': 'Basic English', math: 'Maths' };
+const EXERCISES = { 'x-bg': 'Translation into Bulgarian', 'bg-x': 'Translation from Bulgarian', art: 'Articles', conj: 'Conjugation', 'conj-table': 'Conjugation table', math: 'Multiplication' };
+const FORMATS = { test: 'test', open: 'free answer', table: 'table' };
+const courseName = c => COURSES[c] || c || 'No course';
+const exName = e => EXERCISES[e] || e;
+// Short form beside a value, so the same word in two exercises can be told apart.
+const EX_SHORT = { 'x-bg': 'into BG', 'bg-x': 'from BG', art: 'articles', conj: 'conjugation', math: '' };
+const exShort = (e, fmt) => [EX_SHORT[e] ?? e, fmt === 'open' ? 'typed' : ''].filter(Boolean).join(', ');
+// Word ids: "<course>:<set>|<article word>", "<course>:conj:<verb>:<person>", "math:mul:<a>x<b>".
+function wordParts(id) {
+  let m = /^math:mul:(\d+)x(\d+)$/.exec(id);
+  if (m) return { main: `${m[1]} × ${m[2]}`, sub: 'multiplication' };
+  m = /^[^:]+:conj:([^:]+):(.+)$/.exec(id);
+  if (m) return { main: `${m[1]} · ${m[2]}`, sub: 'conjugation' };
+  const i = id.indexOf('|'), j = id.indexOf(':');
+  return i > 0 ? { main: id.slice(i + 1), sub: id.slice(j + 1, i) } : { main: id, sub: '' };
+}
+
+// ----- formatting -----
+const nf = new Intl.NumberFormat('en-GB');
+const pct = (a, b) => (b ? Math.round((100 * a) / b) + '%' : '–');
+function dur(secs) {
+  secs = Math.round(secs || 0);
+  if (secs < 60) return secs + ' s';
+  const m = Math.round(secs / 60);
+  return m < 60 ? m + ' min' : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')} min`;
+}
+function ago(ms) {
+  if (!ms) return 'no events yet';
+  const s = (Date.now() - ms) / 1000;
+  if (s < 90) return 'last event just now';
+  if (s < 5400) return `last event ${Math.round(s / 60)} min ago`;
+  if (s < 172800) return `last event ${Math.round(s / 3600)} h ago`;
+  return `last event ${Math.round(s / 86400)} days ago`;
+}
+const dayLabel = d => new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+// ----- DOM helpers (all data goes in as text, never as HTML) -----
+const $ = s => document.querySelector(s);
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) { if (k === 'style') e.style.cssText = v; else if (k.startsWith('on')) e[k] = v; else e.setAttribute(k, v); }
+  for (const k of kids.flat()) if (k !== null && k !== undefined && k !== false) e.append(k instanceof Node ? k : document.createTextNode(String(k)));
+  return e;
+}
+const SVGNS = 'http://www.w3.org/2000/svg';
+function sv(tag, attrs, text) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+// ----- tooltip -----
+const tip = $('#tip');
+function showTip(evt, title, rows) {
+  tip.replaceChildren(el('div', { class: 't' }, title), ...rows.map(([k, v]) => el('div', { class: 'r' }, el('span', {}, k), el('b', {}, v))));
+  tip.style.display = 'block';
+  let x, y;
+  if (evt.clientX !== undefined && evt.type !== 'focus') { x = evt.clientX + 14; y = evt.clientY + 14; }
+  else { const r = evt.target.getBoundingClientRect(); x = r.right + 8; y = r.top; }
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(x, innerWidth - w - 8) + 'px';
+  tip.style.top = Math.min(y, innerHeight - h - 8) + 'px';
+}
+const hideTip = () => { tip.style.display = 'none'; };
+function hover(target, title, rows, label) {
+  target.setAttribute('tabindex', '0');
+  target.setAttribute('aria-label', label);
+  const on = e => showTip(e, title, rows);
+  target.addEventListener('pointermove', on); target.addEventListener('focus', on);
+  target.addEventListener('pointerleave', hideTip); target.addEventListener('blur', hideTip);
+}
+
+// ----- card with a chart / table switch -----
+function card(id, title, sub, chart, table, emptyText) {
+  const c = $(id);
+  if (!chart) { c.replaceChildren(el('div', { class: 'card-head' }, el('div', {}, el('h2', {}, title), sub && el('p', { class: 'sub' }, sub))), el('div', { class: 'empty' }, emptyText)); return; }
+  const body = el('div', {});
+  let asTable = c.dataset.table === '1';
+  const btn = el('button', { class: 'btn', 'aria-pressed': String(asTable) }, asTable ? 'Chart' : 'Table');
+  const paint = () => { body.replaceChildren(asTable ? table() : chart()); btn.textContent = asTable ? 'Chart' : 'Table'; btn.setAttribute('aria-pressed', String(asTable)); };
+  btn.onclick = () => { asTable = !asTable; c.dataset.table = asTable ? '1' : ''; paint(); };
+  c.replaceChildren(el('div', { class: 'card-head' }, el('div', {}, el('h2', {}, title), sub && el('p', { class: 'sub' }, sub)), table ? btn : ''), body);
+  paint();
+}
+function tableOf(head, rows, numeric) {
+  return el('table', {}, el('thead', {}, el('tr', {}, head.map((h, i) => el('th', { class: numeric.includes(i) ? 'n' : '' }, h)))),
+    el('tbody', {}, rows.map(r => el('tr', {}, r.map((v, i) => el('td', { class: numeric.includes(i) ? 'n' : '' }, v))))));
+}
+
+// ----- scales -----
+// Axis for counts: whole-number steps of 1, 2, 5, 10, 20, 50 …, the smallest that covers v in at most five steps.
+function niceScale(v) {
+  for (let p = 1; ; p *= 10) for (const m of [1, 2, 5]) {
+    const step = m * p, n = Math.max(1, Math.ceil(v / step));
+    if (n <= 5) return { max: step * n, step };
+  }
+}
+// Column / bar with 4px rounded data end, square at the baseline.
+function colPath(x, y, w, h) {
+  const r = Math.min(4, w / 2, h);
+  return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+}
+function barPath(x, y, w, h) {
+  const r = Math.min(4, h / 2, w);
+  return `M${x},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h - r}Q${x + w},${y + h} ${x + w - r},${y + h}H${x}Z`;
+}
+
+// ----- sections -----
+function renderTiles(t) {
+  const items = [
+    ['Learners', nf.format(t.learners || 0), 'devices with a session'],
+    ['Sessions', nf.format(t.sessions || 0), 'exercises started'],
+    ['Active time', dur(t.active_secs), 'screen on, in exercises'],
+    ['Finished', pct(t.finished, t.ended), `${nf.format(t.finished || 0)} of ${nf.format(t.ended || 0)} ended sessions`],
+    ['Right first time', pct(t.first_right, t.first_answers), `${nf.format(t.first_answers || 0)} first answers`],
+  ];
+  $('#tiles').replaceChildren(...items.map(([k, v, s]) => el('div', { class: 'tile' }, el('div', { class: 'k' }, k), el('div', { class: 'v' }, v), el('div', { class: 's' }, s))));
+}
+
+// Local calendar day (this browser's time zone, summer time included).
+const localDay = ms => { const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+function renderDaily(rows, f) {
+  // Hours per device -> local days: sessions, distinct learners, active time.
+  const byDay = new Map();
+  for (const r of rows) {
+    const day = localDay(r.hour * 3600e3);
+    const d = byDay.get(day) || { day, sessions: 0, devs: new Set(), active_secs: 0 };
+    d.sessions += r.sessions; d.active_secs += r.active_secs; if (r.sessions > 0) d.devs.add(r.dev);
+    byDay.set(day, d);
+  }
+  // Every day of the period, from the day the period starts, so a day without sessions shows as a gap.
+  const days = [], today = localDay(Date.now());
+  const first = f.since ? localDay(f.since) : [...byDay.keys()].sort()[0];
+  if (first) for (let d = new Date(first + 'T12:00:00'); localDay(+d) <= today; d.setDate(d.getDate() + 1)) days.push(localDay(+d));
+  const data = days.map(d => { const x = byDay.get(d); return x ? { day: d, sessions: x.sessions, learners: x.devs.size, active_secs: x.active_secs } : { day: d, sessions: 0, learners: 0, active_secs: 0 }; });
+  const has = data.some(r => r.sessions > 0);
+  card('#c-daily', 'Sessions per day', 'Exercises started each day; hover for learners and active time.', has && (() => {
+    const W = 1120, H = 220, L = 34, R = 8, T = 10, B = 26, pw = W - L - R, ph = H - T - B;
+    const { max, step } = niceScale(Math.max(...data.map(d => d.sessions)));
+    const s = sv('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': 'Sessions per day' });
+    for (let i = 0; i <= max / step; i++) {
+      const v = step * i, y = T + ph - (v / max) * ph;
+      s.append(sv('line', { class: i ? 'grid' : 'base', x1: L, x2: W - R, y1: y, y2: y }));
+      s.append(sv('text', { x: L - 6, y: y + 4, 'text-anchor': 'end' }, nf.format(v)));
+    }
+    const band = pw / data.length, bw = Math.max(2, Math.min(24, band - 2));
+    const every = Math.ceil(data.length / 12);
+    data.forEach((d, i) => {
+      const x = L + i * band + (band - bw) / 2, h = (d.sessions / max) * ph;
+      const hit = sv('rect', { class: 'hit', x: L + i * band, y: T, width: band, height: ph });
+      hover(hit, dayLabel(d.day), [['Sessions', nf.format(d.sessions)], ['Learners', nf.format(d.learners)], ['Active time', dur(d.active_secs)]],
+        `${dayLabel(d.day)}: ${d.sessions} sessions`);
+      s.append(hit);
+      s.append(h > 0 ? sv('path', { class: 'mark', d: colPath(x, T + ph - h, bw, h), fill: 'var(--s1)' }) : sv('g', { class: 'mark' }));
+      if (i % every === 0) s.append(sv('text', { x: L + i * band + band / 2, y: H - 8, 'text-anchor': 'middle' }, dayLabel(d.day)));
+    });
+    return s;
+  }), () => tableOf(['Day', 'Sessions', 'Learners', 'Active time'], data.filter(d => d.sessions || d.active_secs).map(d => [dayLabel(d.day), nf.format(d.sessions), nf.format(d.learners), dur(d.active_secs)]), [1, 2, 3]),
+  'No sessions in this period.');
+}
+
+const OUTCOMES = [['finished', 'Finished', 'var(--s1)'], ['quit', 'Quit', 'var(--s2)'], ['abandoned', 'App closed', 'var(--s3)']];
+function renderExercises(rows) {
+  const name = r => [exName(r.ex), FORMATS[r.fmt] || r.fmt];
+  const head = ['Exercise', 'Sessions', 'How sessions ended', 'Dropped in first 3 answers', 'Avg. active time', 'Help used', 'Idle minutes'];
+  const cells = r => {
+    const ended = r.finished + r.quit + r.abandoned;
+    const bar = ended ? el('div', { class: 'segbar', role: 'img', 'aria-label': OUTCOMES.map(([k, n]) => `${n} ${r[k]}`).join(', ') },
+      OUTCOMES.filter(([k]) => r[k] > 0).map(([k, n, c]) => el('i', { style: `--c:${c};flex:${r[k]} 1 0` })))
+      : el('div', { class: 'segbar none', 'aria-label': 'no ended sessions' });
+    if (ended) hover(bar, `${name(r).join(', ')}`, OUTCOMES.map(([k, n]) => [n, `${r[k]} (${pct(r[k], ended)})`]), `${name(r).join(', ')}: ` + OUTCOMES.map(([k, n]) => `${n} ${r[k]}`).join(', '));
+    return [
+      el('div', {}, name(r)[0], el('div', { class: 'small' }, `${courseName(r.course)} · ${name(r)[1]}`)),
+      nf.format(r.started), bar, pct(r.dropped_early, ended), r.avg_secs === null ? '–' : dur(r.avg_secs),
+      pct(r.helped, r.answers), pct(r.idle, r.minutes),
+    ];
+  };
+  card('#c-ex', 'Exercises', 'Help used: answers given after a hint or with the answer shown. Idle: minutes in an exercise without an answer.',
+    rows.length && (() => el('div', {},
+      el('div', { class: 'legend' }, OUTCOMES.map(([, n, c]) => el('span', { style: `--c:${c}` }, n))),
+      tableOf(head, rows.map(cells), [1, 3, 4, 5, 6]))),
+    () => tableOf(['Exercise', 'Course', 'Format', 'Sessions', 'Finished', 'Quit', 'App closed', 'Dropped early', 'Avg. active time', 'Answers', 'Help used', 'Ticks', 'Idle'],
+      rows.map(r => [exName(r.ex), courseName(r.course), FORMATS[r.fmt] || r.fmt, r.started, r.finished, r.quit, r.abandoned, r.dropped_early, r.avg_secs === null ? '–' : dur(r.avg_secs), r.answers, r.helped, r.minutes, r.idle]),
+      [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
+    'No exercises in this period.');
+}
+
+function renderWords(rows, f) {
+  card('#c-words', 'Hardest words', `Error rate on the first answer in a session (wrong, hint or answer shown), adjusted for few attempts. At least ${f.min} first answers.`,
+    rows.length && (() => {
+      const W = 640, row = 30, L = 180, R = 150, T = 4, H = T + rows.length * row + 22, pw = W - L - R;
+      const s = sv('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': 'Hardest words by error rate' });
+      [0, 0.25, 0.5, 0.75, 1].forEach((v, i) => {
+        const x = L + v * pw;
+        s.append(sv('line', { class: i ? 'grid' : 'base', x1: x, x2: x, y1: T, y2: H - 20 }));
+        s.append(sv('text', { x, y: H - 6, 'text-anchor': 'middle' }, Math.round(v * 100) + '%'));
+      });
+      rows.forEach((r, i) => {
+        const y = T + i * row, bh = 14, by = y + (row - bh) / 2, w = Math.max(0, r.smoothed_rate * pw);
+        const p = wordParts(r.word);
+        const hit = sv('rect', { class: 'hit', x: 0, y, width: W, height: row });
+        hover(hit, p.main, [['Adjusted error rate', pct(r.smoothed_rate, 1)], ['Raw error rate', pct(r.errors, r.attempts)], ['First answers', nf.format(r.attempts)],
+          ['Learners', r.learners === null ? '–' : nf.format(r.learners)], ['Spelling slips', nf.format(r.typos)], ['Avg. time', r.avg_ms === null ? '–' : (r.avg_ms / 1000).toFixed(1) + ' s'], ['Exercise', `${exName(r.ex)}, ${FORMATS[r.fmt] || r.fmt}`]],
+          `${p.main}: ${pct(r.smoothed_rate, 1)} errors, ${r.attempts} first answers`);
+        s.append(hit);
+        s.append(w > 0 ? sv('path', { class: 'mark', d: barPath(L, by, w, bh), fill: 'var(--s1)' }) : sv('g', { class: 'mark' }));
+        s.append(sv('text', { class: 'lbl', x: L - 10, y: y + row / 2 + 4, 'text-anchor': 'end' }, p.main.length > 26 ? p.main.slice(0, 25) + '…' : p.main));
+        const tag = exShort(r.ex, r.fmt);
+        s.append(sv('text', { class: 'val', x: L + w + 6, y: y + row / 2 + 4 }, `${pct(r.smoothed_rate, 1)} · ${r.attempts}×` + (tag ? ` · ${tag}` : '')));
+      });
+      return s;
+    }),
+    () => tableOf(['Word', 'List', 'Exercise', 'Adjusted', 'Raw', 'First answers', 'Learners'],
+      rows.map(r => { const p = wordParts(r.word); return [p.main, p.sub, `${exName(r.ex)}, ${FORMATS[r.fmt] || r.fmt}`, pct(r.smoothed_rate, 1), pct(r.errors, r.attempts), r.attempts, r.learners === null ? '–' : r.learners]; }),
+      [3, 4, 5, 6]),
+    `No word has ${f.min} or more first answers in this period. Lower "Words: min. first answers" or pick a longer period.`);
+}
+
+function renderConfusions(rows) {
+  card('#c-conf', 'Most frequent wrong picks', 'Test format: the option chosen instead of the right one.',
+    rows.length && (() => tableOf(['Word', 'Picked instead', 'Times'], rows.map(r => [el('div', {}, wordParts(r.word).main, el('div', { class: 'small' }, exName(r.ex))), r.pick, nf.format(r.times)]), [2])),
+    null, 'No wrong picks in this period.');
+}
+
+// ----- filters and loading -----
+const state = { days: '30', course: '', ex: '', min: '3' };
+try { Object.assign(state, JSON.parse(localStorage.getItem('wordopedia.dashboard') || '{}')); } catch (e) {}
+const save = () => { try { localStorage.setItem('wordopedia.dashboard', JSON.stringify(state)); } catch (e) {} };
+
+function fillSelect(sel, values, names, value, allText) {
+  const opts = [el('option', { value: '' }, allText), ...values.map(v => el('option', { value: v }, names(v)))];
+  sel.replaceChildren(...opts);
+  sel.value = values.includes(value) ? value : '';
+}
+function syncControls(meta) {
+  document.querySelectorAll('#days button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state.days)));
+  const courses = [...new Set(meta.map(m => m.course).filter(Boolean))];
+  if (state.course && !courses.includes(state.course)) courses.push(state.course);
+  fillSelect($('#course'), courses, courseName, state.course, 'All courses');
+  const exs = [...new Set(meta.filter(m => !state.course || m.course === state.course).map(m => m.ex))];
+  if (state.ex && !exs.includes(state.ex)) exs.push(state.ex);
+  fillSelect($('#ex'), exs, exName, state.ex, 'All exercises');
+  $('#min').value = state.min;
+}
+
+let seq = 0;
+async function load() {
+  const my = ++seq;
+  $('#main').classList.add('loading');
+  const q = new URLSearchParams(state);
+  try {
+    const r = await fetch('/api/report?' + q, { headers: { 'X-Dashboard': '1' } });
+    const j = await r.json();
+    if (my !== seq) return;
+    if (j.error) throw new Error(j.error);
+    $('#problem').replaceChildren();
+    syncControls(j.meta);
+    $('#fresh').textContent = `${j.source === 'local' ? 'Local database' : 'Cloudflare D1'} · ${nf.format(j.freshness.events || 0)} events · ${ago(j.freshness.last_rx)}`;
+    renderTiles(j.tiles); renderDaily(j.hourly, j.filter); renderExercises(j.exercises); renderWords(j.words, j.filter); renderConfusions(j.confusions);
+  } catch (e) {
+    if (my !== seq) return;
+    $('#problem').replaceChildren(el('div', { class: 'problem', role: 'alert' }, el('b', {}, 'The data could not be loaded.'), e.message,
+      el('div', { class: 'small', style: 'margin-top:6px;color:var(--ink-2)' }, 'Setup: docs/tracking.md, section "Dashboard".')));
+  } finally { if (my === seq) $('#main').classList.remove('loading'); }
+}
+
+document.querySelectorAll('#days button').forEach(b => { b.onclick = () => { state.days = b.dataset.v; save(); load(); }; });
+$('#course').onchange = e => { state.course = e.target.value; state.ex = ''; save(); load(); };
+$('#ex').onchange = e => { state.ex = e.target.value; save(); load(); };
+$('#min').onchange = e => { state.min = e.target.value; save(); load(); };
+$('#refresh').onclick = load;
+document.querySelectorAll('#days button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state.days)));
+load();
+</script>
+</body>
+</html>

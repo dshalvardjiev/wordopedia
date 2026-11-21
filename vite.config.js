@@ -13,6 +13,8 @@ const NAME = (ENV === 'production' ? '' : `[${ENV}] `) + (inst.name || 'Wordoped
 // base './' lets the same build run from any folder: /wordopedia/production/, /wordopedia/lora/, /wordopedia/staging/.
 export default defineConfig({
   base: './',
+  // Build id sent with usage events (docs/tracking.md): the commit on GitHub Actions, "dev" locally.
+  define: { __APP_BUILD__: JSON.stringify((process.env.GITHUB_SHA || 'dev').slice(0, 7)) },
   plugins: [
     react(),
     VitePWA({

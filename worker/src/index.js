@@ -24,14 +24,17 @@ const oneOf = (v, set) => (set.has(v) ? v : null);
 
 // A valid event as a row, or null. Unknown fields are ignored; a wrong optional field is dropped, a wrong required one
 // rejects the event.
-export function toRow(e, now) {
+// offset: the device clock's error (server time minus the device's "sent" time), added to the event time. An event time
+// that is still implausible is replaced by the receive time rather than rejected, so a wrong clock never loses data.
+export function toRow(e, now, offset = 0) {
   if (!e || typeof e !== 'object') return null;
   const id = typeof e.id === 'string' && ID.test(e.id) ? e.id : null;
   const dev = typeof e.dev === 'string' && ID.test(e.dev) ? e.dev : null;
   const kind = oneOf(e.kind, KINDS);
   const env = oneOf(e.env, ENVS);
-  const ts = int(e.ts, now - 30 * DAY, now + DAY);
-  if (!id || !dev || !kind || !env || ts === null) return null;
+  const t = Number.isInteger(e.ts) ? e.ts + offset : null;
+  const ts = t !== null && t >= now - 400 * DAY && t <= now + 5 * 60e3 ? t : now;
+  if (!id || !dev || !kind || !env) return null;
   const course = typeof e.course === 'string' && COURSE.test(e.course) ? e.course : null;
   const row = {
     id, ts, rx: now, dev, env, kind, course,
@@ -91,7 +94,9 @@ export default {
     if (!list || list.length > MAX_EVENTS) return json({ error: 'bad batch' }, 400, cors);
 
     const now = Date.now();
-    const rows = list.map(e => toRow(e, now)).filter(Boolean);
+    const sent = body && Number.isInteger(body.sent) ? body.sent : null;
+    const offset = sent !== null && Math.abs(now - sent) < 3650 * DAY ? now - sent : 0;
+    const rows = list.map(e => toRow(e, now, offset)).filter(Boolean);
     const bad = list.length - rows.length;
     if (rows.length) {
       try {
