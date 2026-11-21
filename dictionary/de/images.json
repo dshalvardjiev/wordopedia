@@ -1,0 +1,667 @@
+{
+ "sources": {
+  "fluent": {
+   "name": "Microsoft Fluent Emoji",
+   "license": "MIT",
+   "url": "https://github.com/microsoft/fluentui-emoji"
+  },
+  "wordopedia": {
+   "name": "Wordopedia (own drawings)",
+   "license": "Apache-2.0",
+   "url": "https://github.com/dshalvardjiev/wordopedia"
+  }
+ },
+ "images": {
+  "der Affe": {
+   "file": "der-affe.svg",
+   "source": "fluent"
+  },
+  "rufen": {
+   "file": "rufen.svg",
+   "source": "fluent"
+  },
+  "die Seife": {
+   "file": "die-seife.svg",
+   "source": "fluent"
+  },
+  "der Delfin": {
+   "file": "der-delfin.svg",
+   "source": "fluent"
+  },
+  "das Ufo": {
+   "file": "das-ufo.svg",
+   "source": "fluent"
+  },
+  "die Hilfe": {
+   "file": "die-hilfe.svg",
+   "source": "fluent"
+  },
+  "die Frau": {
+   "file": "die-frau.svg",
+   "source": "fluent"
+  },
+  "das Foto": {
+   "file": "das-foto.svg",
+   "source": "fluent"
+  },
+  "der Hut": {
+   "file": "der-hut.svg",
+   "source": "fluent"
+  },
+  "die Hose": {
+   "file": "die-hose.svg",
+   "source": "fluent"
+  },
+  "die Familie": {
+   "file": "die-familie.svg",
+   "source": "fluent"
+  },
+  "die Farbe": {
+   "file": "die-farbe.svg",
+   "source": "fluent"
+  },
+  "die Gurke": {
+   "file": "die-gurke.svg",
+   "source": "fluent"
+  },
+  "die Gitarre": {
+   "file": "die-gitarre.svg",
+   "source": "fluent"
+  },
+  "die Gabel": {
+   "file": "die-gabel.svg",
+   "source": "wordopedia"
+  },
+  "gut": {
+   "file": "gut.svg",
+   "source": "fluent"
+  },
+  "der Ring": {
+   "file": "der-ring.svg",
+   "source": "fluent"
+  },
+  "der Umhang": {
+   "file": "der-umhang.svg",
+   "source": "wordopedia"
+  },
+  "das Auge": {
+   "file": "das-auge.svg",
+   "source": "fluent"
+  },
+  "der Finger": {
+   "file": "der-finger.svg",
+   "source": "fluent"
+  },
+  "das Pferd": {
+   "file": "das-pferd.svg",
+   "source": "fluent"
+  },
+  "der Park": {
+   "file": "der-park.png",
+   "title": "Park icon with tree, table, and chairs.svg",
+   "author": "klaro at OpenClipart (archive)",
+   "license": "CC0",
+   "url": "https://commons.wikimedia.org/wiki/File:Park_icon_with_tree,_table,_and_chairs.svg"
+  },
+  "pfeifen": {
+   "file": "pfeifen.svg",
+   "source": "wordopedia"
+  },
+  "impfen": {
+   "file": "impfen.svg",
+   "source": "fluent"
+  },
+  "das Ohr": {
+   "file": "das-ohr.svg",
+   "source": "fluent"
+  },
+  "der Opa": {
+   "file": "der-opa.svg",
+   "source": "fluent"
+  },
+  "das Tor": {
+   "file": "das-tor.svg",
+   "source": "fluent"
+  },
+  "der Topf": {
+   "file": "der-topf.svg",
+   "source": "fluent"
+  },
+  "die Lupe": {
+   "file": "die-lupe.svg",
+   "source": "fluent"
+  },
+  "die Puppe": {
+   "file": "die-puppe.svg",
+   "source": "wordopedia"
+  },
+  "der Ritter": {
+   "file": "der-ritter.png",
+   "title": "Coa Illustration Elements Human Horseman simple.svg",
+   "author": "Madboy74.\n\nDerivative work: Paladium",
+   "license": "CC BY-SA 4.0",
+   "url": "https://commons.wikimedia.org/wiki/File:Coa_Illustration_Elements_Human_Horseman_simple.svg"
+  },
+  "der Regen": {
+   "file": "der-regen.svg",
+   "source": "fluent"
+  },
+  "stehen": {
+   "file": "stehen.svg",
+   "source": "fluent"
+  },
+  "das Brot": {
+   "file": "das-brot.svg",
+   "source": "fluent"
+  },
+  "das Blatt": {
+   "file": "das-blatt.svg",
+   "source": "fluent"
+  },
+  "der Ball": {
+   "file": "der-ball.svg",
+   "source": "fluent"
+  },
+  "krank": {
+   "file": "krank.svg",
+   "source": "fluent"
+  },
+  "der Eimer": {
+   "file": "der-eimer.svg",
+   "source": "fluent"
+  },
+  "die Laterne": {
+   "file": "die-laterne.svg",
+   "source": "fluent"
+  },
+  "der Hamster": {
+   "file": "der-hamster.svg",
+   "source": "fluent"
+  },
+  "das Kino": {
+   "file": "das-kino.svg",
+   "source": "fluent"
+  },
+  "die Karte": {
+   "file": "die-karte.svg",
+   "source": "fluent"
+  },
+  "essen": {
+   "file": "essen.svg",
+   "source": "fluent"
+  },
+  "lernen": {
+   "file": "lernen.svg",
+   "source": "fluent"
+  },
+  "der Sommer": {
+   "file": "der-sommer.svg",
+   "source": "fluent"
+  },
+  "blau": {
+   "file": "blau.svg",
+   "source": "fluent"
+  },
+  "die Murmel": {
+   "file": "die-murmel.png",
+   "title": "Ilustrasi anak bermain kelereng.svg",
+   "author": "Satriaraspati",
+   "license": "CC BY-SA 4.0",
+   "url": "https://commons.wikimedia.org/wiki/File:Ilustrasi_anak_bermain_kelereng.svg"
+  },
+  "rund": {
+   "file": "rund.svg",
+   "source": "fluent"
+  },
+  "der Euro": {
+   "file": "der-euro.svg",
+   "source": "fluent"
+  },
+  "die Nadel": {
+   "file": "die-nadel.svg",
+   "source": "fluent"
+  },
+  "die Dose": {
+   "file": "die-dose.svg",
+   "source": "fluent"
+  },
+  "die Insel": {
+   "file": "die-insel.svg",
+   "source": "fluent"
+  },
+  "der Uhu": {
+   "file": "der-uhu.svg",
+   "source": "fluent"
+  },
+  "der Bus": {
+   "file": "der-bus.svg",
+   "source": "fluent"
+  },
+  "die Butter": {
+   "file": "die-butter.svg",
+   "source": "fluent"
+  },
+  "die Marmelade": {
+   "file": "die-marmelade.svg",
+   "source": "wordopedia"
+  },
+  "turnen": {
+   "file": "turnen.svg",
+   "source": "fluent"
+  },
+  "die Ananas": {
+   "file": "die-ananas.svg",
+   "source": "fluent"
+  },
+  "die Tomate": {
+   "file": "die-tomate.svg",
+   "source": "fluent"
+  },
+  "der Salat": {
+   "file": "der-salat.svg",
+   "source": "fluent"
+  },
+  "das Eis": {
+   "file": "das-eis.svg",
+   "source": "fluent"
+  },
+  "der Tee": {
+   "file": "der-tee.svg",
+   "source": "fluent"
+  },
+  "der See": {
+   "file": "der-see.png",
+   "title": "London air quality illustration.svg",
+   "author": "domdomegg",
+   "license": "CC BY-SA 4.0",
+   "url": "https://commons.wikimedia.org/wiki/File:London_air_quality_illustration.svg"
+  },
+  "die See": {
+   "file": "die-see.svg",
+   "source": "fluent"
+  },
+  "die Sonne": {
+   "file": "die-sonne.svg",
+   "source": "fluent"
+  },
+  "lila": {
+   "file": "lila.svg",
+   "source": "fluent"
+  },
+  "lesen": {
+   "file": "lesen.jpg",
+   "title": "Child reading (Jessie Willcox Smith).jpg",
+   "author": "Jessie Willcox Smith",
+   "license": "Public domain",
+   "url": "https://commons.wikimedia.org/wiki/File:Child_reading_(Jessie_Willcox_Smith).jpg"
+  },
+  "rot": {
+   "file": "rot.svg",
+   "source": "fluent"
+  },
+  "die Ente": {
+   "file": "die-ente.svg",
+   "source": "fluent"
+  },
+  "der Esel": {
+   "file": "der-esel.svg",
+   "source": "fluent"
+  },
+  "die Rose": {
+   "file": "die-rose.svg",
+   "source": "fluent"
+  },
+  "der Roller": {
+   "file": "der-roller.svg",
+   "source": "fluent"
+  },
+  "der Morgen": {
+   "file": "der-morgen.svg",
+   "source": "fluent"
+  },
+  "der Lehrer": {
+   "file": "der-lehrer.svg",
+   "source": "fluent"
+  },
+  "rosa": {
+   "file": "rosa.svg",
+   "source": "fluent"
+  },
+  "der Mann": {
+   "file": "der-mann.svg",
+   "source": "fluent"
+  },
+  "das Meer": {
+   "file": "das-meer.svg",
+   "source": "fluent"
+  },
+  "der Atem": {
+   "file": "der-atem.svg",
+   "source": "fluent"
+  },
+  "der Aal": {
+   "file": "der-aal.png",
+   "title": "Anguilla anguilla (Linnaeus 1758) Fig 163 (Matschie et al. 1909).svg",
+   "author": "P. Matschie, A. Reichenow, G. Tornier & P. Pappenheim",
+   "license": "Public domain",
+   "url": "https://commons.wikimedia.org/wiki/File:Anguilla_anguilla_(Linnaeus_1758)_Fig_163_(Matschie_et_al._1909).svg"
+  },
+  "der Halm": {
+   "file": "der-halm.svg",
+   "source": "fluent"
+  },
+  "das Hotel": {
+   "file": "das-hotel.svg",
+   "source": "fluent"
+  },
+  "das Lineal": {
+   "file": "das-lineal.svg",
+   "source": "fluent"
+  },
+  "das Lama": {
+   "file": "das-lama.svg",
+   "source": "fluent"
+  },
+  "das Ei": {
+   "file": "das-ei.svg",
+   "source": "fluent"
+  },
+  "nein": {
+   "file": "nein.svg",
+   "source": "fluent"
+  },
+  "der Monat": {
+   "file": "der-monat.svg",
+   "source": "fluent"
+  },
+  "malen": {
+   "file": "malen.svg",
+   "source": "fluent"
+  },
+  "ein": {
+   "file": "ein.svg",
+   "source": "fluent"
+  },
+  "die Null": {
+   "file": "die-null.svg",
+   "source": "fluent"
+  },
+  "der Nebel": {
+   "file": "der-nebel.svg",
+   "source": "fluent"
+  },
+  "jubeln": {
+   "file": "jubeln.svg",
+   "source": "fluent"
+  },
+  "der Joghurt": {
+   "file": "der-joghurt.svg",
+   "source": "wordopedia"
+  },
+  "der Junge": {
+   "file": "der-junge.svg",
+   "source": "fluent"
+  },
+  "der Verkehr": {
+   "file": "der-verkehr.svg",
+   "source": "fluent"
+  },
+  "der Vogel": {
+   "file": "der-vogel.svg",
+   "source": "fluent"
+  },
+  "vier": {
+   "file": "vier.svg",
+   "source": "fluent"
+  },
+  "die Vase": {
+   "file": "die-vase.svg",
+   "source": "wordopedia"
+  },
+  "der Winter": {
+   "file": "der-winter.svg",
+   "source": "fluent"
+  },
+  "wandern": {
+   "file": "wandern.svg",
+   "source": "fluent"
+  },
+  "winken": {
+   "file": "winken.svg",
+   "source": "fluent"
+  },
+  "die Wurst": {
+   "file": "die-wurst.svg",
+   "source": "fluent"
+  },
+  "Ski fahren": {
+   "file": "ski-fahren.svg",
+   "source": "fluent"
+  },
+  "fliegen": {
+   "file": "fliegen.svg",
+   "source": "fluent"
+  },
+  "das Alphabet": {
+   "file": "das-alphabet.svg",
+   "source": "fluent"
+  },
+  "brennen": {
+   "file": "brennen.svg",
+   "source": "fluent"
+  },
+  "lieb": {
+   "file": "lieb.svg",
+   "source": "fluent"
+  },
+  "kleben": {
+   "file": "kleben.svg",
+   "source": "wordopedia"
+  },
+  "die Uhr": {
+   "file": "die-uhr.svg",
+   "source": "fluent"
+  },
+  "das Auto": {
+   "file": "das-auto.svg",
+   "source": "fluent"
+  },
+  "die Maus": {
+   "file": "die-maus.svg",
+   "source": "fluent"
+  },
+  "der Kuli": {
+   "file": "der-kuli.svg",
+   "source": "fluent"
+  },
+  "der Teddy": {
+   "file": "der-teddy.svg",
+   "source": "fluent"
+  },
+  "die Musik": {
+   "file": "die-musik.svg",
+   "source": "fluent"
+  },
+  "die Nummer": {
+   "file": "die-nummer.svg",
+   "source": "fluent"
+  },
+  "das Haus": {
+   "file": "das-haus.svg",
+   "source": "fluent"
+  },
+  "das Nest": {
+   "file": "das-nest.svg",
+   "source": "fluent"
+  },
+  "das Domino": {
+   "file": "das-domino.svg",
+   "source": "wordopedia"
+  },
+  "der Hund": {
+   "file": "der-hund.svg",
+   "source": "fluent"
+  },
+  "der Zaun": {
+   "file": "der-zaun.svg",
+   "source": "wordopedia"
+  },
+  "das Ziel": {
+   "file": "das-ziel.svg",
+   "source": "fluent"
+  },
+  "die Zange": {
+   "file": "die-zange.png",
+   "title": "Pliers with yellow handles (rotated).svg",
+   "author": "hatalar205 at Openclipart",
+   "license": "CC0",
+   "url": "https://commons.wikimedia.org/wiki/File:Pliers_with_yellow_handles_(rotated).svg"
+  },
+  "der Zettel": {
+   "file": "der-zettel.svg",
+   "source": "fluent"
+  },
+  "zu Hause": {
+   "file": "zu-hause.svg",
+   "source": "fluent"
+  },
+  "zehn": {
+   "file": "zehn.svg",
+   "source": "fluent"
+  },
+  "das Salz": {
+   "file": "das-salz.svg",
+   "source": "fluent"
+  },
+  "die Tatze": {
+   "file": "die-tatze.svg",
+   "source": "fluent"
+  },
+  "glitzern": {
+   "file": "glitzern.svg",
+   "source": "fluent"
+  },
+  "der Umzug": {
+   "file": "der-umzug.svg",
+   "source": "fluent"
+  },
+  "der Pilz": {
+   "file": "der-pilz.svg",
+   "source": "fluent"
+  },
+  "ja": {
+   "file": "ja.svg",
+   "source": "fluent"
+  },
+  "kochen": {
+   "file": "kochen.svg",
+   "source": "fluent"
+  },
+  "campen": {
+   "file": "campen.svg",
+   "source": "fluent"
+  },
+  "die Creme": {
+   "file": "die-creme.svg",
+   "source": "fluent"
+  },
+  "das Cello": {
+   "file": "das-cello.png",
+   "title": "Cello 1.svg",
+   "author": "papapishu",
+   "license": "CC0",
+   "url": "https://commons.wikimedia.org/wiki/File:Cello_1.svg"
+  },
+  "die Glocke": {
+   "file": "die-glocke.svg",
+   "source": "fluent"
+  },
+  "der Tisch": {
+   "file": "der-tisch.svg",
+   "source": "wordopedia"
+  },
+  "schnell": {
+   "file": "schnell.svg",
+   "source": "fluent"
+  },
+  "langsam": {
+   "file": "langsam.svg",
+   "source": "fluent"
+  },
+  "die Schule": {
+   "file": "die-schule.svg",
+   "source": "fluent"
+  },
+  "die Schere": {
+   "file": "die-schere.svg",
+   "source": "fluent"
+  },
+  "der Schnee": {
+   "file": "der-schnee.svg",
+   "source": "fluent"
+  },
+  "der Schuh": {
+   "file": "der-schuh.svg",
+   "source": "fluent"
+  },
+  "schauen": {
+   "file": "schauen.svg",
+   "source": "fluent"
+  },
+  "schlafen": {
+   "file": "schlafen.svg",
+   "source": "fluent"
+  },
+  "schreiben": {
+   "file": "schreiben.svg",
+   "source": "fluent"
+  },
+  "das Licht": {
+   "file": "das-licht.svg",
+   "source": "fluent"
+  },
+  "der Schatz": {
+   "file": "der-schatz.png",
+   "title": "Treasurchest.svg",
+   "author": "hextrust",
+   "license": "CC0",
+   "url": "https://commons.wikimedia.org/wiki/File:Treasurchest.svg"
+  },
+  "gucken": {
+   "file": "gucken.svg",
+   "source": "fluent"
+  },
+  "die Jacke": {
+   "file": "die-jacke.svg",
+   "source": "fluent"
+  },
+  "das Buch": {
+   "file": "das-buch.svg",
+   "source": "fluent"
+  },
+  "die Katze": {
+   "file": "die-katze.svg",
+   "source": "fluent"
+  },
+  "die Zitrone": {
+   "file": "die-zitrone.svg",
+   "source": "fluent"
+  },
+  "die Zeit": {
+   "file": "die-zeit.svg",
+   "source": "fluent"
+  },
+  "wecken": {
+   "file": "wecken.svg",
+   "source": "fluent"
+  },
+  "sechs": {
+   "file": "sechs.svg",
+   "source": "fluent"
+  },
+  "die Brezel": {
+   "file": "die-brezel.svg",
+   "source": "fluent"
+  }
+ }
+}
