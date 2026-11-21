@@ -1,6 +1,7 @@
-# Usage tracking: architecture plan
+# Usage tracking
 
-Status: planned, not implemented. Last updated 2026-11-17.
+Status: live since 2026-11-21. Worker: `https://wordopedia-events.code-runners-account.workers.dev`
+(D1 database `wordopedia-events`, jurisdiction `eu`). Code: `src/lib/track.js`, `worker/`.
 
 ## Goals
 1. Word difficulty across all learners of a course.
@@ -37,14 +38,24 @@ per database.
   - session end; `visibilitychange` to hidden; app start; `online`.
 - One flush at a time; a tick that finds a flush in flight is skipped.
 - Transport: `fetch(url, { method: 'POST', keepalive: true, body })` with a `text/plain` body (CORS-safelisted, no
-  preflight). Batches of at most 100 events, to stay under the keepalive body limit (to be confirmed in the prototype).
-- Events leave the queue only after a 2xx response. Each event has a random id, so a resent batch is stored once.
+  preflight). Batches of at most 100 events (about 30 KB), under the 64 KB keepalive limit. A send requested while one
+  is running follows right after it.
+- Events leave the queue after a 2xx response, or a 4xx other than 429 (a batch that can never be accepted). Network
+  errors, 429 and 5xx keep them; so does a refused origin or wrong address, because those answers carry no CORS headers
+  and the browser reports a network error. Each event has a random id, so a resent batch is stored once.
+- Each batch carries the device's clock time (`sent`); the Worker adds the difference to event times, so a wrong
+  device clock does not distort or lose data.
+- Running sessions are kept by id with their tab (sessionStorage) and last-seen time. One left by an earlier page of
+  the same tab is reported as abandoned at once; one from another tab only after 3 minutes unseen. Reports count one
+  end per session (`v_session_ends`), preferring done or quit over abandoned.
 - The timer and queue live outside React state: no re-render of the quiz screen (see the keyboard pitfall in CLAUDE.md).
 - Switches:
   - per instance, in `dictionary/instances/<id>.json` (`"tracking": true`), effective after the automatic redeploy;
-  - global kill switch in `dictionary/languages.json` (`"tracking": false`), fetched at runtime, no release needed.
+  - global, in `dictionary/languages.json`: `"tracking": {"url": "…/e", "enabled": true}`; `false` (or no URL) stops it
+    everywhere, fetched at runtime, no release needed;
+  - the parent's switch in the app's course menu.
 - Device id: `crypto.randomUUID()` stored in localStorage. Used only to count learners per word and to exclude a device
-  that sends junk; never a grouping key in reports.
+  that sends junk; never a grouping key in reports. Deleted when the parent's switch is turned off.
 
 ## 2. Events
 | Type | When | Fields beyond the common ones |
@@ -53,16 +64,17 @@ per database.
 | `session_start` | exercise started | exercise, format, list size |
 | `answer` | every answer | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`), response ms, wrong option picked (test format only) |
 | `session_end` | finished, quit, or detected abandoned | answers given, size, status |
-| `tick` (proposed) | every minute of a session | answers so far, active seconds |
+| `tick` | every minute of a session | answers so far, active seconds |
 
 Common fields: event id, client time, device id, app version, environment, course, session id.
 Never sent: instance id, names, typed free text, IP.
 
 ## 3. Worker (`worker/`)
-- Accepts `POST /e` only, and only from `https://dshalvardjiev.github.io` (plus localhost in development).
+- Accepts `POST /e` only, and only from origins listed in `ORIGINS` (`https://dshalvardjiev.github.io`; local
+  development passes its own with `wrangler dev --var ORIGINS:…`).
 - Rate limiting binding, keyed by IP in memory only (for example 30 requests a minute). The IP is never stored.
-- Validation: fixed lists for event type, exercise, format and result; length and range checks; client time within the
-  last 30 days. Invalid events are dropped and counted.
+- Validation: fixed lists for event type, exercise, format, result and status; length and range checks. Invalid events
+  are dropped and counted. An implausible event time (after clock correction) is replaced by the receive time.
 - One statement per batch: `INSERT OR IGNORE INTO events (...) SELECT ... FROM json_each(?)` (one bound parameter).
 - Observability: invocation logs off (`[observability.logs] invocation_logs = false`), so request metadata is not
   logged; only error counts are logged.
@@ -70,7 +82,7 @@ Never sent: instance id, names, typed free text, IP.
 
 ## 4. Database (D1)
 - Created once with `wrangler d1 create wordopedia-events --jurisdiction eu` (the jurisdiction cannot be changed later).
-- One `events` table with typed columns; primary key = event id; two indexes (`(course, kind, word)`, `(ts)`).
+- One `events` table with typed columns; primary key = event id; two indexes (`(course, kind, word)`, `(rx)`).
 - Views:
   - `v_word_difficulty`: per course, word, exercise, format; first-attempt error rate (smoothed), attempts, learners.
   - `v_confusions`: per course and word; wrong options picked.
@@ -96,14 +108,26 @@ Never sent: instance id, names, typed free text, IP.
 - Per-course figures mix learners. A per-learner view would need an instance column, and data collected before then
   could not be split.
 
-## 7. Open decisions
-1. Include the `tick` event?
-2. Which instances report: only the owner's children, or every instance whose parents agreed?
-3. A visible on/off switch for parents in the app?
-4. 12 months of raw events?
+## 7. Decisions
+Taken as defaults on 2026-11-21 (the owner did not choose otherwise); each can be changed in one place.
+1. `tick` events: included.
+2. Instances that report: every instance except `staging` (`"tracking": true` in its file).
+3. Parent switch: "Анонимна статистика" in the course menu, on by default; off clears the queue and stops events.
+4. Raw events kept 12 months, then summarised per word and month (`word_summary`).
 
-## 8. Cloudflare prerequisites
-Done by the owner:
+## 8. Operations
+- Reports: Cloudflare dashboard > Storage & Databases > D1 > `wordopedia-events` > Console, for example
+  `SELECT * FROM v_word_difficulty WHERE course = 'de' LIMIT 30;`. Views: `v_word_difficulty` (10+ first answers),
+  `v_word_stats` (all words), `v_confusions`, `v_exercise_usage`, `v_activity`.
+  From a terminal: `cd worker && npx wrangler d1 execute wordopedia-events --remote --command "..."`.
+- Pause everywhere without a release: `"tracking": {"enabled": false}` in `dictionary/languages.json`, or
+  `ACCEPT = "false"` in `worker/wrangler.toml` (batches are then accepted and dropped).
+- Exclude a device from reports: `INSERT INTO blocked_devices (dev, note) VALUES ('<id>', '<reason>');`.
+- Schema changes: add a new file under `worker/migrations/`; never edit one that has been applied.
+- Deploys: `.github/workflows/worker.yml` on changes under `worker/` (or run it by hand).
+
+## 9. Cloudflare prerequisites
+Done by the owner (done 2026-11-21):
 1. Create a Cloudflare account (Free plan) and open Workers & Pages once to register the account's `workers.dev`
    subdomain.
 2. Create an API token (My Profile > API Tokens > Create Token > Custom token), limited to this account:
@@ -113,8 +137,8 @@ Done by the owner:
 3. Add GitHub repository secrets: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (shown on the account's
    Workers & Pages overview).
 
-Done in the repository after that: the setup workflow creates the database; its id (not a secret) goes into
-`worker/wrangler.toml`; the deploy workflow publishes the Worker; the Worker URL goes into the app configuration.
+The deploy workflow finds or creates the database in the EU jurisdiction, puts its id into `wrangler.toml` at deploy
+time (the file in the repository keeps a placeholder), applies migrations, deploys and checks `/health`.
 
 ## Sources
 - D1 limits: https://developers.cloudflare.com/d1/platform/limits/

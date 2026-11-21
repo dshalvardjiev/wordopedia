@@ -35,6 +35,15 @@ for (const c of courses) {
   }
 }
 
+// Usage tracking settings (docs/tracking.md): {"url": "https://…/e", "enabled": false to switch it off everywhere}.
+if (conf && 'tracking' in conf) {
+  const t = conf.tracking;
+  if (!t || typeof t !== 'object') err('languages.json: "tracking" must be an object');
+  else {
+    if ('url' in t && !/^https:\/\/[^\s]+\/e$/.test(String(t.url))) err('languages.json: tracking.url must be an https address ending in /e');
+    if ('enabled' in t && typeof t.enabled !== 'boolean') err('languages.json: tracking.enabled must be true or false');
+  }
+}
 const keys = new Set([...courses.map(c => c.key), 'math']);
 const ids = fs.readdirSync(D + 'instances').filter(f => f.endsWith('.json')).map(f => f.slice(0, -5));
 if (!ids.includes(PRODUCTION)) err(`instances/${PRODUCTION}.json is missing`);
@@ -55,6 +64,7 @@ for (const id of ids) {
   const titles = shown.map(c => c.title);
   titles.filter((t, i) => titles.indexOf(t) !== i).forEach(t => err(`${at}: two courses are shown as "${t}"; set a "label"`));
   if (!shown.some(c => c.active)) warn(`${at}: no active course`);
+  if ('tracking' in inst && typeof inst.tracking !== 'boolean') err(`${at}: "tracking" must be true or false`);
 }
 
 warnings.forEach(w => console.warn('warning: ' + w));

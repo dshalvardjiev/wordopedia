@@ -6,7 +6,8 @@ export const CourseIcon = ({ c, size }) => (c.kind === 'math' ? <MathBadge size=
 
 // Course dropdown: the instance's courses with flag + title; inactive ones are listed but cannot be picked.
 // An instance with a single course lists no courses; the menu then only offers the update.
-export function LangMenu({ L, isMath, courses, counts, onPick, onRefresh, toast }) {
+// stats: the parent's switch for anonymous usage statistics (null when this instance does not collect them).
+export function LangMenu({ L, isMath, courses, counts, onPick, onRefresh, toast, stats, onStats }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const ref = useRef(null);
@@ -45,6 +46,10 @@ export function LangMenu({ L, isMath, courses, counts, onPick, onRefresh, toast 
           })}
           {courses.length > 1 && <div className="menu-sep" />}
           <button className="menu-foot" disabled={busy} onClick={check}><Icon name="sync" size={18} />{busy ? 'Обновяване…' : isMath ? 'Проверка за нови курсове' : 'Обновяване на думите'}</button>
+          {stats !== null && stats !== undefined && (
+            <label className="menu-tog"><span><b>Анонимна статистика</b><span className="small">Кои думи и упражнения затрудняват, без лични данни</span></span>
+              <input type="checkbox" checked={stats} onChange={e => onStats(e.target.checked)} /></label>
+          )}
         </div>
       )}
     </div>

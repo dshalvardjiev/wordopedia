@@ -1,4 +1,8 @@
 {
+  "tracking": {
+    "url": "https://wordopedia-events.code-runners-account.workers.dev/e",
+    "enabled": true
+  },
   "languages": [
     {
       "code": "de",

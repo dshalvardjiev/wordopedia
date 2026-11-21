@@ -1,7 +1,7 @@
 # Wordopedia: notes for Claude
 
 Vocabulary and maths practice PWA for a Bulgarian-speaking learner (a child). Owner: D (dshalvardjiev).
-UI text is Bulgarian; code, comments, commits and docs are English. See README.md for content formats and docs/tracking.md for the planned usage tracking.
+UI text is Bulgarian; code, comments, commits and docs are English. See README.md for content formats and docs/tracking.md for usage tracking.
 
 ## Stack and deployment
 - React 18 + Vite 5 + vite-plugin-pwa (`registerType: 'autoUpdate'`). No backend, no test suite in the repo.
@@ -21,11 +21,12 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
   instance (`VITE_INSTANCE`), environment (`VITE_ENV`), bundled instance file, storage key. `dictionary.js`/`csv.js`/`verbs.js`: parsing. `match.js`: answer checking and quiz options.
   `conj.js`: conjugation exercise (questions per verb and pronoun, answer checking, options).
   `audio.js`: recordings (Cache Storage) and device-voice fallback. `sync.js`: downloads. `store.js`: localStorage.
-  `math.js`: maths tests.
+  `math.js`: maths tests. `track.js`: usage events (queue, batches to the Worker; see docs/tracking.md).
 - `src/components/`: `Home`, `Quiz`, `Result`, `Words` (vocabulary), `Conj` (conjugation table), `ConjQuiz`
   (conjugation test / typed; not keyed by question, like `MathQuiz`), `LangPick`,
   `Chrome` (language menu, tab bar), `ui` (flags, icons, segmented control), `math/`.
 - `scripts/make_audio.py`: used by the recordings workflow; runs locally with piper-tts and ffmpeg.
+- `worker/`: Cloudflare Worker + D1 (EU) for usage events; deployed by `.github/workflows/worker.yml`.
 
 ## Invariants (break these and saved progress or audio silently breaks)
 - Course key vs language: `L.code` is the language (rules, voice, `dictionary/<code>/audio/`); `L.key` and `L.path`
@@ -44,6 +45,9 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - Conjugation progress id = `<courseKey>:conj:<verb>:<column>` (e.g. `fr:conj:être:nous`); sessions carry `kind`
   (`words` | `conj`). The verb group is `setByLang['<courseKey>:conj']`; the format is `settings.conjMode`.
 - Learners must not be able to add or change words, answers or verbs in the app (owner's decision).
+- Usage events: the lists of event kinds, exercises, formats, results and statuses must match between `App.jsx` /
+  `track.js` and `toRow` in `worker/src/index.js` (the Worker drops events it does not know). Never send the instance,
+  names or typed text. `track.js` must not touch React state. `worker/migrations/` is append-only once applied.
 
 ## Pitfalls already hit
 - Phone keyboards: never re-mount or re-key the answer `<input>` while typing (Android/iOS keyboards close or drop

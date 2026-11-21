@@ -3,5 +3,6 @@
   "courses": [
     { "course": "de" },
     { "course": "math" }
-  ]
+  ],
+  "tracking": true
 }

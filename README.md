@@ -127,6 +127,13 @@ Changing the course list of an existing instance needs no release: the app downl
 other content. `npm run check` (also run in CI) rejects unknown courses, duplicates and two courses with the same
 visible title in one instance.
 
+## Usage statistics
+Instances with `"tracking": true` send anonymous usage events (exercise, word, result, timing; no names, no typed
+text, no instance name) to a Cloudflare Worker with a database in the EU. Reports are per course: which words are hard,
+which exercises are finished or dropped. Parents can switch it off in the course menu (**Анонимна статистика**);
+`"tracking": {"enabled": false}` in `languages.json` stops it everywhere. Details and report queries:
+[docs/tracking.md](docs/tracking.md).
+
 ## Development
 ```
 npm install
