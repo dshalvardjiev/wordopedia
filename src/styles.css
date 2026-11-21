@@ -281,7 +281,7 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 .vsheet { position: relative; background: #fff; border-radius: 6px; box-shadow: 0 1px 0 var(--rule), 0 10px 26px -18px rgba(27,42,74,.45); overflow: hidden; }
 .vsheet::before { content: ""; position: absolute; top: 0; bottom: 0; left: 30px; width: 2px; background: var(--margin); opacity: .55; pointer-events: none; }
 .ventry {
-  display: grid; grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; align-items: baseline; width: 100%;
+  display: grid; grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) 36px; gap: 0 12px; align-items: baseline; width: 100%;
   text-align: left; background: none; border: 0; border-bottom: 1px solid var(--rule); padding: 9px 12px 9px 0; min-height: 44px; color: var(--ink);
 }
 .ventry:last-child { border-bottom: 0; }
@@ -300,3 +300,20 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 
 /* Instances: environment tag on staging */
 .envtag { position: fixed; top: calc(env(safe-area-inset-top) + 6px); right: 8px; z-index: 50; background: #B42318; color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .04em; border-radius: 999px; padding: 3px 9px; pointer-events: none; }
+
+/* Word pictures: right of the word on the question card, a small one at the end of each vocabulary line. */
+.pic { display: block; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+.sheet .qpic { float: right; width: 88px; height: 88px; margin: 6px 0 4px 12px; }
+.sheet .badge ~ .qpic { margin-top: 26px; }
+.vpic { align-self: center; width: 36px; height: 36px; }
+.vpic .pic { width: 36px; height: 36px; }
+/* Picture credits under the vocabulary. */
+.credits { margin-top: 18px; background: var(--card); border: 1px solid var(--rule); border-radius: var(--r-lg); }
+.credits > summary { list-style: none; display: flex; align-items: center; gap: 10px; padding: 14px 16px; font-weight: 800; cursor: pointer; }
+.credits > summary::-webkit-details-marker { display: none; }
+.credits > summary .icon { margin-left: auto; color: var(--ink-2); transition: transform .15s; }
+.credits[open] > summary .icon { transform: rotate(180deg); }
+.credits .boxbody { display: grid; gap: 8px; padding: 0 16px 16px; font-size: 14px; color: var(--ink-2); }
+.credits .boxbody p { margin: 0; }
+.credits .boxbody ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.credits a { color: var(--pen); }

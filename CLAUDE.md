@@ -22,9 +22,10 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
   `conj.js`: conjugation exercise (questions per verb and pronoun, answer checking, options).
   `audio.js`: recordings (Cache Storage) and device-voice fallback. `sync.js`: downloads. `store.js`: localStorage.
   `math.js`: maths tests. `track.js`: usage events (queue, batches to the Worker; see docs/tracking.md).
+  `images.js`: word pictures (`parseImages` is pure, also used by `check-content.mjs`).
 - `src/components/`: `Home`, `Quiz`, `Result`, `Words` (vocabulary), `Conj` (conjugation table), `ConjQuiz`
   (conjugation test / typed; not keyed by question, like `MathQuiz`), `LangPick`,
-  `Chrome` (language menu, tab bar), `ui` (flags, icons, segmented control), `math/`.
+  `Chrome` (language menu, tab bar), `ui` (flags, icons, segmented control), `math/`, `Pic` (a word's picture).
 - `scripts/make_audio.py`: used by the recordings workflow; runs locally with piper-tts and ffmpeg.
 - `worker/`: Cloudflare Worker + D1 (EU) for usage events; deployed by `.github/workflows/worker.yml`.
 - `dashboard/`: local reports page (`npm run dashboard`, http://127.0.0.1:8788); `queries.mjs` mirrors the views in
@@ -49,7 +50,7 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - Learners must not be able to add or change words, answers or verbs in the app (owner's decision).
 - Usage events: the lists of event kinds, exercises, formats, results and statuses must match between `App.jsx` /
   `track.js` and `toRow` in `worker/src/index.js` (the Worker drops events it does not know). Never send the instance,
-  names or typed text. `track.js` must not touch React state. `worker/migrations/` is append-only once applied.
+  names or typed text. `track.js` must not touch React state. `worker/migrations/` is append-only once applied. `images.js`: word pictures (`parseImages` is pure, also used by `check-content.mjs`).
 
 ## Pitfalls already hit
 - Phone keyboards: never re-mount or re-key the answer `<input>` while typing (Android/iOS keyboards close or drop

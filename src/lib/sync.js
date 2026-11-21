@@ -24,6 +24,11 @@ export async function fetchVerbs(base, L) {
   try { return await (await get(base + L.path + '/verbs.csv')).text(); }
   catch (e) { if (/404/.test(e.message)) return null; throw e; }
 }
+// images.json is optional: null when the language has no pictures.
+export async function fetchImages(base, L) {
+  try { return await (await get(base + L.code + '/images.json')).json(); }
+  catch (e) { if (/404/.test(e.message)) return null; throw e; }
+}
 export async function fetchDictionary(base, L) {
   const text = await (await get(base + L.path + '/words.csv')).text();
   return { text, parsed: parseDictionary(text, L) };

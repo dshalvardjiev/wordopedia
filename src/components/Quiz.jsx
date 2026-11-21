@@ -4,6 +4,7 @@ import { evaluate, options } from '../lib/match.js';
 import { splitArticle } from '../lib/langs.js';
 import { Icon, Spk } from './ui.jsx';
 import { prepare } from '../lib/audio.js';
+import Pic from './Pic.jsx';
 
 const TYPE = { n: 'съществително', v: 'глагол', a: 'прилагателно / наречие', o: 'друга дума' };
 const FINE = (() => { try { return matchMedia('(pointer: fine)').matches; } catch (e) { return true; } })();
@@ -18,7 +19,7 @@ export function Pair({ w }) {
 const XLabel = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <Art w={{ art: m.art }} /> : null; };
 const Label = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <><XLabel L={L} text={text} />{m.word}</> : text; };
 
-export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle, onNext, onQuit }) {
+export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, onSettle, onNext, onQuit }) {
   const w = S.cur, isTest = settings.mode === 'test' || dir === 'art';
   const [opts] = useState(() => (isTest ? options(L, w, dir, words) : null));
   const [picked, setPicked] = useState({});
@@ -114,6 +115,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, onSettle,
 
       <div className="sheet">
         {again && <span className="badge">повторение</span>}
+        <Pic base={ibase} file={w.img} className="qpic" />
         {dir === 'x-bg' && <><div className="big"><Art w={w} />{w.de}</div><div className="sub">{TYPE[w.type]}</div><Spk onClick={() => say(full(w))} /></>}
         {dir === 'bg-x' && <><div className="big">{w.bg[0]}</div><div className="sub">{TYPE[w.type]}{w.type === 'n' && w.art && L.articles.length && settings.reqArt && settings.mode === 'open' ? ', с члена' : ''}</div></>}
         {dir === 'art' && <><div className="big"><span className="blank" aria-label="член" />{w.de}</div><div className="sub">{w.bg[0]}</div></>}

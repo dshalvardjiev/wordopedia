@@ -6,6 +6,8 @@ import { parseDictionary } from '../src/lib/dictionary.js';
 import { parseVerbs } from '../src/lib/verbs.js';
 import { parseCSV } from '../src/lib/csv.js';
 import { coursesFrom, courseL, instanceCourses, ID_RE, PRODUCTION, STAGING } from '../src/lib/courses.js';
+import { parseImages } from '../src/lib/images.js';
+import { full } from '../src/lib/dictionary.js';
 
 const D = 'dictionary/';
 const errors = [], warnings = [];
@@ -44,6 +46,32 @@ if (conf && 'tracking' in conf) {
     if ('enabled' in t && typeof t.enabled !== 'boolean') err('languages.json: tracking.enabled must be true or false');
   }
 }
+
+// Pictures (optional): dictionary/<lang>/images.json, files in dictionary/<lang>/img/. Each entry must point to an
+// existing file and name a source or its own licence; a picture for a word that no course of the language has is a warning.
+for (const lang of [...new Set(courses.map(c => c.lang))]) {
+  const f = `${lang}/images.json`;
+  if (!fs.existsSync(D + f)) continue;
+  const data = readJson(f);
+  if (!data) continue;
+  const im = parseImages(data);
+  im.problems.forEach(x => err(`${f}: ${x}`));
+  const known = new Set();
+  for (const c of courses.filter(x => x.lang === lang)) {
+    const L = courseL(c);
+    try { parseDictionary(fs.readFileSync(D + c.path + '/words.csv', 'utf8'), L).words.forEach(w => known.add(full(w))); } catch (e) { /* reported above */ }
+    try { if (fs.existsSync(D + c.path + '/verbs.csv') && L.pronouns) parseVerbs(fs.readFileSync(D + c.path + '/verbs.csv', 'utf8'), L).forEach(v => known.add(v.verb)); } catch (e) { /* reported above */ }
+  }
+  for (const [word, file] of im.byWord) {
+    if (!fs.existsSync(`${D}${lang}/img/${file}`)) err(`${f}: ${word}: file img/${file} not found`);
+    if (!known.has(word)) warn(`${f}: ${word} is not a word or verb of any ${lang} course`);
+  }
+  const used = new Set(im.byWord.values());
+  for (const x of fs.existsSync(`${D}${lang}/img`) ? fs.readdirSync(`${D}${lang}/img`) : []) {
+    if (/\.(svg|png|jpg|webp)$/.test(x) && !used.has(x)) warn(`${lang}/img/${x} is not listed in ${f}`);
+  }
+}
+
 const keys = new Set([...courses.map(c => c.key), 'math']);
 const ids = fs.readdirSync(D + 'instances').filter(f => f.endsWith('.json')).map(f => f.slice(0, -5));
 if (!ids.includes(PRODUCTION)) err(`instances/${PRODUCTION}.json is missing`);

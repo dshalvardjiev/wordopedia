@@ -6,6 +6,7 @@ import { nbg } from '../lib/match.js';
 import { prepare } from '../lib/audio.js';
 import { isLearned, isWeak } from './Home.jsx';
 import { Icon, Seg } from './ui.jsx';
+import Pic from './Pic.jsx';
 
 // Sort and file a word under its first letter, ignoring the article and signs ("Wer?" -> W, "Äpfel" -> A).
 const sortKey = w => w.de.replace(/^(jdm\.|etw\.)\s+/i, '').replace(/[^\p{L}\p{N}\s]/gu, '').trim();
@@ -13,7 +14,7 @@ const letterOf = w => (sortKey(w).normalize('NFD').replace(/[̀-ͯ]/g, '')[0] ||
 const clean = s => s.replace(/\s*\(.*?\)/g, '');
 
 // The vocabulary: a ruled exercise-book page per group, foreign word on the left, Bulgarian on the right.
-export default function Words({ L, store, sets, words, say, abase }) {
+export default function Words({ L, store, sets, words, say, abase, ibase, images }) {
   const [q, setQ] = useState('');
   const [mode, setMode] = useState('sets');
   const qq = q.trim();
@@ -52,6 +53,7 @@ export default function Words({ L, store, sets, words, say, abase }) {
                   <span className={'vmark ' + mark} aria-hidden="true">{mark === 'ok' ? '✓' : mark === 'bad' ? '•' : ''}</span>
                   <span className="vde"><Art w={w} /><b>{w.de}</b>{w.pl && <span className="vpl">{w.pl}</span>}</span>
                   <span className="vbg">{w.bg.map(clean).filter((x, i, a) => a.indexOf(x) === i).slice(0, 3).join(', ')}{w.note && <span className="vnote">{w.note}</span>}</span>
+                  <span className="vpic"><Pic base={ibase} file={w.img} /></span>
                 </button>
               );
             })}
@@ -60,6 +62,15 @@ export default function Words({ L, store, sets, words, say, abase }) {
       ))}
       {!groups.length && <p className="empty">{qq ? `Няма дума, която съдържа „${qq}“.` : 'Още няма думи в този курс.'}</p>}
       {words.length > 0 && <p className="small center" style={{ marginTop: 16 }}><span className="vmark ok inline">✓</span> научена <span className="vmark bad inline">•</span> често се бърка</p>}
+      {images.byWord.size > 0 && (
+        <details className="credits">
+          <summary>Източници на изображенията <Icon name="chevron" /></summary>
+          <div className="boxbody">
+            {images.sources.map(x => <p key={x.id}>{x.url ? <a href={x.url} target="_blank" rel="noreferrer">{x.name}</a> : x.name}, лиценз {x.license}.</p>)}
+            {images.credits.length > 0 && <ul>{images.credits.map(c => <li key={c.word}><b>{c.word}</b>: <a href={c.url} target="_blank" rel="noreferrer">{c.author || 'Wikimedia Commons'}</a>, {c.license}</li>)}</ul>}
+          </div>
+        </details>
+      )}
     </section>
   );
 }
