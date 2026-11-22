@@ -1074,6 +1074,38 @@
   "s'amuser": {
    "file": "s-amuser.svg",
    "source": "fluent"
+  },
+  "gris": {
+   "file": "gris.svg",
+   "source": "fluent"
+  },
+  "beige": {
+   "file": "beige.svg",
+   "source": "fluent"
+  },
+  "turquoise": {
+   "file": "turquoise.svg",
+   "source": "fluent"
+  },
+  "doré": {
+   "file": "dore.svg",
+   "source": "fluent"
+  },
+  "argenté": {
+   "file": "argente.svg",
+   "source": "fluent"
+  },
+  "bordeaux": {
+   "file": "bordeaux.svg",
+   "source": "fluent"
+  },
+  "multicolore": {
+   "file": "multicolore.svg",
+   "source": "wordopedia"
+  },
+  "clair": {
+   "file": "clair.svg",
+   "source": "fluent"
   }
  }
 }
