@@ -358,7 +358,7 @@ function renderExercises(rows) {
 }
 
 function renderWords(rows, f) {
-  card('#c-words', 'Hardest words', `Error rate on the first answer in a session (wrong, hint or answer shown), adjusted for few attempts. At least ${f.min} first answers.`,
+  card('#c-words', 'Hardest words', `Error rate on the first answer in a session (wrong, hint, answer shown or time ran out), adjusted for few attempts. At least ${f.min} first answers.`,
     rows.length && (() => {
       const W = 640, row = 30, L = 180, R = 150, T = 4, H = T + rows.length * row + 22, pw = W - L - R;
       const s = sv('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': 'Hardest words by error rate' });
@@ -400,6 +400,7 @@ const RESULTS = {
   typo: { label: 'Spelling slip', icon: '~', c: 'var(--warning)' },
   hint: { label: 'After a hint', icon: '?', c: 'var(--serious)' },
   shown: { label: 'Answer shown', icon: '!', c: 'var(--serious)' },
+  time: { label: 'Time ran out', icon: '⏱', c: 'var(--critical)' },
   wrong: { label: 'Wrong', icon: '✗', c: 'var(--critical)' },
 };
 const STATUS = { done: 'Finished', quit: 'Quit', abandoned: 'App closed' };

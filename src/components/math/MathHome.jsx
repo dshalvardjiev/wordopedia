@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { TESTS } from '../../lib/math.js';
+import { TESTS, TIMERS } from '../../lib/math.js';
 import { Icon, Seg } from '../ui.jsx';
 import { isLearned, isWeak } from '../Home.jsx';
 
@@ -55,6 +55,13 @@ export default function MathHome({ store, update, onStart, toast }) {
       <div className="section">
         <p className="label">Ред</p>
         <Seg label="Ред" value={m.order} onChange={v => setM('order', v)} options={[['mixed', 'Разбъркано'], ['seq', 'Подред']]} />
+      </div>
+
+      <div className="section">
+        <p className="label">Време за отговор</p>
+        <Seg label="Време за отговор" value={TIMERS.includes(m.timer) ? m.timer : 'off'} onChange={v => setM('timer', v)}
+          options={TIMERS.map(t => [t, t === 'off' ? 'Без' : `${t} сек.`])} />
+        {m.timer !== 'off' && <p className="hint">След изтичането на времето отговорът се показва, а примерът се появява пак.</p>}
       </div>
 
       <details className="more">

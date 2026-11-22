@@ -242,6 +242,15 @@ details.more[open] > summary .icon { transform: rotate(180deg); }
 }
 .slot:focus { border-bottom-color: var(--pen); }
 .slot.done { color: var(--ok); border-bottom-color: var(--ok); }
+/* Time per answer: a draining bar under the page; red for the last few seconds and when the time has run out. */
+.clock { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.clock-bar { flex: 1; height: 8px; background: var(--pen-soft); border-radius: 9px; overflow: hidden; }
+.clock-bar i { display: block; height: 100%; background: var(--pen); border-radius: 9px; transform-origin: left; animation: drain linear forwards; }
+.clock-num { min-width: 4.2em; text-align: right; font-size: 14px; font-weight: 800; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.clock.low .clock-bar i { background: var(--bad); }
+.clock.low .clock-num { color: var(--bad); }
+.clock.out .clock-bar i { animation: none; transform: scaleX(0); }
+@keyframes drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 .label-row { display: flex; align-items: baseline; justify-content: space-between; }
 .label-row .label { margin-bottom: 8px; }
 .numgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
