@@ -17,6 +17,7 @@ import { MATH, TESTS, factText } from './lib/math.js';
 import Home from './components/Home.jsx';
 import Quiz from './components/Quiz.jsx';
 import Result from './components/Result.jsx';
+import Confetti from './components/Confetti.jsx';
 import Words from './components/Words.jsx';
 import Conj from './components/Conj.jsx';
 import ConjQuiz from './components/ConjQuiz.jsx';
@@ -38,6 +39,7 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState('');
   const [, setTick] = useState(0);
   const session = useRef(null);
+  const [party, setParty] = useState(null);   // confetti: {id, n} while it plays
   const toastT = useRef(0);
 
   useEffect(() => { saveStore(store); }, [store]);
@@ -104,8 +106,12 @@ export default function App() {
   // ----- usage tracking (docs/tracking.md) -----
   // On when this instance allows it ("tracking": true), languages.json gives a URL and has not switched it off,
   // and the parent's switch in the menu is on.
-  const trackUrl = import.meta.env.VITE_TRACK_URL || (conf.tracking && conf.tracking.url) || '';
-  const trackAllowed = inst.tracking === true && !(conf.tracking && conf.tracking.enabled === false) && !!trackUrl;
+  // A copy of languages.json or the instance file downloaded before tracking existed has no "tracking" key: then the
+  // files built into this version decide, rather than tracking staying off until the next update (up to 6 hours).
+  const trackConf = store.langConf && 'tracking' in store.langConf ? store.langConf.tracking : bundledConf.tracking;
+  const instTracking = store.instConf && 'tracking' in store.instConf ? store.instConf.tracking : BUNDLED_INSTANCE.tracking;
+  const trackUrl = import.meta.env.VITE_TRACK_URL || (trackConf && trackConf.url) || '';
+  const trackAllowed = instTracking === true && !(trackConf && trackConf.enabled === false) && !!trackUrl;
   const trackOn = trackAllowed && s.track !== false;
   useEffect(() => { track.configure({ on: trackOn, url: trackUrl }); track.appOpened(lang); }, [trackOn, trackUrl, lang]);
 
@@ -182,7 +188,7 @@ export default function App() {
 
   // ----- session -----
   function run(pool, retry, kind, info) {
-    session.current = { kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0 };
+    session.current = { kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, ok: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0 };
     track.sessionStart({ ...info, size: pool.length });
     next();
     setView('quiz');
@@ -193,7 +199,7 @@ export default function App() {
     if (!pool.length) { toast('Няма думи за тези настройки'); return; }
     shuffle(pool);
     if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
-    run(pool, s.retry, 'words', { course: L.key, ex: dir, fmt: dir === 'art' ? 'test' : s.mode });
+    run(pool, s.retry, 'words', { course: L.key, ex: dir, fmt: s.mode });
   }
   // Conjugation: the given questions (missed or often confused ones), or the chosen verb group.
   function startConj(ids) {
@@ -227,6 +233,8 @@ export default function App() {
     track.answer({ word: w.id, first, result: (info && info.result) || (clean ? 'ok' : 'wrong'), ms: Math.max(0, Date.now() - S.shownAt), pick: info && info.pick });
     S.seen.add(w.id);
     if (clean && first) S.firstOk++;
+    // Reward: confetti after every 10 correct answers in a round (no mistake, no hint; a repeated word counts too).
+    if (clean) { S.ok++; if (S.ok % 10 === 0) setParty({ id: Date.now(), n: S.ok }); }
     if (!clean) S.missed.set(w.id, w);
     update(n => { const st = { ...(n.stats[w.id] || { c: 0, w: 0 }) }; clean ? st.c++ : st.w++; n.stats = { ...n.stats, [w.id]: st }; });
     if (!clean && S.retry && (S.reins[w.id] || 0) < 2) {
@@ -273,6 +281,7 @@ export default function App() {
         onAgain={() => (S.kind === 'conj' ? startConj() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
       {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={say} abase={abase} ibase={ibase} images={images} />}
       {withTabs && <TabBar view={shown} onView={setView} />}
+      {party && <Confetti key={party.id} label={`${party.n} верни отговора`} onDone={() => setParty(null)} />}
       {ENV !== 'production' && <div className="envtag" aria-hidden="true">{ENV}</div>}
       <div className={'toast' + (toastMsg ? ' show' : '')} role="status" aria-live="polite">{toastMsg}</div>
     </div>

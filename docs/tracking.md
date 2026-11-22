@@ -31,7 +31,8 @@ day, a few MB a year. Workers Free allows 100,000 requests a day; D1 Free allows
 per database.
 
 ## 1. Client (`src/lib/track.js`)
-- Events are appended to a queue in localStorage (`wordopedia.<instance>.q`, capped at 500; oldest dropped first).
+- Events are appended to a queue in localStorage (`wordopedia.<instance>.q`, capped at 2,000, about 600 KB; oldest
+  dropped first).
 - Flush triggers:
   - every 60 seconds while a session is running (timer starts with the session, stops on end, quit or hide, resumes
     when visible);
@@ -51,18 +52,20 @@ per database.
 - The timer and queue live outside React state: no re-render of the quiz screen (see the keyboard pitfall in CLAUDE.md).
 - Switches:
   - per instance, in `dictionary/instances/<id>.json` (`"tracking": true`), effective after the automatic redeploy;
+    to stop an instance set `"tracking": false` (a downloaded copy without the key falls back to the built-in file);
   - global, in `dictionary/languages.json`: `"tracking": {"url": "…/e", "enabled": true}`; `false` (or no URL) stops it
     everywhere, fetched at runtime, no release needed;
   - the parent's switch in the app's course menu.
 - Device id: `crypto.randomUUID()` stored in localStorage. Used only to count learners per word and to exclude a device
-  that sends junk; never a grouping key in reports. Deleted when the parent's switch is turned off.
+  that sends junk, and in the local dashboard's Sessions tab to list sessions per device; never a grouping key in the
+  aggregate reports. Deleted when the parent's switch is turned off.
 
 ## 2. Events
 | Type | When | Fields beyond the common ones |
 |---|---|---|
 | `open` | app opened | |
 | `session_start` | exercise started | exercise, format, list size |
-| `answer` | every answer | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`), response ms, wrong option picked (test format only) |
+| `answer` | every answer | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`), response ms, wrong option picked (choice exercises; with repeated tries, the first wrong one) |
 | `session_end` | finished, quit, or detected abandoned | answers given, size, status |
 | `tick` | every minute of a session | answers so far, active seconds |
 
@@ -144,9 +147,16 @@ The token stays in the local Node process; the page talks only to 127.0.0.1, whi
 localhost. `npm run dashboard:local` reads the database of `wrangler dev` in `worker/` instead (slower: one
 `wrangler d1 execute` per query); `CLOUDFLARE_API_BASE` points the server at a stand-in API for tests.
 
-Sections: learners, sessions, active time, finished share, right-first-time share; sessions per day; exercises (how
-sessions ended, dropped within 3 answers, active time, help used, idle minutes); hardest words (adjusted first-answer
-error rate, with a minimum number of first answers); most frequent wrong picks. Every chart has a table view.
+Overview tab: learners, sessions, active time, finished share, right-first-time share; sessions per day; exercises
+(how sessions ended, dropped within 3 answers, active time, help used, idle minutes); hardest words (adjusted
+first-answer error rate, with a minimum number of first answers); most frequent wrong picks. Every chart has a table
+view.
+
+Sessions tab (owner's request, 2026-11-21): devices by their random id (names can be given; they are kept only in that
+browser's localStorage), the sessions of the chosen device, and a replay of one session: its answers on a time line
+with idle minutes shaded, the list of answers (result, time to answer, wrong option picked) and Play at 1×, 10× or 60×.
+This is the one place where the device id groups data; it shows one device's usage, so it stays in the local
+dashboard.
 
 ## 10. Cloudflare prerequisites
 Done by the owner (done 2026-11-21):

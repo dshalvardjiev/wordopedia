@@ -11,7 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { parseFilter, reportQueries } from './queries.mjs';
+import { parseFilter, reportQueries, deviceQueries, sessionsQueries, sessionQueries } from './queries.mjs';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const LOCAL = process.argv.includes('--local');
@@ -70,16 +70,26 @@ function localQuery(sql) {
   });
 }
 
-async function report(query) {
+// API routes: each builds a set of named SELECT queries from the request (null = invalid request).
+const ROUTES = {
+  '/api/report': q => reportQueries(parseFilter(q)),
+  '/api/devices': q => deviceQueries(parseFilter(q)),
+  '/api/sessions': q => sessionsQueries(parseFilter(q), q.dev),
+  '/api/session': q => sessionQueries(q.id),
+};
+
+async function run(route, query) {
   const f = parseFilter(query);
-  const qs = reportQueries(f);
+  const qs = ROUTES[route](query);
+  if (!qs) throw new Problem('Invalid request.');
   const out = { filter: f, source: LOCAL ? 'local' : 'cloudflare', at: Date.now() };
   const names = Object.keys(qs);
   // The local source shares one SQLite file: one query at a time. Cloudflare: all at once.
   if (LOCAL) { for (const k of names) out[k] = await localQuery(qs[k]); }
   else { const rs = await Promise.all(names.map(k => remoteQuery(qs[k]))); names.forEach((k, i) => { out[k] = rs[i]; }); }
-  out.tiles = out.tiles[0] || {};
-  out.freshness = out.freshness[0] || {};
+  if (out.tiles) out.tiles = out.tiles[0] || {};
+  if (out.freshness) out.freshness = out.freshness[0] || {};
+  if (out.end) out.end = out.end[0] || null;
   return out;
 }
 
@@ -98,12 +108,12 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/' || url.pathname === '/index.html') {
     return send(res, 200, 'text/html; charset=utf-8', fs.readFileSync(path.join(DIR, 'index.html')));
   }
-  if (url.pathname === '/api/report') {
+  if (ROUTES[url.pathname]) {
     // Only the dashboard page: another web page can make the browser send a request here (and spend the database's
     // daily read allowance) but cannot add this header without a CORS approval, which this server never gives.
     if (req.headers['x-dashboard'] !== '1' || req.headers['sec-fetch-site'] === 'cross-site') return send(res, 403, 'text/plain', 'forbidden');
     try {
-      return send(res, 200, 'application/json', JSON.stringify(await report(Object.fromEntries(url.searchParams))));
+      return send(res, 200, 'application/json', JSON.stringify(await run(url.pathname, Object.fromEntries(url.searchParams))));
     } catch (e) {
       const msg = e instanceof Problem ? e.message : 'Unexpected error: ' + e.message;
       if (!(e instanceof Problem)) console.error(e);
