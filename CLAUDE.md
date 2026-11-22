@@ -25,7 +25,8 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
   `images.js`: word pictures (`parseImages` is pure, also used by `check-content.mjs`).
 - `src/components/`: `Home`, `Quiz`, `Result`, `Words` (vocabulary), `Conj` (conjugation table), `ConjQuiz`
   (conjugation test / typed; not keyed by question, like `MathQuiz`), `LangPick`,
-  `Chrome` (language menu, tab bar), `ui` (flags, icons, segmented control), `math/`, `Pic` (a word's picture).
+  `Chrome` (language menu, tab bar), `ui` (flags, icons, segmented control), `math/`, `Pic` (a word's picture),
+  `Confetti` (reward burst; canvas with `pointer-events: none`, never takes focus). `Result` exports `isPerfect(S)`.
 - `scripts/make_audio.py`: used by the recordings workflow; runs locally with piper-tts and ffmpeg.
 - `worker/`: Cloudflare Worker + D1 (EU) for usage events; deployed by `.github/workflows/worker.yml`.
 - `dashboard/`: local reports page (`npm run dashboard`, http://127.0.0.1:8788); `queries.mjs` mirrors the views in
@@ -36,6 +37,9 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 ## Invariants (break these and saved progress or audio silently breaks)
 - Course key vs language: `L.code` is the language (rules, voice, `dictionary/<code>/audio/`); `L.key` and `L.path`
   belong to the course (storage, word ids, `dictionary/<path>/words.csv`). Single-course languages use key = code.
+- Rewards: `settle(clean)` raises `store.okTotal` (correct answers ever, per instance) and plays confetti at every
+  multiple of 10; a perfect round (`isPerfect`) clears that confetti and shows the medal on the result screen. A
+  question's "повторение" badge is decided when it appears (`useState`/`useMemo` on `S.qid`), not after `settle`.
 - Word id = `<courseKey>:<setId>|<article word>`; progress (`stats`) is keyed by it. Changing a set id or a word
   resets that word's progress.
 - localStorage key `wordopedia.<instance>`, `version: 2`. All instances share one origin, so the key is the only

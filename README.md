@@ -36,6 +36,10 @@ Each instance installs as a separate app with its own progress.
   (`sommes` or `nous sommes`), with specific feedback (another person's form, the infinitive, a missing `j'`); progress
   per verb and pronoun, missed forms come back in the same round.
 - **Maths**: multiplication table up to 12, typed answers only, with specific hints and the time taken.
+- **Rewards**: confetti with "10 верни отговора" at every 10th correct answer (no mistake, no hint), counted across
+  rounds and exercises on each device; a round finished without a single mistake ends on an animated gold medal and
+  "Без нито една грешка" instead of the score ring. With "reduce motion" on, the label and medal show without
+  animation.
 
 Learners cannot add or change words, answers or verbs in the app. All content comes from the `dictionary/` folder.
 
