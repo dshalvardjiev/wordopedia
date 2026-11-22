@@ -18,6 +18,16 @@ set,article,foreign,bulgarian,type,plural,alt,note
 Цветове,,clair,светъл,a,,,bleu clair = светлосин
 Цветове,,foncé,тъмен,a,,,vert foncé = тъмнозелен
 Цветове,,multicolore,многоцветен; шарен; пъстър,a,,,
+Цветове,la,peinture,боя,n,les peintures,,
+Цветове,le,pinceau,четка за рисуване; четка,n,les pinceaux,,
+Цветове,le,crayon de couleur,цветен молив,n,les crayons de couleur,,
+Цветове,,colorier,оцветявам,v,,,Je colorie le dessin. = Оцветявам рисунката.
+Цветове,,peindre,рисувам с бои; боядисвам,v,,,Je peins un arbre. = Рисувам дърво.
+Цветове,,vif,ярък,a,,,ж. р.: vive
+Цветове,,pâle,блед,a,,,
+Цветове,,transparent,прозрачен,a,,,ж. р.: transparente
+Цветове,,bordeaux,бордо; тъмночервен,a,,,„bordeaux“ не се променя: une robe bordeaux.
+Цветове,,de quelle couleur ?,какъв цвят?; в какъв цвят?,o,,,De quelle couleur est ton sac ? = Какъв цвят е чантата ти?
 Животни,l',animal,животно,n,les animaux,,м. р.: un animal
 Животни,le,chien,куче,n,les chiens,,
 Животни,le,chat,котка; котарак,n,les chats,,
@@ -46,6 +56,26 @@ set,article,foreign,bulgarian,type,plural,alt,note
 Животни,le,papillon,пеперуда,n,les papillons,,
 Животни,l',abeille,пчела,n,les abeilles,,ж. р.: une abeille
 Животни,la,tortue,костенурка,n,les tortues,,
+Животни,l',âne,магаре,n,les ânes,,м. р.: un âne
+Животни,le,hamster,хамстер,n,les hamsters,,„h“ не се чете и няма съкращаване: le hamster.
+Животни,le,dauphin,делфин,n,les dauphins,,
+Животни,le,lama,лама,n,les lamas,,
+Животни,le,hibou,бухал,n,les hiboux,,"Мн. ч. с -x: les hiboux. Без съкращаване: le hibou."
+Животни,l',écureuil,катерица,n,les écureuils,,м. р.: un écureuil
+Животни,le,hérisson,таралеж,n,les hérissons,,Без съкращаване: le hérisson.
+Животни,la,baleine,кит,n,les baleines,,
+Животни,le,requin,акула,n,les requins,,
+Животни,la,fourmi,мравка,n,les fourmis,,
+Животни,l',araignée,паяк,n,les araignées,,ж. р.: une araignée
+Животни,le,cerf,елен,n,les cerfs,,
+Животни,le,zèbre,зебра,n,les zèbres,,
+Животни,le,crocodile,крокодил,n,les crocodiles,,
+Животни,le,perroquet,папагал,n,les perroquets,,
+Животни,le,poussin,пиле; пиленце,n,les poussins,,
+Животни,le,nid,гнездо,n,les nids,,
+Животни,le,zoo,зоопарк,n,les zoos,,
+Животни,,aboyer,лая,v,,,Le chien aboie. = Кучето лае.
+Животни,,voler,летя,v,,,L'oiseau vole. = Птицата лети. „voler“ означава и „крада“.
 Дрехи,les,vêtements,дрехи; облекло,n,,,
 Дрехи,la,chemise,риза,n,les chemises,,
 Дрехи,le,t-shirt,тениска,n,les t-shirts,le tee-shirt,
@@ -74,6 +104,23 @@ set,article,foreign,bulgarian,type,plural,alt,note
 Дрехи,,porter,нося; облечен съм,v,,,Je porte une robe rouge. = Нося червена рокля.
 Дрехи,,mettre,слагам; обличам; обувам,v,,,Je mets mon manteau. = Обличам си палтото.
 Дрехи,,s'habiller,обличам се,v,,,Je m'habille. = Обличам се.
+Дрехи,le,sac,чанта,n,les sacs,,
+Дрехи,le,sac à dos,раница,n,les sacs à dos,,
+Дрехи,la,casquette,шапка с козирка; шапка,n,les casquettes,,
+Дрехи,les,lunettes,очила,n,,,Винаги в мн. ч.: les lunettes de soleil = слънчеви очила
+Дрехи,la,montre,ръчен часовник; часовник,n,les montres,,
+Дрехи,la,bague,пръстен,n,les bagues,,
+Дрехи,le,collier,огърлица; гердан,n,les colliers,,
+Дрехи,la,pantoufle,пантоф; чехъл,n,les pantoufles,,
+Дрехи,la,sandale,сандал,n,les sandales,,
+Дрехи,la,basket,маратонка,n,les baskets,,Обикновено в мн. ч.: les baskets = маратонки
+Дрехи,,enlever,събличам; свалям; събувам,v,,,J'enlève mes chaussures. = Събувам си обувките.
+Дрехи,,se déshabiller,събличам се,v,,,Je me déshabille. = Събличам се.
+Дрехи,,court,къс,a,,,ж. р.: courte
+Дрехи,,long,дълъг,a,,,ж. р.: longue
+Дрехи,,propre,чист,a,,,
+Дрехи,,sale,мръсен,a,,,
+Дрехи,,nouveau,нов,a,,,"ж. р.: nouvelle; пред гласна: un nouvel ami"
 Къщата,la,maison,къща; дом,n,les maisons,,
 Къщата,l',appartement,апартамент,n,les appartements,,м. р.: un appartement
 Къщата,la,pièce,стая; помещение,n,les pièces,,
@@ -102,6 +149,30 @@ set,article,foreign,bulgarian,type,plural,alt,note
 Къщата,la,cheminée,камина; комин,n,les cheminées,,
 Къщата,la,clé,ключ,n,les clés,la clef,
 Къщата,,habiter,живея,v,,,J'habite dans une maison. = Живея в къща.
+Къщата,la,table,маса,n,les tables,,
+Къщата,la,chaise,стол,n,les chaises,,
+Къщата,le,lit,легло,n,les lits,,
+Къщата,le,canapé,диван,n,les canapés,,
+Къщата,l',armoire,гардероб,n,les armoires,,ж. р.: une armoire
+Къщата,la,lampe,лампа,n,les lampes,,
+Къщата,le,miroir,огледало,n,les miroirs,,
+Къщата,la,baignoire,вана,n,les baignoires,,
+Къщата,la,douche,душ,n,les douches,,
+Къщата,le,tapis,килим,n,les tapis,,
+Къщата,l',horloge,стенен часовник; часовник,n,les horloges,,ж. р.: une horloge
+Къщата,le,vase,ваза,n,les vases,,„le vase“ = ваза; „la vase“ = тиня.
+Къщата,la,clôture,ограда,n,les clôtures,,
+Къщата,la,boîte aux lettres,пощенска кутия,n,les boîtes aux lettres,,
+Къщата,la,sonnette,звънец,n,les sonnettes,,
+Къщата,le,réfrigérateur,хладилник,n,les réfrigérateurs,le frigo,
+Къщата,le,four,фурна,n,les fours,,
+Къщата,la,casserole,тенджера,n,les casseroles,,
+Къщата,le,savon,сапун,n,les savons,,
+Къщата,,ranger,подреждам; прибирам,v,,,Je range ma chambre. = Подреждам стаята си.
+Къщата,,nettoyer,чистя; почиствам,v,,,
+Къщата,,ouvrir,отварям,v,,,J'ouvre la fenêtre. = Отварям прозореца.
+Къщата,,fermer,затварям,v,,,Je ferme la porte. = Затварям вратата.
+Къщата,,à la maison,вкъщи; у дома,o,,chez moi,
 Времето,le,temps,време,n,,,Quel temps fait-il ? = Какво е времето?
 Времето,la,météo,прогноза за времето; метео,n,,,
 Времето,le,soleil,слънце,n,,,
@@ -132,6 +203,20 @@ set,article,foreign,bulgarian,type,plural,alt,note
 Времето,,il y a du soleil,слънчево е; грее слънце,o,,,
 Времето,,il y a du brouillard,мъгливо е; има мъгла,o,,,
 Времето,,il y a des nuages,облачно е; има облаци,o,,,
+Времето,le,ciel,небе,n,,,
+Времето,le,parapluie,чадър,n,les parapluies,,
+Времето,la,goutte,капка,n,les gouttes,,
+Времето,le,flocon de neige,снежинка,n,les flocons de neige,,
+Времето,la,grêle,градушка,n,,,
+Времето,le,degré,градус,n,les degrés,,Il fait vingt degrés. = Двайсет градуса е.
+Времето,,humide,влажен,a,,,
+Времето,,sec,сух,a,,,ж. р.: sèche
+Времето,,mouillé,мокър,a,,,ж. р.: mouillée
+Времето,,briller,грея; блестя,v,,,Le soleil brille. = Слънцето грее.
+Времето,,souffler,духам,v,,,Le vent souffle. = Вятърът духа.
+Времето,,il fait doux,меко е; приятно е,o,,,
+Времето,,il gèle,замръзва; има мраз,o,,,
+Времето,,il fait nuit,тъмно е; нощ е,o,,,
 Сезони,la,saison,сезон; годишно време,n,les saisons,,
 Сезони,le,printemps,пролет,n,,,au printemps = през пролетта
 Сезони,l',été,лято,n,,,"м. р.: un été; en été = през лятото"
@@ -158,6 +243,32 @@ set,article,foreign,bulgarian,type,plural,alt,note
 Сезони,le,bonhomme de neige,снежен човек,n,les bonshommes de neige,,
 Сезони,,chaud,горещ; топъл,a,,,ж. р.: chaude
 Сезони,,froid,студен,a,,,ж. р.: froide
+Сезони,le,jour,ден,n,les jours,,
+Сезони,la,semaine,седмица,n,les semaines,,
+Сезони,,lundi,понеделник,n,,,Дните се пишат с малка буква: lundi = в понеделник.
+Сезони,,mardi,вторник,n,,,
+Сезони,,mercredi,сряда,n,,,
+Сезони,,jeudi,четвъртък,n,,,
+Сезони,,vendredi,петък,n,,,
+Сезони,,samedi,събота,n,,,
+Сезони,,dimanche,неделя,n,,,
+Сезони,le,matin,сутрин,n,les matins,,
+Сезони,le,soir,вечер,n,les soirs,,
+Сезони,la,nuit,нощ,n,les nuits,,
+Сезони,l',anniversaire,рожден ден,n,les anniversaires,,м. р.: un anniversaire
+Сезони,,Noël,Коледа,n,,,À Noël = по Коледа
+Сезони,le,sapin,ела; елха,n,les sapins,,le sapin de Noël = коледна елха
+Сезони,le,cadeau,подарък,n,les cadeaux,,
+Сезони,la,luge,шейна,n,les luges,,
+Сезони,le,cerf-volant,хвърчило,n,les cerfs-volants,,
+Сезони,la,citrouille,тиква,n,les citrouilles,,
+Сезони,la,piscine,басейн,n,les piscines,,
+Сезони,le,château de sable,пясъчен замък,n,les châteaux de sable,,
+Сезони,,skier,карам ски,v,,,
+Сезони,,nager,плувам,v,,,„nous nageons“: e остава след g.
+Сезони,,tomber,падам,v,,,Les feuilles tombent. = Листата падат.
+Сезони,,fleurir,цъфтя,v,,,
+Сезони,,frais,хладен; свеж,a,,,ж. р.: fraîche
 Изрази,,bonjour,добър ден; здравей; здравейте,o,,,
 Изрази,,bonsoir,добър вечер,o,,,
 Изрази,,salut,здрасти; чао,o,,,
@@ -180,17 +291,170 @@ set,article,foreign,bulgarian,type,plural,alt,note
 Изрази,,bon appétit,добър апетит; да ви е сладко,o,,,
 Изрази,,bonne chance,успех; късмет,o,,,
 Изрази,,joyeux anniversaire,честит рожден ден,o,,,
+Изрази,,oui,да,o,,,
+Изрази,,non,не,o,,,
+Изрази,,comment tu t'appelles ?,как се казваш?,o,,comment t'appelles-tu ?,
+Изрази,,je m'appelle,казвам се,o,,,Je m'appelle Marie. = Казвам се Мари.
+Изрази,,quel âge as-tu ?,на колко години си?,o,,tu as quel âge ?,J'ai huit ans. = На осем години съм.
+Изрази,,bienvenue,добре дошли; добре дошъл,o,,,
+Изрази,,bravo,браво,o,,,
+Изрази,,félicitations,поздравления; честито,o,,,
+Изрази,,à plus tard,до после; до по-късно,o,,,
+Изрази,,bonne journée,приятен ден,o,,,
+Изрази,,bon week-end,приятен уикенд; приятни почивни дни,o,,,
+Изрази,,bonne année,честита Нова година,o,,,
+Изрази,,joyeux Noël,весела Коледа,o,,,
+Изрази,,qui ?,кой?,o,,,
+Изрази,,où ?,къде?,o,,,
+Изрази,,quand ?,кога?,o,,,
+Изрази,,comment ?,как?,o,,,
+Изрази,,pourquoi ?,защо?,o,,,
+Изрази,,parce que,защото; понеже,o,,,
+Изрази,,avec,с; със,o,,,
+Изрази,,sans,без,o,,,
+Изрази,,ici,тук,o,,,
+Изрази,,beaucoup,много,o,,,
 Идиоми,,avoir faim,гладен съм,o,,,"Буквално: имам глад. J'ai faim."
 Идиоми,,avoir soif,жаден съм,o,,,"Буквално: имам жажда. J'ai soif."
 Идиоми,,avoir froid,студено ми е,o,,,J'ai froid.
 Идиоми,,avoir chaud,горещо ми е; топло ми е,o,,,J'ai chaud.
 Идиоми,,avoir peur,страх ме е; страхувам се,o,,,J'ai peur.
 Идиоми,,c'est la vie,такъв е животът,o,,,
-Идиоми,,il pleut des cordes,вали като из ведро,o,,,Буквално: валят въжета.
+Идиоми,,il pleut des cordes,вали проливен дъжд; вали като из ведро,o,,,Буквално: валят въжета.
 Идиоми,,coûter les yeux de la tête,струва цяло състояние; много е скъпо,o,,,Буквално: струва очите от главата.
-Идиоми,,avoir un chat dans la gorge,пресипнал съм; имам жаба на гърлото,o,,,Буквално: имам котка в гърлото.
-Идиоми,,poser un lapin,вързвам тенекия,o,,,Буквално: слагам заек. Не идвам на уговорена среща.
+Идиоми,,avoir un chat dans la gorge,пресипнал съм; гласът ми е пресипнал,o,,,Буквално: имам котка в гърлото.
+Идиоми,,poser un lapin,не идвам на уговорена среща; връзвам тенекия; вързвам тенекия,o,,,Буквално: слагам заек.
 Идиоми,,être dans la lune,витая в облаците; замечтан съм,o,,,Буквално: в луната съм.
 Идиоми,,quand les poules auront des dents,когато цъфнат налъмите,o,,,Буквално: когато кокошките имат зъби.
 Идиоми,,petit à petit,малко по малко; постепенно,o,,,
 Идиоми,,mettre son grain de sel,бъркам се; намесвам се,o,,,Буквално: слагам си зрънцето сол.
+Идиоми,,avoir une faim de loup,гладен съм като вълк,o,,,Буквално: имам вълчи глад.
+Идиоми,,un froid de canard,много силен студ; кучешки студ,o,,,"Буквално: патешки студ. Il fait un froid de canard."
+Идиоми,,un temps de chien,кучешко време; много лошо време,o,,,Буквално: кучешко време.
+Идиоми,,avoir la chair de poule,настръхвам; кожата ми настръхва,o,,,Буквално: имам кокоша кожа.
+Идиоми,,se lever avec les poules,ставам с петлите; ставам много рано,o,,,Буквално: ставам с кокошките.
+Идиоми,,donner sa langue au chat,предавам се; не мога да позная,o,,,Буквално: давам езика си на котката. Казва се при гатанка.
+Идиоми,,appeler un chat un chat,наричам нещата с истинските им имена,o,,,Буквално: наричам котката котка.
+Идиоми,,revenons à nos moutons,да се върнем на темата,o,,,Буквално: да се върнем при нашите овце.
+Идиоми,,avoir le cafard,тъжно ми е; унил съм,o,,,Буквално: имам хлебарка.
+Идиоми,,être haut comme trois pommes,много малък съм; две педи от земята,o,,,Буквално: висок колкото три ябълки.
+Идиоми,,voir la vie en rose,гледам през розови очила; виждам живота в розово,o,,,Буквално също: виждам живота в розово.
+Идиоми,,être rouge comme une tomate,червен съм като домат,o,,,
+Идиоми,,avoir une peur bleue,страх ме е до смърт,o,,,Буквално: имам син страх.
+Идиоми,,rire jaune,смея се насила,o,,,Буквално: смея се жълто.
+Идиоми,,être dans de beaux draps,загазил съм; в беда съм,o,,,Буквално: в хубави чаршафи съм.
+Идиоми,,après la pluie le beau temps,след дъжд идва слънце; след дъжда идва слънце,o,,,Буквално: след дъжда хубаво време.
+Идиоми,,ce n'est pas la mer à boire,не е чак толкова трудно,o,,,Буквално: не е да изпиеш морето.
+Храна,la,nourriture,храна,n,,,
+Храна,le,pain,хляб,n,les pains,,
+Храна,le,beurre,масло; краве масло,n,,,
+Храна,la,confiture,сладко; конфитюр,n,les confitures,,
+Храна,le,fromage,сирене; кашкавал,n,les fromages,,
+Храна,le,lait,мляко,n,,,
+Храна,le,yaourt,кисело мляко; йогурт,n,les yaourts,le yogourt,
+Храна,l',œuf,яйце,n,les œufs,,"м. р.: un œuf; в мн. ч. „f“ не се чете: les œufs"
+Храна,la,pomme,ябълка,n,les pommes,,
+Храна,la,banane,банан,n,les bananes,,
+Храна,l',orange,портокал,n,les oranges,,ж. р.: une orange
+Храна,le,citron,лимон,n,les citrons,,
+Храна,la,fraise,ягода,n,les fraises,,
+Храна,l',ananas,ананас,n,les ananas,,м. р.: un ananas
+Храна,la,tomate,домат,n,les tomates,,
+Храна,le,concombre,краставица,n,les concombres,,
+Храна,la,salade,салата; маруля,n,les salades,,
+Храна,la,carotte,морков,n,les carottes,,
+Храна,la,pomme de terre,картоф,n,les pommes de terre,,
+Храна,le,champignon,гъба,n,les champignons,,
+Храна,la,saucisse,наденица,n,les saucisses,,
+Храна,le,sel,сол,n,,,
+Храна,le,sucre,захар,n,,,
+Храна,l',eau,вода,n,,,ж. р.: une eau
+Храна,le,thé,чай,n,les thés,,
+Храна,le,jus,сок,n,les jus,,le jus d'orange = портокалов сок
+Храна,le,gâteau,торта; кейк; сладкиш,n,les gâteaux,,
+Храна,la,glace,сладолед; лед,n,les glaces,,„la glace“ = сладолед и лед.
+Храна,la,fourchette,вилица,n,les fourchettes,,
+Храна,la,cuillère,лъжица,n,les cuillères,la cuiller,
+Храна,le,couteau,нож,n,les couteaux,,
+Храна,l',assiette,чиния,n,les assiettes,,ж. р.: une assiette
+Храна,le,verre,чаша,n,les verres,,
+Храна,,boire,пия,v,,,Je bois de l'eau. = Пия вода.
+Храна,,cuisiner,готвя,v,,,
+Храна,,délicieux,вкусен,a,,,ж. р.: délicieuse
+Храна,,sucré,сладък,a,,,ж. р.: sucrée
+Храна,,salé,солен,a,,,ж. р.: salée
+Семейство,la,famille,семейство,n,les familles,,
+Семейство,la,mère,майка,n,les mères,,Детето казва „maman“ = мама.
+Семейство,le,père,баща,n,les pères,,Детето казва „papa“ = татко.
+Семейство,le,frère,брат,n,les frères,,
+Семейство,la,sœur,сестра,n,les sœurs,,
+Семейство,le,grand-père,дядо,n,les grands-pères,,Детето казва „papi“ = дядо.
+Семейство,la,grand-mère,баба,n,les grands-mères,,Детето казва „mamie“ = баба.
+Семейство,l',oncle,чичо; вуйчо; тетин,n,les oncles,,м. р.: un oncle
+Семейство,la,tante,леля; стринка; вуйна,n,les tantes,,
+Семейство,le,cousin,братовчед,n,les cousins,,
+Семейство,la,cousine,братовчедка,n,les cousines,,
+Семейство,le,bébé,бебе,n,les bébés,,
+Семейство,l',enfant,дете,n,les enfants,,"м. р.: un enfant; за момиче: une enfant"
+Семейство,le,garçon,момче,n,les garçons,,
+Семейство,la,fille,момиче; дъщеря,n,les filles,,
+Семейство,le,fils,син (дете); син,n,les fils,,„s“ се чете: [fis].
+Семейство,l',homme,мъж; човек,n,les hommes,,м. р.: un homme
+Семейство,la,femme,жена; съпруга,n,les femmes,,
+Семейство,l',ami,приятел,n,les amis,,м. р.: un ami
+Семейство,l',amie,приятелка,n,les amies,,ж. р.: une amie
+Семейство,le,monsieur,господин,n,les messieurs,,
+Семейство,la,dame,дама; госпожа,n,les dames,,
+Семейство,,gentil,мил; любезен,a,,,ж. р.: gentille
+Семейство,,petit,малък,a,,,ж. р.: petite
+Семейство,,grand,голям; висок,a,,,ж. р.: grande
+Тялото,le,corps,тяло,n,les corps,,
+Тялото,la,tête,глава,n,les têtes,,
+Тялото,les,cheveux,коса,n,,,Винаги в мн. ч. за косата на главата; un cheveu = един косъм.
+Тялото,le,visage,лице,n,les visages,,
+Тялото,l',œil,око,n,les yeux,,"м. р.: un œil; мн. ч.: les yeux"
+Тялото,l',oreille,ухо,n,les oreilles,,ж. р.: une oreille
+Тялото,le,nez,нос,n,les nez,,
+Тялото,la,bouche,уста,n,les bouches,,
+Тялото,la,dent,зъб,n,les dents,,
+Тялото,la,langue,език,n,les langues,,Езикът в устата и езикът за говорене: la langue française.
+Тялото,le,cou,врат; шия,n,les cous,,
+Тялото,le,bras,ръка (от рамото до китката); ръка,n,les bras,,"le bras = ръката от рамото до китката, la main = дланта с пръстите"
+Тялото,la,main,ръка (от китката надолу); ръка; длан,n,les mains,,"la main = дланта с пръстите, le bras = ръката от рамото до китката"
+Тялото,le,doigt,пръст,n,les doigts,,
+Тялото,la,jambe,крак (от бедрото до глезена); крак,n,les jambes,,"la jambe = кракът, le pied = стъпалото"
+Тялото,le,pied,стъпало; крак,n,les pieds,,"le pied = стъпалото, la jambe = кракът"
+Тялото,le,genou,коляно,n,les genoux,,Мн. ч. с -x: les genoux.
+Тялото,le,ventre,корем,n,les ventres,,
+Тялото,le,dos,гръб,n,les dos,,
+Тялото,le,cœur,сърце,n,les cœurs,,
+Тялото,,avoir mal,боли ме,o,,,J'ai mal à la tête. = Боли ме главата.
+Тялото,,malade,болен,a,,,
+Тялото,,entendre,чувам,v,,,
+Тялото,,voir,виждам,v,,,
+Училище,l',école,училище,n,les écoles,,ж. р.: une école
+Училище,la,classe,клас; класна стая,n,les classes,,
+Училище,le,professeur,учител; преподавател,n,les professeurs,le prof; le maître,"В началното училище: le maître, la maîtresse."
+Училище,l',élève,ученик; ученичка,n,les élèves,,"un élève (момче), une élève (момиче)"
+Училище,le,livre,книга,n,les livres,,
+Училище,le,cahier,тетрадка,n,les cahiers,,
+Училище,le,crayon,молив,n,les crayons,,
+Училище,le,stylo,химикалка; химикал,n,les stylos,,
+Училище,la,gomme,гума (за триене); гума,n,les gommes,,
+Училище,la,règle,линийка; правило,n,les règles,,
+Училище,les,ciseaux,ножица,n,,,Винаги в мн. ч.: une paire de ciseaux
+Училище,la,colle,лепило,n,les colles,,
+Училище,le,cartable,ученическа чанта,n,les cartables,,
+Училище,la,trousse,несесер за моливи; несесер,n,les trousses,,
+Училище,le,tableau,дъска; картина,n,les tableaux,,
+Училище,la,leçon,урок,n,les leçons,,
+Училище,la,récréation,междучасие,n,les récréations,la récré,
+Училище,l',alphabet,азбука,n,les alphabets,,м. р.: un alphabet
+Училище,le,mot,дума,n,les mots,,
+Училище,la,phrase,изречение,n,les phrases,,
+Училище,le,numéro,номер,n,les numéros,,
+Училище,,apprendre,уча; научавам,v,,,J'apprends le français. = Уча френски.
+Училище,,lire,чета,v,,,
+Училище,,écrire,пиша,v,,,
+Училище,,dessiner,рисувам,v,,,
+Училище,,compter,броя,v,,,

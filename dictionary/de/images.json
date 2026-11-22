@@ -324,7 +324,7 @@
    "source": "fluent"
   },
   "rosa": {
-   "file": "rosa.svg",
+   "file": "rosa-kreis.svg",
    "source": "fluent"
   },
   "der Mann": {
@@ -801,6 +801,74 @@
   "die Ecke": {
    "file": "die-ecke.svg",
    "source": "wordopedia"
+  },
+  "grün": {
+   "file": "gruen.svg",
+   "source": "fluent"
+  },
+  "gelb": {
+   "file": "gelb.svg",
+   "source": "fluent"
+  },
+  "schwarz": {
+   "file": "schwarz.svg",
+   "source": "fluent"
+  },
+  "weiß": {
+   "file": "weiss.svg",
+   "source": "fluent"
+  },
+  "grau": {
+   "file": "grau.svg",
+   "source": "fluent"
+  },
+  "braun": {
+   "file": "braun.svg",
+   "source": "fluent"
+  },
+  "orange": {
+   "file": "orange.svg",
+   "source": "fluent"
+  },
+  "violett": {
+   "file": "violett.svg",
+   "source": "fluent"
+  },
+  "pink": {
+   "file": "pink.svg",
+   "source": "fluent"
+  },
+  "beige": {
+   "file": "beige.svg",
+   "source": "fluent"
+  },
+  "türkis": {
+   "file": "tuerkis.svg",
+   "source": "fluent"
+  },
+  "golden": {
+   "file": "golden.svg",
+   "source": "fluent"
+  },
+  "silbern": {
+   "file": "silbern.svg",
+   "source": "fluent"
+  },
+  "weinrot": {
+   "file": "weinrot.svg",
+   "source": "fluent"
+  },
+  "bunt": {
+   "file": "bunt.svg",
+   "source": "wordopedia"
+  },
+  "der Pinsel": {
+   "file": "der-pinsel.svg",
+   "source": "fluent"
+  },
+  "der Buntstift": {
+   "file": "der-buntstift.svg",
+   "source": "fluent"
   }
  }
 }
