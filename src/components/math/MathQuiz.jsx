@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import { explain, hintFor } from '../../lib/math.js';
 import { Icon } from '../ui.jsx';
 
@@ -6,6 +6,8 @@ import { Icon } from '../ui.jsx';
 // The same input element stays mounted across questions, so a phone keyboard does not close between them.
 export default function MathQuiz({ S, onSettle, onNext, onQuit }) {
   const f = S.cur;
+  // Decided when the question appears (this component stays mounted across questions).
+  const again = useMemo(() => S.seen.has(f.id), [S.qid]); // eslint-disable-line react-hooks/exhaustive-deps
   const [value, setValue] = useState('');
   const [fb, setFb] = useState(null);
   const [hint, setHint] = useState('');
@@ -61,7 +63,7 @@ export default function MathQuiz({ S, onSettle, onNext, onQuit }) {
 
       <form onSubmit={submit} autoComplete="off">
         <div className="sheet grid">
-          {S.seen.has(f.id) && <span className="badge">повторение</span>}
+          {again && <span className="badge">повторение</span>}
           <label className="expr">
             <span>{f.a} × {f.b} =</span>
             <input ref={inp} className={'slot' + (locked ? ' done' : '')} value={value} inputMode="numeric" pattern="[0-9]*" enterKeyHint={locked ? 'next' : 'done'}

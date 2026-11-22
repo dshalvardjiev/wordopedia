@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react';
 const COLORS = ['#2747D0', '#2563EB', '#DC2626', '#15803D', '#FFC83D', '#F70A8D', '#00A6ED'];
 const DURATION = 2200;
 
-export default function Confetti({ label, onDone }) {
+export default function Confetti({ label, pieces = 140, onDone }) {
   const ref = useRef(null);
   useEffect(() => {
     const done = setTimeout(onDone, DURATION + 300);
@@ -18,7 +18,7 @@ export default function Confetti({ label, onDone }) {
     c.width = W * dpr; c.height = H * dpr;
     const g = c.getContext('2d'); g.scale(dpr, dpr);
     // Two bursts from the lower corners, aimed up and towards the middle.
-    const bits = Array.from({ length: 140 }, (_, i) => {
+    const bits = Array.from({ length: pieces }, (_, i) => {
       const left = i % 2 === 0, a = (left ? -60 : -120) + (Math.random() - 0.5) * 40, v = 9 + Math.random() * 7;
       return { x: left ? 0 : W, y: H * 0.85, vx: Math.cos(a * Math.PI / 180) * v * (W / 400), vy: Math.sin(a * Math.PI / 180) * v * 1.6,
         w: 6 + Math.random() * 6, h: 4 + Math.random() * 5, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4,
@@ -45,7 +45,7 @@ export default function Confetti({ label, onDone }) {
   return (
     <div className="confetti" aria-hidden="true">
       <canvas ref={ref} />
-      <div className="confetti-label">{label}</div>
+      {label && <div className="confetti-label">{label}</div>}
     </div>
   );
 }
