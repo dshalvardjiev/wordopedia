@@ -13,7 +13,7 @@ import LangPick from './components/LangPick.jsx';
 import { LangMenu, TabBar } from './components/Chrome.jsx';
 import MathHome from './components/math/MathHome.jsx';
 import MathQuiz from './components/math/MathQuiz.jsx';
-import { MATH, TESTS, factText } from './lib/math.js';
+import { MATH, TESTS, factText, limitMs } from './lib/math.js';
 import Home from './components/Home.jsx';
 import Quiz from './components/Quiz.jsx';
 import Result, { isPerfect } from './components/Result.jsx';
@@ -188,8 +188,9 @@ export default function App() {
   }
 
   // ----- session -----
-  function run(pool, retry, kind, info) {
-    session.current = { kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0 };
+  // extra: fields added to the session, e.g. limit (ms per answer in maths; 0 = none).
+  function run(pool, retry, kind, info, extra) {
+    session.current = { ...extra, kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0 };
     track.sessionStart({ ...info, size: pool.length });
     next();
     setView('quiz');
@@ -217,7 +218,7 @@ export default function App() {
     if (!pool.length) { toast('Няма избрана таблица'); return; }
     if (list || m.order === 'mixed') shuffle(pool);
     if (!list && m.size !== 'all') pool = pool.slice(0, +m.size);
-    run(pool, true, 'math', { course: MATH, ex: 'math', fmt: 'open' });
+    run(pool, true, 'math', { course: MATH, ex: 'math', fmt: 'open' }, { limit: limitMs(m.timer) });
   }
   // The conjugation table: no answers, but opening and time spent count as a session.
   function openTable() { track.sessionStart({ course: L.key, ex: 'conj-table', fmt: 'table', size: verbs.length }); setView('conj'); }
@@ -233,7 +234,7 @@ export default function App() {
     S.cur = S.queue.shift(); S.qid++; S.shownAt = Date.now();
     setTick(t => t + 1);
   }
-  // info: { result: ok | typo | wrong | hint | shown, pick: wrong option chosen in the test format }.
+  // info: { result: ok | typo | wrong | hint | shown | time, pick: wrong option chosen in the test format }.
   function settle(clean, info) {
     const S = session.current, w = S.cur, first = !S.seen.has(w.id);
     track.answer({ word: w.id, first, result: (info && info.result) || (clean ? 'ok' : 'wrong'), ms: Math.max(0, Date.now() - S.shownAt), pick: info && info.pick });

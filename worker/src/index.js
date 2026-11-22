@@ -6,7 +6,7 @@
 const KINDS = new Set(['open', 'session_start', 'answer', 'session_end', 'tick']);
 const EXERCISES = new Set(['x-bg', 'bg-x', 'art', 'conj', 'conj-table', 'math']);
 const FORMATS = new Set(['test', 'open', 'table']);
-const RESULTS = new Set(['ok', 'typo', 'wrong', 'hint', 'shown']);
+const RESULTS = new Set(['ok', 'typo', 'wrong', 'hint', 'shown', 'time']);
 const STATUSES = new Set(['done', 'quit', 'abandoned']);
 const ENVS = new Set(['production', 'staging', 'development']);
 const ID = /^[0-9a-z-]{8,40}$/i;

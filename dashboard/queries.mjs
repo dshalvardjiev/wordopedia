@@ -85,7 +85,7 @@ export function reportQueries(f) {
       ORDER BY started DESC, k.course, k.ex`,
 
     // First answers per word; smoothed_rate pulls words with few attempts towards their exercise's average
-    // (same formula as v_word_stats). Errors: wrong, hint, shown; a spelling slip counts as correct.
+    // (same formula as v_word_stats). Errors: wrong, hint, shown, time; a spelling slip counts as correct.
     // All time also counts the monthly totals of answers older than the retention period (word_summary).
     words: `WITH raw AS (
         SELECT course, ex, fmt, word, COUNT(*) AS attempts, SUM(result NOT IN ('ok', 'typo')) AS errors,

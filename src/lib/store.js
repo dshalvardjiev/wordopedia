@@ -47,7 +47,7 @@ export function loadStore() {
     langConf: s.langConf || null,      // last downloaded dictionary/languages.json
     instConf: s.instConf || null,      // last downloaded dictionary/instances/<instance>.json
     dictBase: s.dictBase || null,      // dictionary folder override (no UI; used for testing); null = default
-    math: { ...DEFAULT_MATH, ...(s.math || {}) }, // maths settings: test, tables, order, size
+    math: { ...DEFAULT_MATH, ...(s.math || {}) }, // maths settings: test, tables, order, size, timer
     okTotal: s.okTotal || 0,           // correct answers ever (no mistake, no hint): confetti every 10
     syncAt: s.syncAt || {},            // course key -> time of the last automatic word update
     verbs: s.verbs || {},              // course key -> {csv, updatedAt}: downloaded verbs.csv

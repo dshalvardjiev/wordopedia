@@ -7,7 +7,10 @@ export const TESTS = {
     facts: tables => tables.flatMap(a => Array.from({ length: 12 }, (_, i) => ({ id: `math:mul:${a}x${i + 1}`, a, b: i + 1, answer: a * (i + 1) }))),
   },
 };
-export const DEFAULT_MATH = { test: 'mul', tables: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], order: 'mixed', size: '20' };
+export const DEFAULT_MATH = { test: 'mul', tables: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], order: 'mixed', size: '20', timer: 'off' };
+// Time per answer in seconds ('off' = no limit).
+export const TIMERS = ['off', '5', '10', '15'];
+export const limitMs = t => (TIMERS.includes(t) && t !== 'off' ? +t * 1000 : 0);
 export const factText = f => `${f.a} × ${f.b}`;
 
 // Feedback that points at the likely mistake rather than only saying "wrong".
