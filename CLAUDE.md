@@ -15,7 +15,8 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
   raw.githubusercontent.com, so content changes need no release; the bundled copy is only the first-start fallback.
 
 ## Code map
-- `src/App.jsx`: state, course selection, session engine (`run/next/settle`), automatic updates (`syncCourse`).
+- `src/App.jsx`: state, course selection, session engine (`run/next/settle`), automatic updates (`syncCourse`),
+  achievements glue (`achX` context, `achEvent`, `endRound`, retro grant on the first start).
 - `src/lib/langs.js`: per-language rules (articles, letter keys, pronouns, normalisation). `courses.js`: courses from
   `languages.json`, and `instanceCourses()` for an instance's selection and labels. `content.js`: build-time
   instance (`VITE_INSTANCE`), environment (`VITE_ENV`), bundled instance file, storage key. `dictionary.js`/`csv.js`/`verbs.js`: parsing. `match.js`: answer checking and quiz options.
@@ -23,10 +24,14 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
   `audio.js`: recordings (Cache Storage) and device-voice fallback. `sync.js`: downloads. `store.js`: localStorage.
   `math.js`: maths tests. `track.js`: usage events (queue, batches to the Worker; see docs/tracking.md).
   `images.js`: word pictures (`parseImages` is pure, also used by `check-content.mjs`).
+  `progress.js`: `isLearned`/`isWeak`. `ach.js`: achievements (catalogue of 98, deferred ones listed in a comment;
+  visibility, progress, counters `onAnswer`/`onEvent`/`onRound`, `grants`, `retro`); pure, runs in Node.
 - `src/components/`: `Home`, `Quiz`, `Result`, `Words` (vocabulary), `Conj` (conjugation table), `ConjQuiz`
   (conjugation test / typed; not keyed by question, like `MathQuiz`), `LangPick`,
-  `Chrome` (language menu, tab bar), `ui` (flags, icons, segmented control), `math/`, `Pic` (a word's picture),
+  `Chrome` (language menu, tab bar: three tabs, two in maths, with the count of new achievements),
+  `ui` (flags, icons, segmented control), `math/`, `Pic` (a word's picture),
   `Confetti` (reward burst; canvas with `pointer-events: none`, never takes focus). `Result` exports `isPerfect(S)`.
+  `Awards` (the Награди tab: summary, categories, detail sheet, Retro panel; `NewAwards` for the result screen).
 - `scripts/make_audio.py`: used by the recordings workflow; runs locally with piper-tts and ffmpeg.
 - `worker/`: Cloudflare Worker + D1 (EU) for usage events; deployed by `.github/workflows/worker.yml`.
 - `dashboard/`: local reports page (`npm run dashboard`, http://127.0.0.1:8788); `queries.mjs` mirrors the views in
@@ -40,11 +45,30 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - Rewards: `settle(clean)` raises `store.okTotal` (correct answers ever, per instance) and plays confetti at every
   multiple of 10; a perfect round (`isPerfect`) clears that confetti and shows the medal on the result screen. A
   question's "повторение" badge is decided when it appears (`useState`/`useMemo` on `S.qid`), not after `settle`.
+- Achievements (`store.ach`, per device, never synced): `{earned: {id: ISO date}, seen: [ids], c: {counters},
+  q: [ids for the next result screen], retro: [ids] | null}`; `null` until the first start with achievements, which
+  grants what earlier progress proves (`retro()`: only `retro` entries, never `fix-*`; `c.ok0` = stored correct
+  answers above `okTotal`) and shows the Retro panel on the first visit to the tab. Earned ones stay earned.
+  Counters live in the `achC` ref (like `okTotal`); store updaters only assign finished objects (StrictMode runs
+  them twice). Keep counters small: no per-word logs (the localStorage quota is shared by all instances). Keys:
+  `ok0`, `run`/`runB` (correct in a row, best), `pf` (perfect rounds of 10+), `pfd {d, n}`, `fin`, `weak`, days in
+  local time `d`/`st`/`stB`/`dt`, week `wk`/`wb` (Monday-based bits), `art`/`der`/`die`/`das`, `xbg`/`bgx`, `typed`,
+  `tnh`/`tnhB` (typed without hint, wrong try or shown answer), `acc` (French accents typed exactly), `fix` (weak ->
+  learned in `settle`), `listen` (explicit taps only), `ex {course: tiles}`, `crs`, `tl {d, l}`, `table`, `words`.
+  Grants are computed at round end (`endRound`) and for events outside rounds (`achEvent`: speaker/word taps, Думи
+  tab, conjugation table; queued in `q`), never during a question, so the answer input is never re-mounted.
+- Achievement visibility: computed at runtime from the instance's active courses and their live word lists, verb
+  tables and maths (`achContext`), by `scope` (all, vocab, de, fr, verbs, math, articles, dated, multi2, langs2,
+  lang3), `need` ([words | sets | verbs | letters, n]) and `EXTRA` (pillar or irregular verbs present, a set of 20+,
+  Katze and Tatze). Hidden ones never show, not even locked; "N от M" counts visible ones. Ids must not change once
+  published (earned dates are keyed by them).
 - Word id = `<courseKey>:<setId>|<article word>`; progress (`stats`) is keyed by it. Changing a set id or a word
   resets that word's progress.
 - localStorage key `wordopedia.<instance>`, `version: 2`. All instances share one origin, so the key is the only
   separation. `production` copies the former root app's `woerter.v1` on first start: never delete that key.
-  Migrate in `store.js` when the shape changes. The audio cache `woerter-audio-v1` is shared by all instances.
+  Migrate in `store.js` when the shape changes; `migrate()` runs only for a missing version or one below 2
+  (newer data is kept as it is, so a later version never gets its ids prefixed again). `loadStore` keeps only the
+  fields it lists: a new field must be added there. The audio cache `woerter-audio-v1` is shared by all instances.
 - Instance ids (folder names) and course keys must not be renamed once published.
 - `navigateFallback: null` in `vite.config.js`: otherwise one folder's service worker answers navigations to another
   folder. `landing/sw.js` must stay: it retires the former root app's service worker on installed phones.

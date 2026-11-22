@@ -41,6 +41,13 @@ Each instance installs as a separate app with its own progress.
   rounds and exercises on each device; a round finished without a single mistake ends on an animated gold medal and
   "Без нито една грешка" instead of the score ring. With "reduce motion" on, the label and medal show without
   animation.
+- **Награди** (achievements): a third tab (in maths the second) with medals for correct answers, rounds without a
+  mistake, runs of correct answers, learned words and lists, days of practice, articles, typing, conjugation,
+  multiplication tables, speed and a few secret ones. Each device shows only the achievements its courses can
+  earn ("N от M" counts those), the three closest to being earned, and per category the date earned or the progress.
+  New achievements appear on the result screen after a round, never during a question; the tab shows how many are
+  new. The first start after the update grants what earlier progress already proves (learned words, correct answers,
+  verbs, tables); streaks, speed and days count from then on. Achievements are kept on the device only, like progress.
 
 Learners cannot add or change words, answers or verbs in the app. All content comes from the `dictionary/` folder.
 
