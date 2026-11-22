@@ -838,22 +838,6 @@
    "file": "pink.svg",
    "source": "fluent"
   },
-  "beige": {
-   "file": "beige.svg",
-   "source": "fluent"
-  },
-  "türkis": {
-   "file": "tuerkis.svg",
-   "source": "fluent"
-  },
-  "golden": {
-   "file": "golden.svg",
-   "source": "fluent"
-  },
-  "silbern": {
-   "file": "silbern.svg",
-   "source": "fluent"
-  },
   "weinrot": {
    "file": "weinrot.svg",
    "source": "fluent"
