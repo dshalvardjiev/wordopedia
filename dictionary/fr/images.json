@@ -1,0 +1,1079 @@
+{
+ "sources": {
+  "fluent": {
+   "name": "Microsoft Fluent Emoji",
+   "license": "MIT",
+   "url": "https://github.com/microsoft/fluentui-emoji"
+  },
+  "wordopedia": {
+   "name": "Wordopedia (own drawings)",
+   "license": "Apache-2.0",
+   "url": "https://github.com/dshalvardjiev/wordopedia"
+  }
+ },
+ "images": {
+  "la couleur": {
+   "file": "la-couleur.svg",
+   "source": "fluent"
+  },
+  "rouge": {
+   "file": "rouge.svg",
+   "source": "fluent"
+  },
+  "bleu": {
+   "file": "bleu.svg",
+   "source": "fluent"
+  },
+  "vert": {
+   "file": "vert.svg",
+   "source": "fluent"
+  },
+  "jaune": {
+   "file": "jaune.svg",
+   "source": "fluent"
+  },
+  "noir": {
+   "file": "noir.svg",
+   "source": "fluent"
+  },
+  "blanc": {
+   "file": "blanc.svg",
+   "source": "fluent"
+  },
+  "marron": {
+   "file": "marron.svg",
+   "source": "fluent"
+  },
+  "orange": {
+   "file": "orange.svg",
+   "source": "fluent"
+  },
+  "rose": {
+   "file": "rose.svg",
+   "source": "fluent"
+  },
+  "violet": {
+   "file": "violet.svg",
+   "source": "fluent"
+  },
+  "le pinceau": {
+   "file": "le-pinceau.svg",
+   "source": "fluent"
+  },
+  "le crayon de couleur": {
+   "file": "le-crayon-de-couleur.svg",
+   "source": "fluent"
+  },
+  "l'animal": {
+   "file": "l-animal.svg",
+   "source": "fluent"
+  },
+  "le chien": {
+   "file": "le-chien.svg",
+   "source": "fluent"
+  },
+  "le chat": {
+   "file": "le-chat.svg",
+   "source": "fluent"
+  },
+  "le cheval": {
+   "file": "le-cheval.svg",
+   "source": "fluent"
+  },
+  "la vache": {
+   "file": "la-vache.svg",
+   "source": "fluent"
+  },
+  "le cochon": {
+   "file": "le-cochon.svg",
+   "source": "fluent"
+  },
+  "le mouton": {
+   "file": "le-mouton.svg",
+   "source": "fluent"
+  },
+  "la chèvre": {
+   "file": "la-chevre.svg",
+   "source": "fluent"
+  },
+  "la poule": {
+   "file": "la-poule.svg",
+   "source": "fluent"
+  },
+  "le coq": {
+   "file": "le-coq.svg",
+   "source": "fluent"
+  },
+  "le canard": {
+   "file": "le-canard.svg",
+   "source": "fluent"
+  },
+  "le lapin": {
+   "file": "le-lapin.svg",
+   "source": "fluent"
+  },
+  "la souris": {
+   "file": "la-souris.svg",
+   "source": "fluent"
+  },
+  "l'oiseau": {
+   "file": "l-oiseau.svg",
+   "source": "fluent"
+  },
+  "le poisson": {
+   "file": "le-poisson.svg",
+   "source": "fluent"
+  },
+  "l'ours": {
+   "file": "l-ours.svg",
+   "source": "fluent"
+  },
+  "le loup": {
+   "file": "le-loup.svg",
+   "source": "fluent"
+  },
+  "le renard": {
+   "file": "le-renard.svg",
+   "source": "fluent"
+  },
+  "le lion": {
+   "file": "le-lion.svg",
+   "source": "fluent"
+  },
+  "le tigre": {
+   "file": "le-tigre.svg",
+   "source": "fluent"
+  },
+  "l'éléphant": {
+   "file": "l-elephant.svg",
+   "source": "fluent"
+  },
+  "le singe": {
+   "file": "le-singe.svg",
+   "source": "fluent"
+  },
+  "la girafe": {
+   "file": "la-girafe.svg",
+   "source": "fluent"
+  },
+  "le serpent": {
+   "file": "le-serpent.svg",
+   "source": "fluent"
+  },
+  "la grenouille": {
+   "file": "la-grenouille.svg",
+   "source": "fluent"
+  },
+  "le papillon": {
+   "file": "le-papillon.svg",
+   "source": "fluent"
+  },
+  "l'abeille": {
+   "file": "l-abeille.svg",
+   "source": "fluent"
+  },
+  "la tortue": {
+   "file": "la-tortue.svg",
+   "source": "fluent"
+  },
+  "l'âne": {
+   "file": "l-ane.svg",
+   "source": "fluent"
+  },
+  "le hamster": {
+   "file": "le-hamster.svg",
+   "source": "fluent"
+  },
+  "le dauphin": {
+   "file": "le-dauphin.svg",
+   "source": "fluent"
+  },
+  "le lama": {
+   "file": "le-lama.svg",
+   "source": "fluent"
+  },
+  "le hibou": {
+   "file": "le-hibou.svg",
+   "source": "fluent"
+  },
+  "l'écureuil": {
+   "file": "l-ecureuil.svg",
+   "source": "fluent"
+  },
+  "le hérisson": {
+   "file": "le-herisson.svg",
+   "source": "fluent"
+  },
+  "la baleine": {
+   "file": "la-baleine.svg",
+   "source": "fluent"
+  },
+  "le requin": {
+   "file": "le-requin.svg",
+   "source": "fluent"
+  },
+  "la fourmi": {
+   "file": "la-fourmi.svg",
+   "source": "fluent"
+  },
+  "l'araignée": {
+   "file": "l-araignee.svg",
+   "source": "fluent"
+  },
+  "le cerf": {
+   "file": "le-cerf.svg",
+   "source": "fluent"
+  },
+  "le zèbre": {
+   "file": "le-zebre.svg",
+   "source": "fluent"
+  },
+  "le crocodile": {
+   "file": "le-crocodile.svg",
+   "source": "fluent"
+  },
+  "le perroquet": {
+   "file": "le-perroquet.svg",
+   "source": "fluent"
+  },
+  "le poussin": {
+   "file": "le-poussin.svg",
+   "source": "fluent"
+  },
+  "le nid": {
+   "file": "le-nid.svg",
+   "source": "fluent"
+  },
+  "le zoo": {
+   "file": "le-zoo.svg",
+   "source": "fluent"
+  },
+  "aboyer": {
+   "file": "aboyer.svg",
+   "source": "fluent"
+  },
+  "voler": {
+   "file": "voler.svg",
+   "source": "fluent"
+  },
+  "les vêtements": {
+   "file": "les-vetements.svg",
+   "source": "fluent"
+  },
+  "la chemise": {
+   "file": "la-chemise.svg",
+   "source": "fluent"
+  },
+  "le t-shirt": {
+   "file": "le-t-shirt.svg",
+   "source": "fluent"
+  },
+  "le jean": {
+   "file": "le-jean.svg",
+   "source": "fluent"
+  },
+  "la robe": {
+   "file": "la-robe.svg",
+   "source": "fluent"
+  },
+  "le manteau": {
+   "file": "le-manteau.svg",
+   "source": "fluent"
+  },
+  "le chapeau": {
+   "file": "le-chapeau.svg",
+   "source": "fluent"
+  },
+  "l'écharpe": {
+   "file": "l-echarpe.svg",
+   "source": "fluent"
+  },
+  "le gant": {
+   "file": "le-gant.svg",
+   "source": "fluent"
+  },
+  "la chaussure": {
+   "file": "la-chaussure.svg",
+   "source": "fluent"
+  },
+  "la chaussette": {
+   "file": "la-chaussette.svg",
+   "source": "fluent"
+  },
+  "la botte": {
+   "file": "la-botte.svg",
+   "source": "fluent"
+  },
+  "le short": {
+   "file": "le-short.svg",
+   "source": "fluent"
+  },
+  "le maillot de bain": {
+   "file": "le-maillot-de-bain.svg",
+   "source": "fluent"
+  },
+  "le sac": {
+   "file": "le-sac.svg",
+   "source": "fluent"
+  },
+  "le sac à dos": {
+   "file": "le-sac-a-dos.svg",
+   "source": "fluent"
+  },
+  "la casquette": {
+   "file": "la-casquette.svg",
+   "source": "fluent"
+  },
+  "les lunettes": {
+   "file": "les-lunettes.svg",
+   "source": "fluent"
+  },
+  "la montre": {
+   "file": "la-montre.svg",
+   "source": "fluent"
+  },
+  "la bague": {
+   "file": "la-bague.svg",
+   "source": "fluent"
+  },
+  "la sandale": {
+   "file": "la-sandale.svg",
+   "source": "fluent"
+  },
+  "la basket": {
+   "file": "la-basket.svg",
+   "source": "fluent"
+  },
+  "nouveau": {
+   "file": "nouveau.svg",
+   "source": "fluent"
+  },
+  "la maison": {
+   "file": "la-maison.svg",
+   "source": "fluent"
+  },
+  "le mur": {
+   "file": "le-mur.svg",
+   "source": "fluent"
+  },
+  "la porte": {
+   "file": "la-porte.svg",
+   "source": "fluent"
+  },
+  "la fenêtre": {
+   "file": "la-fenetre.svg",
+   "source": "fluent"
+  },
+  "les toilettes": {
+   "file": "les-toilettes.svg",
+   "source": "fluent"
+  },
+  "la clé": {
+   "file": "la-cle.svg",
+   "source": "fluent"
+  },
+  "à la maison": {
+   "file": "a-la-maison.svg",
+   "source": "fluent"
+  },
+  "la table": {
+   "file": "la-table.svg",
+   "source": "wordopedia"
+  },
+  "la chaise": {
+   "file": "la-chaise.svg",
+   "source": "fluent"
+  },
+  "le lit": {
+   "file": "le-lit.svg",
+   "source": "fluent"
+  },
+  "le canapé": {
+   "file": "le-canape.svg",
+   "source": "fluent"
+  },
+  "le miroir": {
+   "file": "le-miroir.svg",
+   "source": "fluent"
+  },
+  "la baignoire": {
+   "file": "la-baignoire.svg",
+   "source": "fluent"
+  },
+  "la douche": {
+   "file": "la-douche.svg",
+   "source": "fluent"
+  },
+  "l'horloge": {
+   "file": "l-horloge.svg",
+   "source": "fluent"
+  },
+  "le vase": {
+   "file": "le-vase.svg",
+   "source": "wordopedia"
+  },
+  "la clôture": {
+   "file": "la-cloture.svg",
+   "source": "wordopedia"
+  },
+  "la boîte aux lettres": {
+   "file": "la-boite-aux-lettres.svg",
+   "source": "fluent"
+  },
+  "la sonnette": {
+   "file": "la-sonnette.svg",
+   "source": "fluent"
+  },
+  "la casserole": {
+   "file": "la-casserole.svg",
+   "source": "fluent"
+  },
+  "le savon": {
+   "file": "le-savon.svg",
+   "source": "fluent"
+  },
+  "nettoyer": {
+   "file": "nettoyer.svg",
+   "source": "fluent"
+  },
+  "la météo": {
+   "file": "la-meteo.svg",
+   "source": "fluent"
+  },
+  "le soleil": {
+   "file": "le-soleil.svg",
+   "source": "fluent"
+  },
+  "la pluie": {
+   "file": "la-pluie.svg",
+   "source": "fluent"
+  },
+  "la neige": {
+   "file": "la-neige.svg",
+   "source": "fluent"
+  },
+  "le vent": {
+   "file": "le-vent.svg",
+   "source": "fluent"
+  },
+  "le nuage": {
+   "file": "le-nuage.svg",
+   "source": "fluent"
+  },
+  "le brouillard": {
+   "file": "le-brouillard.svg",
+   "source": "fluent"
+  },
+  "l'orage": {
+   "file": "l-orage.svg",
+   "source": "fluent"
+  },
+  "l'éclair": {
+   "file": "l-eclair.svg",
+   "source": "fluent"
+  },
+  "le tonnerre": {
+   "file": "le-tonnerre.svg",
+   "source": "fluent"
+  },
+  "l'arc-en-ciel": {
+   "file": "l-arc-en-ciel.svg",
+   "source": "fluent"
+  },
+  "la température": {
+   "file": "la-temperature.svg",
+   "source": "fluent"
+  },
+  "pleuvoir": {
+   "file": "pleuvoir.svg",
+   "source": "fluent"
+  },
+  "le parapluie": {
+   "file": "le-parapluie.svg",
+   "source": "fluent"
+  },
+  "la goutte": {
+   "file": "la-goutte.svg",
+   "source": "fluent"
+  },
+  "le flocon de neige": {
+   "file": "le-flocon-de-neige.svg",
+   "source": "fluent"
+  },
+  "briller": {
+   "file": "briller.svg",
+   "source": "fluent"
+  },
+  "il gèle": {
+   "file": "il-gele.svg",
+   "source": "fluent"
+  },
+  "le printemps": {
+   "file": "le-printemps.svg",
+   "source": "fluent"
+  },
+  "l'été": {
+   "file": "l-ete.svg",
+   "source": "fluent"
+  },
+  "l'automne": {
+   "file": "l-automne.svg",
+   "source": "fluent"
+  },
+  "l'hiver": {
+   "file": "l-hiver.svg",
+   "source": "fluent"
+  },
+  "décembre": {
+   "file": "decembre.svg",
+   "source": "fluent"
+  },
+  "le mois": {
+   "file": "le-mois.svg",
+   "source": "fluent"
+  },
+  "la fleur": {
+   "file": "la-fleur.svg",
+   "source": "fluent"
+  },
+  "la feuille": {
+   "file": "la-feuille.svg",
+   "source": "fluent"
+  },
+  "la plage": {
+   "file": "la-plage.svg",
+   "source": "fluent"
+  },
+  "les vacances": {
+   "file": "les-vacances.svg",
+   "source": "fluent"
+  },
+  "le bonhomme de neige": {
+   "file": "le-bonhomme-de-neige.svg",
+   "source": "fluent"
+  },
+  "chaud": {
+   "file": "chaud.svg",
+   "source": "fluent"
+  },
+  "froid": {
+   "file": "froid.svg",
+   "source": "fluent"
+  },
+  "le jour": {
+   "file": "le-jour.svg",
+   "source": "fluent"
+  },
+  "le matin": {
+   "file": "le-matin.svg",
+   "source": "fluent"
+  },
+  "le soir": {
+   "file": "le-soir.svg",
+   "source": "fluent"
+  },
+  "la nuit": {
+   "file": "la-nuit.svg",
+   "source": "fluent"
+  },
+  "l'anniversaire": {
+   "file": "l-anniversaire.svg",
+   "source": "fluent"
+  },
+  "Noël": {
+   "file": "noel.svg",
+   "source": "fluent"
+  },
+  "le sapin": {
+   "file": "le-sapin.svg",
+   "source": "fluent"
+  },
+  "le cadeau": {
+   "file": "le-cadeau.svg",
+   "source": "fluent"
+  },
+  "la luge": {
+   "file": "la-luge.svg",
+   "source": "fluent"
+  },
+  "le cerf-volant": {
+   "file": "le-cerf-volant.svg",
+   "source": "fluent"
+  },
+  "la citrouille": {
+   "file": "la-citrouille.svg",
+   "source": "fluent"
+  },
+  "skier": {
+   "file": "skier.svg",
+   "source": "fluent"
+  },
+  "nager": {
+   "file": "nager.svg",
+   "source": "fluent"
+  },
+  "tomber": {
+   "file": "tomber.svg",
+   "source": "fluent"
+  },
+  "fleurir": {
+   "file": "fleurir.svg",
+   "source": "fluent"
+  },
+  "salut": {
+   "file": "salut.svg",
+   "source": "fluent"
+  },
+  "bonne nuit": {
+   "file": "bonne-nuit.svg",
+   "source": "fluent"
+  },
+  "merci": {
+   "file": "merci.svg",
+   "source": "fluent"
+  },
+  "bonne chance": {
+   "file": "bonne-chance.svg",
+   "source": "fluent"
+  },
+  "joyeux anniversaire": {
+   "file": "joyeux-anniversaire.svg",
+   "source": "fluent"
+  },
+  "d'accord": {
+   "file": "d-accord.svg",
+   "source": "fluent"
+  },
+  "je ne sais pas": {
+   "file": "je-ne-sais-pas.svg",
+   "source": "fluent"
+  },
+  "enchanté": {
+   "file": "enchante.svg",
+   "source": "fluent"
+  },
+  "oui": {
+   "file": "oui.svg",
+   "source": "fluent"
+  },
+  "non": {
+   "file": "non.svg",
+   "source": "fluent"
+  },
+  "bravo": {
+   "file": "bravo.svg",
+   "source": "fluent"
+  },
+  "félicitations": {
+   "file": "felicitations.svg",
+   "source": "fluent"
+  },
+  "bonne année": {
+   "file": "bonne-annee.svg",
+   "source": "fluent"
+  },
+  "ici": {
+   "file": "ici.svg",
+   "source": "fluent"
+  },
+  "avoir peur": {
+   "file": "avoir-peur.svg",
+   "source": "fluent"
+  },
+  "le pain": {
+   "file": "le-pain.svg",
+   "source": "fluent"
+  },
+  "le beurre": {
+   "file": "le-beurre.svg",
+   "source": "fluent"
+  },
+  "la confiture": {
+   "file": "la-confiture.svg",
+   "source": "wordopedia"
+  },
+  "le fromage": {
+   "file": "le-fromage.svg",
+   "source": "fluent"
+  },
+  "le lait": {
+   "file": "le-lait.svg",
+   "source": "fluent"
+  },
+  "le yaourt": {
+   "file": "le-yaourt.svg",
+   "source": "wordopedia"
+  },
+  "l'œuf": {
+   "file": "l-oeuf.svg",
+   "source": "fluent"
+  },
+  "la pomme": {
+   "file": "la-pomme.svg",
+   "source": "fluent"
+  },
+  "la banane": {
+   "file": "la-banane.svg",
+   "source": "fluent"
+  },
+  "l'orange": {
+   "file": "l-orange.svg",
+   "source": "fluent"
+  },
+  "le citron": {
+   "file": "le-citron.svg",
+   "source": "fluent"
+  },
+  "la fraise": {
+   "file": "la-fraise.svg",
+   "source": "fluent"
+  },
+  "l'ananas": {
+   "file": "l-ananas.svg",
+   "source": "fluent"
+  },
+  "la tomate": {
+   "file": "la-tomate.svg",
+   "source": "fluent"
+  },
+  "le concombre": {
+   "file": "le-concombre.svg",
+   "source": "fluent"
+  },
+  "la salade": {
+   "file": "la-salade.svg",
+   "source": "fluent"
+  },
+  "la carotte": {
+   "file": "la-carotte.svg",
+   "source": "fluent"
+  },
+  "la pomme de terre": {
+   "file": "la-pomme-de-terre.svg",
+   "source": "fluent"
+  },
+  "le champignon": {
+   "file": "le-champignon.svg",
+   "source": "fluent"
+  },
+  "la saucisse": {
+   "file": "la-saucisse.svg",
+   "source": "fluent"
+  },
+  "le sel": {
+   "file": "le-sel.svg",
+   "source": "fluent"
+  },
+  "l'eau": {
+   "file": "l-eau.svg",
+   "source": "fluent"
+  },
+  "le thé": {
+   "file": "le-the.svg",
+   "source": "fluent"
+  },
+  "le jus": {
+   "file": "le-jus.svg",
+   "source": "fluent"
+  },
+  "le gâteau": {
+   "file": "le-gateau.svg",
+   "source": "fluent"
+  },
+  "la glace": {
+   "file": "la-glace.svg",
+   "source": "fluent"
+  },
+  "la fourchette": {
+   "file": "la-fourchette.svg",
+   "source": "wordopedia"
+  },
+  "la cuillère": {
+   "file": "la-cuillere.svg",
+   "source": "fluent"
+  },
+  "le couteau": {
+   "file": "le-couteau.svg",
+   "source": "fluent"
+  },
+  "boire": {
+   "file": "boire.svg",
+   "source": "fluent"
+  },
+  "cuisiner": {
+   "file": "cuisiner.svg",
+   "source": "fluent"
+  },
+  "délicieux": {
+   "file": "delicieux.svg",
+   "source": "fluent"
+  },
+  "sucré": {
+   "file": "sucre.svg",
+   "source": "fluent"
+  },
+  "la famille": {
+   "file": "la-famille.svg",
+   "source": "fluent"
+  },
+  "la mère": {
+   "file": "la-mere.svg",
+   "source": "fluent"
+  },
+  "le père": {
+   "file": "le-pere.svg",
+   "source": "fluent"
+  },
+  "le grand-père": {
+   "file": "le-grand-pere.svg",
+   "source": "fluent"
+  },
+  "la grand-mère": {
+   "file": "la-grand-mere.svg",
+   "source": "fluent"
+  },
+  "le bébé": {
+   "file": "le-bebe.svg",
+   "source": "fluent"
+  },
+  "l'enfant": {
+   "file": "l-enfant.svg",
+   "source": "fluent"
+  },
+  "le garçon": {
+   "file": "le-garcon.svg",
+   "source": "fluent"
+  },
+  "la fille": {
+   "file": "la-fille.svg",
+   "source": "fluent"
+  },
+  "l'homme": {
+   "file": "l-homme.svg",
+   "source": "fluent"
+  },
+  "la femme": {
+   "file": "la-femme.svg",
+   "source": "fluent"
+  },
+  "l'ami": {
+   "file": "l-ami.svg",
+   "source": "fluent"
+  },
+  "l'amie": {
+   "file": "l-amie.svg",
+   "source": "fluent"
+  },
+  "le monsieur": {
+   "file": "le-monsieur.svg",
+   "source": "fluent"
+  },
+  "la tête": {
+   "file": "la-tete.svg",
+   "source": "fluent"
+  },
+  "l'œil": {
+   "file": "l-oeil.svg",
+   "source": "fluent"
+  },
+  "l'oreille": {
+   "file": "l-oreille.svg",
+   "source": "fluent"
+  },
+  "le nez": {
+   "file": "le-nez.svg",
+   "source": "fluent"
+  },
+  "la bouche": {
+   "file": "la-bouche.svg",
+   "source": "fluent"
+  },
+  "la dent": {
+   "file": "la-dent.svg",
+   "source": "fluent"
+  },
+  "la langue": {
+   "file": "la-langue.svg",
+   "source": "fluent"
+  },
+  "le bras": {
+   "file": "le-bras.svg",
+   "source": "fluent"
+  },
+  "la main": {
+   "file": "la-main.svg",
+   "source": "fluent"
+  },
+  "le doigt": {
+   "file": "le-doigt.svg",
+   "source": "fluent"
+  },
+  "la jambe": {
+   "file": "la-jambe.svg",
+   "source": "fluent"
+  },
+  "le pied": {
+   "file": "le-pied.svg",
+   "source": "fluent"
+  },
+  "le cœur": {
+   "file": "le-coeur.svg",
+   "source": "fluent"
+  },
+  "avoir mal": {
+   "file": "avoir-mal.svg",
+   "source": "fluent"
+  },
+  "malade": {
+   "file": "malade.svg",
+   "source": "fluent"
+  },
+  "l'école": {
+   "file": "l-ecole.svg",
+   "source": "fluent"
+  },
+  "la classe": {
+   "file": "la-classe.svg",
+   "source": "wordopedia"
+  },
+  "le professeur": {
+   "file": "le-professeur.svg",
+   "source": "fluent"
+  },
+  "l'élève": {
+   "file": "l-eleve.svg",
+   "source": "fluent"
+  },
+  "le livre": {
+   "file": "le-livre.svg",
+   "source": "fluent"
+  },
+  "le cahier": {
+   "file": "le-cahier.svg",
+   "source": "fluent"
+  },
+  "le crayon": {
+   "file": "le-crayon.svg",
+   "source": "fluent"
+  },
+  "le stylo": {
+   "file": "le-stylo.svg",
+   "source": "fluent"
+  },
+  "la règle": {
+   "file": "la-regle.svg",
+   "source": "fluent"
+  },
+  "les ciseaux": {
+   "file": "les-ciseaux.svg",
+   "source": "fluent"
+  },
+  "la colle": {
+   "file": "la-colle.svg",
+   "source": "wordopedia"
+  },
+  "l'alphabet": {
+   "file": "l-alphabet.svg",
+   "source": "fluent"
+  },
+  "le mot": {
+   "file": "le-mot.svg",
+   "source": "fluent"
+  },
+  "le numéro": {
+   "file": "le-numero.svg",
+   "source": "fluent"
+  },
+  "apprendre": {
+   "file": "apprendre.svg",
+   "source": "fluent"
+  },
+  "lire": {
+   "file": "lire.jpg",
+   "title": "Child reading (Jessie Willcox Smith).jpg",
+   "author": "Jessie Willcox Smith",
+   "license": "Public domain",
+   "url": "https://commons.wikimedia.org/wiki/File:Child_reading_(Jessie_Willcox_Smith).jpg"
+  },
+  "écrire": {
+   "file": "ecrire.svg",
+   "source": "fluent"
+  },
+  "dessiner": {
+   "file": "dessiner.svg",
+   "source": "fluent"
+  },
+  "compter": {
+   "file": "compter.svg",
+   "source": "fluent"
+  },
+  "aller": {
+   "file": "aller.svg",
+   "source": "fluent"
+  },
+  "parler": {
+   "file": "parler.svg",
+   "source": "fluent"
+  },
+  "aimer": {
+   "file": "aimer.svg",
+   "source": "fluent"
+  },
+  "manger": {
+   "file": "manger.svg",
+   "source": "fluent"
+  },
+  "jouer": {
+   "file": "jouer.svg",
+   "source": "fluent"
+  },
+  "regarder": {
+   "file": "regarder.svg",
+   "source": "fluent"
+  },
+  "écouter": {
+   "file": "ecouter.svg",
+   "source": "fluent"
+  },
+  "chanter": {
+   "file": "chanter.svg",
+   "source": "fluent"
+  },
+  "danser": {
+   "file": "danser.svg",
+   "source": "fluent"
+  },
+  "finir": {
+   "file": "finir.svg",
+   "source": "fluent"
+  },
+  "grandir": {
+   "file": "grandir.svg",
+   "source": "fluent"
+  },
+  "dormir": {
+   "file": "dormir.svg",
+   "source": "fluent"
+  },
+  "partir": {
+   "file": "partir.svg",
+   "source": "fluent"
+  },
+  "se réveiller": {
+   "file": "se-reveiller.svg",
+   "source": "fluent"
+  },
+  "se laver": {
+   "file": "se-laver.svg",
+   "source": "fluent"
+  },
+  "se coucher": {
+   "file": "se-coucher.svg",
+   "source": "fluent"
+  },
+  "s'amuser": {
+   "file": "s-amuser.svg",
+   "source": "fluent"
+  }
+ }
+}

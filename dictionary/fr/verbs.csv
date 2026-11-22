@@ -11,14 +11,40 @@ set,verb,bulgarian,je,tu,il,nous,vous,ils,note
 Глаголи на -er,jouer,играя,joue,joues,joue,jouons,jouez,jouent,
 Глаголи на -er,regarder,гледам,regarde,regardes,regarde,regardons,regardez,regardent,
 Глаголи на -er,écouter,слушам,écoute,écoutes,écoute,écoutons,écoutez,écoutent,
+Глаголи на -er,chanter,пея,chante,chantes,chante,chantons,chantez,chantent,
+Глаголи на -er,danser,танцувам,danse,danses,danse,dansons,dansez,dansent,
+Глаголи на -er,dessiner,рисувам,dessine,dessines,dessine,dessinons,dessinez,dessinent,
+Глаголи на -er,cuisiner,готвя,cuisine,cuisines,cuisine,cuisinons,cuisinez,cuisinent,
+Глаголи на -er,travailler,работя,travaille,travailles,travaille,travaillons,travaillez,travaillent,
+Глаголи на -er,fermer,затварям,ferme,fermes,ferme,fermons,fermez,ferment,
+Глаголи на -er,nager,плувам,nage,nages,nage,nageons,nagez,nagent,„nous nageons“: e остава след g.
 Глаголи на -ir,finir,свършвам; завършвам,finis,finis,finit,finissons,finissez,finissent,"Окончания на -ir: -is, -is, -it, -issons, -issez, -issent."
 Глаголи на -ir,choisir,избирам,choisis,choisis,choisit,choisissons,choisissez,choisissent,
+Глаголи на -ir,grandir,раста; порасвам,grandis,grandis,grandit,grandissons,grandissez,grandissent,
+Глаголи на -ir,remplir,пълня; напълвам,remplis,remplis,remplit,remplissons,remplissez,remplissent,
+Глаголи на -ir,obéir,подчинявам се; слушам,obéis,obéis,obéit,obéissons,obéissez,obéissent,
 Неправилни,prendre,вземам,prends,prends,prend,prenons,prenez,prennent,
 Неправилни,mettre,слагам; обличам,mets,mets,met,mettons,mettez,mettent,
 Неправилни,venir,идвам,viens,viens,vient,venons,venez,viennent,
 Неправилни,vouloir,искам,veux,veux,veut,voulons,voulez,veulent,
 Неправилни,pouvoir,мога,peux,peux,peut,pouvons,pouvez,peuvent,
 Неправилни,savoir,знам,sais,sais,sait,savons,savez,savent,
+Неправилни,apprendre,уча; научавам,apprends,apprends,apprend,apprenons,apprenez,apprennent,Като prendre: nous apprenons; ils apprennent.
+Неправилни,dire,казвам,dis,dis,dit,disons,dites,disent,"Неправилна форма: vous dites, а не „vous disez“."
+Неправилни,voir,виждам,vois,vois,voit,voyons,voyez,voient,
+Неправилни,boire,пия,bois,bois,boit,buvons,buvez,boivent,
+Неправилни,lire,чета,lis,lis,lit,lisons,lisez,lisent,
+Неправилни,écrire,пиша,écris,écris,écrit,écrivons,écrivez,écrivent,
+Неправилни,dormir,спя,dors,dors,dort,dormons,dormez,dorment,
+Неправилни,partir,тръгвам; заминавам,pars,pars,part,partons,partez,partent,
+Неправилни,sortir,излизам,sors,sors,sort,sortons,sortez,sortent,
+Неправилни,ouvrir,отварям,ouvre,ouvres,ouvre,ouvrons,ouvrez,ouvrent,"Окончания като при -er: j'ouvre, tu ouvres."
+Неправилни,devoir,трябва; длъжен съм,dois,dois,doit,devons,devez,doivent,
+Неправилни,peindre,рисувам с бои; боядисвам,peins,peins,peint,peignons,peignez,peignent,
 Възвратни,s'habiller,обличам се,m'habille,t'habilles,s'habille,nous habillons,vous habillez,s'habillent,
 Възвратни,s'appeler,казвам се,m'appelle,t'appelles,s'appelle,nous appelons,vous appelez,s'appellent,„ll“ пред тихо e: je m'appelle; но nous nous appelons.
 Възвратни,se lever,ставам,me lève,te lèves,se lève,nous levons,vous levez,se lèvent,„è“ пред тихо e: je me lève; но nous nous levons.
+Възвратни,se laver,мия се,me lave,te laves,se lave,nous lavons,vous lavez,se lavent,
+Възвратни,se coucher,лягам си,me couche,te couches,se couche,nous couchons,vous couchez,se couchent,
+Възвратни,se réveiller,събуждам се,me réveille,te réveilles,se réveille,nous réveillons,vous réveillez,se réveillent,
+Възвратни,s'amuser,забавлявам се,m'amuse,t'amuses,s'amuse,nous amusons,vous amusez,s'amusent,
