@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pair } from './Quiz.jsx';
 import { fmtTime } from '../lib/math.js';
 import Confetti from './Confetti.jsx';
+import { NewAwards } from './Awards.jsx';
 
 // A finished round in which every answer was right the first time: no mistake, no hint, nothing repeated.
 export const isPerfect = S => !S.early && S.total > 0 && S.seen.size === S.total && S.firstOk === S.total && S.missed.size === 0;
@@ -40,7 +41,8 @@ function Ring({ pct }) {
   );
 }
 
-export default function Result({ S, item, onAgain, onMissed, onHome }) {
+// news: achievements earned in this round (or outside rounds since the last one), listed after the score.
+export default function Result({ S, item, news = [], onAgain, onMissed, onHome, onAwards }) {
   const answered = S.seen.size, pct = answered ? Math.round(S.firstOk / answered * 100) : 0;
   const missed = [...S.missed.values()];
   const perfect = isPerfect(S);
@@ -60,6 +62,7 @@ export default function Result({ S, item, onAgain, onMissed, onHome }) {
         {S.startedAt > 0 && S.finishedAt > 0 && <p className="small center">Време: {fmtTime(S.finishedAt - S.startedAt)}</p>}
       </div>
       {party && <Confetti pieces={240} onDone={() => setParty(false)} />}
+      {news.length > 0 && <NewAwards list={news} />}
       {missed.length > 0 && <>
         <h2>За повторение: {missed.length}</h2>
         <div className="wlist miss">{missed.map(w => <div key={w.id}>{item ? <b>{item(w)}</b> : <Pair w={w} />}</div>)}</div>
@@ -67,6 +70,7 @@ export default function Result({ S, item, onAgain, onMissed, onHome }) {
       <div className="stack" style={{ marginTop: 20 }}>
         {missed.length > 0 && <button className="primary" onClick={() => onMissed(missed.map(w => w.id))}>Упражнение на грешените ({missed.length})</button>}
         <button className={missed.length ? 'ghost' : 'primary'} onClick={onAgain}>Нов кръг</button>
+        {news.length > 0 && <button className="ghost ach-ghost" onClick={onAwards}>Към наградите</button>}
         <button className="ghost" onClick={onHome}>Към началото</button>
       </div>
     </section>

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { TESTS, TIMERS } from '../../lib/math.js';
 import { Icon, Seg } from '../ui.jsx';
-import { isLearned, isWeak } from '../Home.jsx';
+import { isLearned, isWeak } from '../../lib/progress.js';
 
 export default function MathHome({ store, update, onStart, toast }) {
   const m = store.math, T = TESTS[m.test];

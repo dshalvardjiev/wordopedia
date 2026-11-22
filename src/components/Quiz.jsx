@@ -19,7 +19,8 @@ export function Pair({ w }) {
 const XLabel = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <Art w={{ art: m.art }} /> : null; };
 const Label = ({ L, text }) => { const m = splitArticle(L, text); return m.art ? <><XLabel L={L} text={text} />{m.word}</> : text; };
 
-export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, onSettle, onNext, onQuit }) {
+// say: automatic playback; hear: a tap on "Слушане" (counted for the listening achievements).
+export default function Quiz({ L, dir, S, settings, words, say, hear, abase, ibase, onSettle, onNext, onQuit }) {
   const w = S.cur, isTest = settings.mode === 'test' || dir === 'art';
   const [opts] = useState(() => (isTest ? options(L, w, dir, words) : null));
   const [picked, setPicked] = useState({});
@@ -118,7 +119,7 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, on
       <div className="sheet">
         {again && <span className="badge">повторение</span>}
         <Pic base={ibase} file={w.img} className="qpic" />
-        {dir === 'x-bg' && <><div className="big"><Art w={w} />{w.de}</div><div className="sub">{TYPE[w.type]}</div><Spk onClick={() => say(full(w))} /></>}
+        {dir === 'x-bg' && <><div className="big"><Art w={w} />{w.de}</div><div className="sub">{TYPE[w.type]}</div><Spk onClick={() => hear(full(w))} /></>}
         {dir === 'bg-x' && <><div className="big">{w.bg[0]}</div><div className="sub">{TYPE[w.type]}{w.type === 'n' && w.art && L.articles.length && settings.reqArt && settings.mode === 'open' ? ', с члена' : ''}</div></>}
         {dir === 'art' && <><div className="big"><span className="blank" aria-label="член" />{w.de}</div><div className="sub">{w.bg[0]}</div></>}
       </div>
@@ -156,12 +157,12 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, on
             <b>{fb.clean ? 'Вярно.' : settings.retry ? 'Вярно, но с грешка или подсказка. Думата ще се появи пак.' : 'Вярно, но с грешка или подсказка.'}</b><br />
             <Pair w={w} />{fb.warn && <span className="note">{fb.warn}</span>}{w.note && <span className="note">{w.note}</span>}
           </div>
-          {dir !== 'x-bg' && <Spk onClick={() => say(full(w))} />}
+          {dir !== 'x-bg' && <Spk onClick={() => hear(full(w))} />}
         </div>
       )}
       {fb && fb.kind === 'bad' && (
         <div className={'fb bad' + (fb.reveal ? ' row' : '')}>
-          {fb.reveal ? <><div className="fbtxt"><b>Грешно.</b> Вярно е:<br /><Pair w={w} />{w.note && <span className="note">{w.note}</span>}</div>{dir !== 'x-bg' && <Spk onClick={() => say(full(w))} />}</>
+          {fb.reveal ? <><div className="fbtxt"><b>Грешно.</b> Вярно е:<br /><Pair w={w} />{w.note && <span className="note">{w.note}</span>}</div>{dir !== 'x-bg' && <Spk onClick={() => hear(full(w))} />}</>
             : <b>{fb.msg}</b>}
         </div>
       )}

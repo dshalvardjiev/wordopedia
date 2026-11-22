@@ -1,8 +1,5 @@
 import { Flag, Icon, Seg } from './ui.jsx';
-
-// A word counts as learned after two correct answers and more correct than wrong ones.
-export const isLearned = st => !!st && st.c >= 2 && st.c > st.w;
-export const isWeak = st => !!st && st.w > 0 && st.w >= st.c;
+import { isLearned, isWeak } from '../lib/progress.js';
 
 export default function Home({ L, dir, store, update, sets, words, eligibleCount, setSel, verbs = [], conjAll = [], conjGroups = [], conjSel = 'all', conjCount = 0, onStart, onPractise }) {
   const conj = dir === 'conj';

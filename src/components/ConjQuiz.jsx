@@ -17,7 +17,7 @@ function Table({ q }) {
 
 // Conjugation exercise: pronoun + verb ("nous", être) -> the form ("sommes"), chosen from four or typed.
 // Not keyed by question: the same input stays mounted, so a phone keyboard does not close between questions.
-export default function ConjQuiz({ L, S, facts, mode, retry, autoSpeak, say, abase, ibase, picFor, onSettle, onNext, onQuit }) {
+export default function ConjQuiz({ L, S, facts, mode, retry, autoSpeak, say, hear, abase, ibase, picFor, onSettle, onNext, onQuit }) {
   const q = S.cur, isTest = mode === 'test';
   const opts = useMemo(() => (isTest ? conjOptions(L, q, facts) : null), [S.qid]); // eslint-disable-line react-hooks/exhaustive-deps
   // Decided when the question appears: answering it adds it to S.seen.
@@ -158,12 +158,12 @@ export default function ConjQuiz({ L, S, facts, mode, retry, autoSpeak, say, aba
             <b>{fb.clean ? 'Вярно.' : retry ? 'Вярно, но с грешка или подсказка. Формата ще се появи пак.' : 'Вярно, но с грешка или подсказка.'}</b> {q.shown}
             {extra}
           </div>
-          <Spk onClick={() => say(q.full)} />
+          <Spk onClick={() => hear(q.full)} />
         </div>
       )}
       {fb && fb.kind === 'bad' && (
         <div className="fb bad">
-          {fb.reveal ? <><div className="fbtxt"><b>Грешно.</b> Вярно е: <b>{q.shown}</b>{extra}</div><Spk onClick={() => say(q.full)} /></> : <b>{fb.msg}</b>}
+          {fb.reveal ? <><div className="fbtxt"><b>Грешно.</b> Вярно е: <b>{q.shown}</b>{extra}</div><Spk onClick={() => hear(q.full)} /></> : <b>{fb.msg}</b>}
         </div>
       )}
       {isTest && locked && <button ref={nextBtn} className="primary nextbtn" onClick={next}>Напред</button>}

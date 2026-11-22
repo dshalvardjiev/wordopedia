@@ -56,14 +56,17 @@ export function LangMenu({ L, isMath, courses, counts, onPick, onRefresh, toast,
   );
 }
 
-const TABS = [['home', 'pencil', 'Упражнение'], ['words', 'book', 'Думи']];
-export function TabBar({ view, onView }) {
+// Word courses: Упражнение, Думи, Награди; maths has no vocabulary: Упражнение, Награди.
+// badge: achievements earned and not yet opened in the Награди tab.
+const TABS = [['home', 'pencil', 'Упражнение'], ['words', 'book', 'Думи'], ['awards', 'medal', 'Награди']];
+export function TabBar({ view, onView, isMath, badge }) {
   return (
     <nav className="tabs" aria-label="Раздели">
       <div className="tabs-in">
-        {TABS.map(([v, ic, label]) => (
-          <button key={v} className={'tab' + (view === v ? ' on' : '')} aria-current={view === v ? 'page' : undefined} onClick={() => onView(v)}>
-            <Icon name={ic} size={22} />{label}
+        {TABS.filter(([v]) => !isMath || v !== 'words').map(([v, ic, label]) => (
+          <button key={v} className={'tab' + (view === v ? ' on' : '')} aria-current={view === v ? 'page' : undefined} onClick={() => onView(v)}
+            aria-label={v === 'awards' && badge ? `${label}, нови: ${badge}` : undefined}>
+            <span className="ach-tabicon"><Icon name={ic} size={22} />{v === 'awards' && badge > 0 && <span className="ach-count" aria-hidden="true">{badge > 99 ? '99+' : badge}</span>}</span>{label}
           </button>
         ))}
       </div>
