@@ -16,7 +16,7 @@ import MathQuiz from './components/math/MathQuiz.jsx';
 import { MATH, TESTS, factText } from './lib/math.js';
 import Home from './components/Home.jsx';
 import Quiz from './components/Quiz.jsx';
-import Result from './components/Result.jsx';
+import Result, { isPerfect } from './components/Result.jsx';
 import Confetti from './components/Confetti.jsx';
 import Words from './components/Words.jsx';
 import Conj from './components/Conj.jsx';
@@ -40,6 +40,7 @@ export default function App() {
   const [, setTick] = useState(0);
   const session = useRef(null);
   const [party, setParty] = useState(null);   // confetti: {id, n} while it plays
+  const okTotal = useRef(store.okTotal || 0);  // correct answers ever; saved as store.okTotal
   const toastT = useRef(0);
 
   useEffect(() => { saveStore(store); }, [store]);
@@ -188,7 +189,7 @@ export default function App() {
 
   // ----- session -----
   function run(pool, retry, kind, info) {
-    session.current = { kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, ok: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0 };
+    session.current = { kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0 };
     track.sessionStart({ ...info, size: pool.length });
     next();
     setView('quiz');
@@ -223,7 +224,12 @@ export default function App() {
   function next() {
     const S = session.current;
     if (!S) return;
-    if (!S.queue.length) { S.finishedAt = Date.now(); track.sessionEnd('done'); setView('result'); setTick(t => t + 1); return; }
+    if (!S.queue.length) {
+      S.finishedAt = Date.now(); track.sessionEnd('done');
+      // A round without a single mistake gets its own celebration on the result screen; it replaces a milestone label.
+      if (isPerfect(S)) setParty(null);
+      setView('result'); setTick(t => t + 1); return;
+    }
     S.cur = S.queue.shift(); S.qid++; S.shownAt = Date.now();
     setTick(t => t + 1);
   }
@@ -233,8 +239,13 @@ export default function App() {
     track.answer({ word: w.id, first, result: (info && info.result) || (clean ? 'ok' : 'wrong'), ms: Math.max(0, Date.now() - S.shownAt), pick: info && info.pick });
     S.seen.add(w.id);
     if (clean && first) S.firstOk++;
-    // Reward: confetti after every 10 correct answers in a round (no mistake, no hint; a repeated word counts too).
-    if (clean) { S.ok++; if (S.ok % 10 === 0) setParty({ id: Date.now(), n: S.ok }); }
+    // Reward: confetti after every 10 correct answers (no mistake, no hint; a repeated word counts too), counted across
+    // rounds and exercises and kept on the device, so 10, 20, 30, ... whatever the length of a round.
+    if (clean) {
+      const n = ++okTotal.current;
+      update(x => { x.okTotal = n; });
+      if (n % 10 === 0) setParty({ id: Date.now(), n });
+    }
     if (!clean) S.missed.set(w.id, w);
     update(n => { const st = { ...(n.stats[w.id] || { c: 0, w: 0 }) }; clean ? st.c++ : st.w++; n.stats = { ...n.stats, [w.id]: st }; });
     if (!clean && S.retry && (S.reins[w.id] || 0) < 2) {

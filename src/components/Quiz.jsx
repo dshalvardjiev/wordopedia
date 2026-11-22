@@ -30,7 +30,8 @@ export default function Quiz({ L, dir, S, settings, words, say, abase, ibase, on
   const [shake, setShake] = useState(0);
   const st = useRef({ clean: true, cleanBefore: undefined, lastWrong: '', hint: 0, locked: false, firstPick: '' });
   const inp = useRef(null), nextBtn = useRef(null);
-  const again = S.seen.has(w.id);
+  // Decided when the question appears: after the answer the word counts as seen, which is not a repeat.
+  const [again] = useState(() => S.seen.has(w.id));
   const answerText = dir === 'x-bg' ? w.bg[0] : full(w);
 
   useEffect(() => { prepare(abase, full(w)); if (dir === 'x-bg' && settings.autoSpeak) say(full(w)); }, []); // eslint-disable-line
