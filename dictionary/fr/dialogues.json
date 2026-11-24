@@ -1,0 +1,67 @@
+{
+ "people": {
+  "lea": { "name": "Léa", "img": "girl" },
+  "hugo": { "name": "Hugo", "img": "boy" },
+  "mamie": { "name": "Mamie", "img": "old-woman" },
+  "maman": { "name": "Maman", "img": "woman" },
+  "boulangere": { "name": "La boulangère", "img": "cook" },
+  "maitresse": { "name": "La maîtresse", "img": "teacher" }
+ },
+ "dialogues": [
+  { "id": "bonjour", "title": "Запознанство", "img": "waving-hand", "lines": [
+   { "who": "lea", "text": "Bonjour ! Je m'appelle Léa. Et toi ?", "bg": "Здравей! Казвам се Леа. А ти?" },
+   { "who": "hugo", "text": "Salut, Léa ! Moi, c'est Hugo.", "bg": "Здрасти, Леа! Аз съм Юго." },
+   { "who": "lea", "text": "Tu as quel âge, Hugo ?", "bg": "На колко години си, Юго?" },
+   { "who": "hugo", "text": "J'ai huit ans. Et toi ?", "bg": "На осем години съм. А ти?" },
+   { "who": "lea", "text": "Moi aussi, j'ai huit ans !", "bg": "И аз съм на осем години!" }
+  ] },
+  { "id": "ca-va", "title": "Как си?", "img": "smile", "lines": [
+   { "who": "hugo", "text": "Bonjour, Mamie !", "bg": "Добро утро, бабо!" },
+   { "who": "mamie", "text": "Bonjour, mon chéri ! Comment ça va ?", "bg": "Добро утро, миличък! Как си?" },
+   { "who": "hugo", "text": "Ça va bien, merci. Et toi ?", "bg": "Добре съм, благодаря. А ти?" },
+   { "who": "mamie", "text": "Très bien, merci !", "bg": "Много добре, благодаря!" }
+  ] },
+  { "id": "boulangerie", "title": "В пекарната", "img": "croissant", "lines": [
+   { "who": "boulangere", "text": "Bonjour ! Qu'est-ce que tu veux ?", "bg": "Добър ден! Какво искаш?" },
+   { "who": "lea", "text": "Je voudrais deux croissants, s'il vous plaît.", "bg": "Бих искала два кроасана, моля." },
+   { "who": "boulangere", "text": "Voilà. Et avec ça ?", "bg": "Заповядай. Нещо друго?" },
+   { "who": "lea", "text": "C'est tout, merci. C'est combien ?", "bg": "Това е всичко, благодаря. Колко струва?" },
+   { "who": "boulangere", "text": "Deux euros, s'il te plaît.", "bg": "Две евро, моля." },
+   { "who": "lea", "text": "Merci ! Au revoir, madame !", "bg": "Благодаря! Довиждане, госпожо!" }
+  ] },
+  { "id": "ecole", "title": "В училище", "img": "school", "lines": [
+   { "who": "maitresse", "text": "Bonjour, Hugo ! Où est ton livre ?", "bg": "Добро утро, Юго! Къде ти е книгата?" },
+   { "who": "hugo", "text": "Pardon, madame. Mon livre est à la maison.", "bg": "Извинете, госпожо. Книгата ми е вкъщи." },
+   { "who": "maitresse", "text": "Ce n'est pas grave. Voilà un livre pour toi.", "bg": "Няма нищо. Ето една книга за теб." },
+   { "who": "hugo", "text": "Merci beaucoup, madame !", "bg": "Много благодаря, госпожо!" }
+  ] },
+  { "id": "famille", "title": "Семейство", "img": "family", "lines": [
+   { "who": "lea", "text": "Tu as des frères et sœurs ?", "bg": "Имаш ли братя и сестри?" },
+   { "who": "hugo", "text": "Oui, j'ai une petite sœur. Elle s'appelle Chloé.", "bg": "Да, имам малка сестра. Казва се Клое." },
+   { "who": "lea", "text": "Elle a quel âge ?", "bg": "На колко години е?" },
+   { "who": "hugo", "text": "Elle a cinq ans. Et toi, tu as des frères et sœurs ?", "bg": "На пет години е. А ти имаш ли братя и сестри?" },
+   { "who": "lea", "text": "Non, mais j'ai un chien !", "bg": "Не, но имам куче!" }
+  ] },
+  { "id": "meteo", "title": "Времето", "img": "rain", "lines": [
+   { "who": "hugo", "text": "Maman, quel temps fait-il aujourd'hui ?", "bg": "Мамо, какво е времето днес?" },
+   { "who": "maman", "text": "Il pleut et il fait froid.", "bg": "Вали и е студено." },
+   { "who": "hugo", "text": "Oh non ! Je veux jouer au parc.", "bg": "О, не! Искам да играя в парка." },
+   { "who": "maman", "text": "Prends ta veste et ton parapluie.", "bg": "Вземи си якето и чадъра." },
+   { "who": "hugo", "text": "D'accord, Maman. À tout à l'heure !", "bg": "Добре, мамо. До после!" }
+  ] },
+  { "id": "anniversaire", "title": "Рожден ден", "img": "gift", "lines": [
+   { "who": "hugo", "text": "Joyeux anniversaire, Léa !", "bg": "Честит рожден ден, Леа!" },
+   { "who": "lea", "text": "Merci, Hugo !", "bg": "Благодаря, Юго!" },
+   { "who": "hugo", "text": "Voilà un cadeau pour toi.", "bg": "Ето един подарък за теб." },
+   { "who": "lea", "text": "Oh, un livre ! Super, merci beaucoup !", "bg": "О, книга! Супер, много благодаря!" },
+   { "who": "hugo", "text": "De rien !", "bg": "Няма защо!" }
+  ] },
+  { "id": "animal", "title": "Домашен любимец", "img": "cat", "lines": [
+   { "who": "lea", "text": "Tu as un animal ?", "bg": "Имаш ли домашен любимец?" },
+   { "who": "hugo", "text": "Oui, j'ai un chat.", "bg": "Да, имам котарак." },
+   { "who": "lea", "text": "Comment il s'appelle ?", "bg": "Как се казва?" },
+   { "who": "hugo", "text": "Il s'appelle Minou. Il est blanc et petit.", "bg": "Казва се Мину. Бял е и малък." },
+   { "who": "lea", "text": "Trop mignon ! J'adore les chats.", "bg": "Много сладко! Обожавам котките." }
+  ] }
+ ]
+}

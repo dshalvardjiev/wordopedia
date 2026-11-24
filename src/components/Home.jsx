@@ -2,23 +2,26 @@ import { Flag, Icon, Seg } from './ui.jsx';
 import { isLearned, isWeak } from '../lib/progress.js';
 import { PER_ROUND, ROUNDS } from '../lib/pairs.js';
 
-export default function Home({ L, dir, store, update, sets, words, eligibleCount, setSel, verbs = [], conjAll = [], conjGroups = [], conjSel = 'all', conjCount = 0, onStart, onPractise }) {
-  const conj = dir === 'conj', match = dir === 'match';
+export default function Home({ L, dir, store, update, sets, words, eligibleCount, setSel, verbs = [], conjAll = [], conjGroups = [], conjSel = 'all', conjCount = 0,
+  dialogues = [], dlgSel = 'all', dlgCount = 0, onStart, onPractise }) {
+  const conj = dir === 'conj', match = dir === 'match', dlg = dir === 'dialog';
   const s = store.settings;
   // Conjugation as a table (forms revealed by tapping) or as an exercise with questions (cq).
   const cmode = s.conjMode || 'table', cq = conj && cmode !== 'table';
   const set = (k, v) => update(n => { n.settings = { ...n.settings, [k]: v }; });
   const setSet = v => update(n => { n.setByLang = { ...n.setByLang, [L.key]: v }; });
   const setConjSet = v => update(n => { n.setByLang = { ...n.setByLang, [L.key + ':conj']: v }; });
+  const setDlgSet = v => update(n => { n.setByLang = { ...n.setByLang, [L.key + ':dlg']: v }; });
   const X = L.code.toUpperCase();
   const latest = sets[0];
   const current = setSel === 'all' || setSel === 'latest' || sets.some(x => x.id === setSel) ? setSel : 'all';
   const inSet = id => w => w.on && (!id || w.set === id);
   const scopeId = current === 'latest' ? (latest && latest.id) : current === 'all' ? null : current;
-  const scope = cq ? conjAll.filter(f => conjSel === 'all' || f.set === conjSel) : words.filter(inSet(scopeId));
+  const scope = cq ? conjAll.filter(f => conjSel === 'all' || f.set === conjSel) : dlg ? dialogues.filter(x => dlgSel === 'all' || x.key === dlgSel) : words.filter(inSet(scopeId));
   const learned = scope.filter(w => isLearned(store.stats[w.id])).length;
   const weak = scope.filter(w => isWeak(store.stats[w.id]));
-  const count = cq ? conjCount : eligibleCount;
+  const count = cq ? conjCount : dlg ? dlgCount : eligibleCount;
+  const dlgN = (s.dlgCount || '3') === 'all' ? count : Math.min(count, +(s.dlgCount || 3));
   const size = s.size === 'all' ? count : Math.min(count, +s.size);
   const conjHint = cmode === 'test' ? 'Избор на вярната форма от четири. При грешка се показва вярната.'
     : cmode === 'open' ? 'Формата се въвежда, със или без местоимението. Следващият въпрос идва след верен отговор.'
@@ -31,6 +34,7 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
     ...(L.quizArticles.length ? [['art', <span key="a">{L.quizArticles.slice(0, 3).map((a, i) => <span key={a} className={'a-' + a.replace("'", '')}>{i ? ' ' : ''}{a}</span>)}</span>, 'Членове']] : []),
     ...(verbs.length ? [['conj', `${L.pronouns[0][1]}, ${L.pronouns[1][1]}…`, 'Спрежение на глаголи']] : []),
     ['match', <span key="m" className="matchicon" aria-hidden="true"><i /><b>⇄</b><i /></span>, 'Свързване на двойки', 'Свързване'],
+    ...(dialogues.length ? [['dialog', <span key="d" className="dlgicon" aria-hidden="true"><i /><i /></span>, 'Подреждане на разговор', 'Диалози']] : []),
   ];
   // Matching: boards of 10 words; fewer boards when the list is short.
   const rounds = Math.max(1, Math.min(+(s.rounds || 1), Math.ceil(count / PER_ROUND)));
@@ -44,18 +48,18 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
       {(!conj || cq) && <div className="progress">
         <div className="progress-top">
           <span className="progress-num">{learned} <span>от {scope.length} научени</span></span>
-          <span className="small">{cq ? (conjSel === 'all' ? 'всички глаголи' : conjSel) : current === 'all' ? 'всички думи' : current === 'latest' ? (latest ? latest.name : '') : (sets.find(x => x.id === current) || {}).name}</span>
+          <span className="small">{dlg ? (dlgSel === 'all' ? 'всички диалози' : (dialogues.find(x => x.key === dlgSel) || {}).title) : cq ? (conjSel === 'all' ? 'всички глаголи' : conjSel) : current === 'all' ? 'всички думи' : current === 'latest' ? (latest ? latest.name : '') : (sets.find(x => x.id === current) || {}).name}</span>
         </div>
         <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={scope.length} aria-valuenow={learned}><i style={{ width: (scope.length ? learned / scope.length * 100 : 0) + '%' }} /></div>
         {weak.length > 0 && (
           <div className="weak">
-            <span><b>{weak.length}</b> {cq ? (weak.length === 1 ? 'форма често се обърква' : 'форми често се объркват') : weak.length === 1 ? 'дума често се обърква' : 'думи често се объркват'}</span>
+            <span><b>{weak.length}</b> {dlg ? (weak.length === 1 ? 'диалог често се обърква' : 'диалога често се объркват') : cq ? (weak.length === 1 ? 'форма често се обърква' : 'форми често се объркват') : weak.length === 1 ? 'дума често се обърква' : 'думи често се объркват'}</span>
             <button className="small-btn" onClick={() => onPractise(weak.map(w => w.id))}>Упражнение</button>
           </div>
         )}
       </div>}
 
-      {!conj && <div className="section">
+      {!conj && !dlg && <div className="section">
         <label className="label" htmlFor="wordset">Списък с думи</label>
         <div className="select">
           <select id="wordset" value={current} onChange={e => setSet(e.target.value)}>
@@ -97,13 +101,30 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
         <p className="hint">{conjHint}</p>
       </div>}
 
+      {dlg && <div className="section">
+        <label className="label" htmlFor="dlgset">Диалог</label>
+        <div className="select">
+          <select id="dlgset" value={dlgSel} onChange={e => setDlgSet(e.target.value)}>
+            <option value="all">Всички диалози ({dialogues.length})</option>
+            {dialogues.map(x => <option key={x.key} value={x.key}>{x.title}</option>)}
+          </select>
+          <Icon name="chevron" />
+        </div>
+      </div>}
+
+      {dlg && dlgSel === 'all' && <div className="section">
+        <p className="label">Брой диалози</p>
+        <Seg label="Брой диалози" value={s.dlgCount || '3'} onChange={v => set('dlgCount', v)} options={[['1', '1'], ['3', '3'], ['5', '5'], ['all', 'Всички']]} />
+      </div>}
+      {dlg && <p className="hint">Репликите на разговора са разбъркани. Подреждане: плъзгане на дръжката вдясно на репликата, след това „Проверка“. Докосване на реплика: слушане. Преводът се показва след вярното подреждане.</p>}
+
       {match && <div className="section">
         <p className="label">Брой кръгове</p>
         <Seg label="Брой кръгове" value={s.rounds || '1'} onChange={v => set('rounds', v)} options={ROUNDS.map(r => [r, r])} />
         <p className="hint">{PER_ROUND} думи в кръг. Всяка дума се свързва с превода си, а съществителните получават и член ({artName}). Верен ход: +1 точка; грешна двойка или грешен член: −1 точка. Членът се избира с един опит.</p>
       </div>}
 
-      {!conj && !match && <div className="section">
+      {!conj && !match && !dlg && <div className="section">
         <p className="label">Формат</p>
         <Seg label="Формат" value={s.mode} onChange={v => set('mode', v)} options={[['test', 'Тест'], ['open', 'Свободен отговор']]} />
         <p className="hint">{modeHint}</p>
@@ -112,28 +133,29 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
       {(!conj || cq) && <details className="more">
         <summary>Още настройки <Icon name="chevron" /></summary>
         <div className="more-body">
-          {!cq && <div>
+          {!cq && !dlg && <div>
             <p className="label">Кои думи</p>
             <Seg label="Кои думи" value={s.filter} onChange={v => set('filter', v)} options={[['all', 'Всички'], ['n', 'Същ.'], ['v', 'Глаголи'], ['other', 'Други'], ['weak', 'Грешени']]} />
           </div>}
-          {!match && <div>
+          {!match && !dlg && <div>
             <p className="label">Брой въпроси</p>
             <Seg label="Брой въпроси" value={s.size} onChange={v => set('size', v)} options={[['10', '10'], ['20', '20'], ['all', 'Всички']]} />
           </div>}
           <div className="toggles">
-            {L.articles.length > 0 && !cq && !match && (
+            {L.articles.length > 0 && !cq && !match && !dlg && (
               <label className="tog"><span>Член задължителен при BG → {X}<br /><span className="small">„{L.exampleNoun}“, а не само „{L.exampleNoun.replace(/^\S+\s|^l'/, '')}“</span></span>
                 <input type="checkbox" checked={s.reqArt} onChange={e => set('reqArt', e.target.checked)} /></label>
             )}
-            {!match && <label className="tog"><span>{cq ? 'Сгрешените форми се връщат в същия кръг' : 'Сгрешените думи се връщат в същия кръг'}</span><input type="checkbox" checked={s.retry} onChange={e => set('retry', e.target.checked)} /></label>}
-            <label className="tog"><span>{cq ? `Автоматично произнасяне на формата след отговор` : `Автоматично произнасяне на думата на ${L.adj}и`}</span><input type="checkbox" checked={s.autoSpeak} onChange={e => set('autoSpeak', e.target.checked)} /></label>
+            {!match && <label className="tog"><span>{cq ? 'Сгрешените форми се връщат в същия кръг' : dlg ? 'Сгрешените диалози се връщат в същия кръг' : 'Сгрешените думи се връщат в същия кръг'}</span><input type="checkbox" checked={s.retry} onChange={e => set('retry', e.target.checked)} /></label>}
+            {!dlg && <label className="tog"><span>{cq ? `Автоматично произнасяне на формата след отговор` : `Автоматично произнасяне на думата на ${L.adj}и`}</span><input type="checkbox" checked={s.autoSpeak} onChange={e => set('autoSpeak', e.target.checked)} /></label>}
           </div>
         </div>
       </details>}
 
       <div className="startbar">
-        <button className="primary" disabled={match ? count < 2 : (!conj || cq) && !count} onClick={onStart}>
-          {match ? (count >= 2 ? `Начало: ${rounds} ${rounds === 1 ? 'кръг' : 'кръга'}, ${Math.min(count, rounds * PER_ROUND)} думи` : 'Нужни са поне две думи')
+        <button className="primary" disabled={match ? count < 2 : (!conj || cq || dlg) && !count} onClick={onStart}>
+          {dlg ? (count ? `Начало: ${dlgSel === 'all' ? dlgN : 1} ${(dlgSel === 'all' ? dlgN : 1) === 1 ? 'диалог' : 'диалога'}` : 'Няма диалози')
+            : match ? (count >= 2 ? `Начало: ${rounds} ${rounds === 1 ? 'кръг' : 'кръга'}, ${Math.min(count, rounds * PER_ROUND)} думи` : 'Нужни са поне две думи')
             : cq ? (count ? `Начало: ${size} ${size === 1 ? 'въпрос' : 'въпроса'}` : 'Няма глаголи') : conj ? `Начало: ${verbs.length} ${verbs.length === 1 ? 'глагол' : 'глагола'}` : eligibleCount ? `Начало: ${size} ${size === 1 ? 'дума' : 'думи'}` : (s.filter === 'weak' ? 'Още няма грешени думи' : 'Няма думи с тези настройки')}
         </button>
       </div>

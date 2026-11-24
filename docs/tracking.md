@@ -66,9 +66,9 @@ per database.
 | Type | When | Fields beyond the common ones |
 |---|---|---|
 | `open` | app opened | |
-| `session_start` | exercise started | exercise, format, list size |
+| `session_start` | exercise started | exercise, format, list size (exercises: `x-bg`, `bg-x`, `art`, `conj`, `conj-table`, `match`, `dialog`, `math`; formats: `test`, `open`, `table`, `order` for dialogues) |
 | `session_start` (matching) | | also boards (`rounds`) |
-| `answer` | every answer (matching exercise: every finished word of a board) | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`, `time`: maths time limit ran out; matching: `pair` wrong pair, `art` wrong article, `both`), response ms (matching: since the previous finished word), wrong option picked (choice exercises; with repeated tries, the first wrong one; matching: the first wrong translation, else the wrong article) |
+| `answer` | every answer (matching exercise: every finished word of a board; dialogues: every dialogue put in order, `ok` when the first check was right, word id `<course>:dlg:<id>`) | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`, `time`: maths time limit ran out; matching: `pair` wrong pair, `art` wrong article, `both`), response ms (matching: since the previous finished word), wrong option picked (choice exercises; with repeated tries, the first wrong one; matching: the first wrong translation, else the wrong article) |
 | `session_end` | finished, quit, or detected abandoned | answers given, size, status |
 | `tick` | every minute of a session | answers so far, active seconds |
 | `session_end` (matching) | | also points and highest possible points (`score`, `max_score`; when stopped, of the words finished) |

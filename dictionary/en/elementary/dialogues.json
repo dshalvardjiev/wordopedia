@@ -1,0 +1,67 @@
+{
+ "people": {
+  "emma": { "name": "Emma", "img": "girl" },
+  "jack": { "name": "Jack", "img": "boy" },
+  "grandma": { "name": "Grandma", "img": "old-woman" },
+  "mum": { "name": "Mum", "img": "woman" },
+  "baker": { "name": "Baker", "img": "cook" },
+  "teacher": { "name": "Mrs Brown", "img": "teacher" }
+ },
+ "dialogues": [
+  { "id": "hello", "title": "Запознанство", "img": "waving-hand", "lines": [
+   { "who": "emma", "text": "Hello! I'm Emma. What's your name?", "bg": "Здравей! Аз съм Ема. Как се казваш?" },
+   { "who": "jack", "text": "Hi, Emma! My name is Jack.", "bg": "Здрасти, Ема! Казвам се Джак." },
+   { "who": "emma", "text": "How old are you, Jack?", "bg": "На колко години си, Джак?" },
+   { "who": "jack", "text": "I'm eight. And you?", "bg": "На осем съм. А ти?" },
+   { "who": "emma", "text": "I'm eight too!", "bg": "И аз съм на осем!" }
+  ] },
+  { "id": "how-are-you", "title": "Как си?", "img": "smile", "lines": [
+   { "who": "jack", "text": "Good morning, Grandma!", "bg": "Добро утро, бабо!" },
+   { "who": "grandma", "text": "Good morning, Jack! How are you?", "bg": "Добро утро, Джак! Как си?" },
+   { "who": "jack", "text": "I'm fine, thank you. And you?", "bg": "Добре съм, благодаря. А ти?" },
+   { "who": "grandma", "text": "I'm very well, thanks.", "bg": "Много съм добре, благодаря." }
+  ] },
+  { "id": "bakery", "title": "В пекарната", "img": "cupcake", "lines": [
+   { "who": "baker", "text": "Hello! What would you like?", "bg": "Здравей! Какво ще желаеш?" },
+   { "who": "emma", "text": "Two muffins, please.", "bg": "Два мъфина, моля." },
+   { "who": "baker", "text": "Here you are. Anything else?", "bg": "Заповядай. Нещо друго?" },
+   { "who": "emma", "text": "No, thank you. How much is it?", "bg": "Не, благодаря. Колко струва?" },
+   { "who": "baker", "text": "That's two pounds, please.", "bg": "Две лири, моля." },
+   { "who": "emma", "text": "Thank you! Goodbye!", "bg": "Благодаря! Довиждане!" }
+  ] },
+  { "id": "school", "title": "В училище", "img": "school", "lines": [
+   { "who": "teacher", "text": "Good morning, Jack! Where is your book?", "bg": "Добро утро, Джак! Къде ти е книгата?" },
+   { "who": "jack", "text": "Sorry, Mrs Brown. My book is at home.", "bg": "Извинете, госпожо Браун. Книгата ми е вкъщи." },
+   { "who": "teacher", "text": "That's OK. Here is a book for you.", "bg": "Няма нищо. Ето една книга за теб." },
+   { "who": "jack", "text": "Thank you very much, Mrs Brown!", "bg": "Много благодаря, госпожо Браун!" }
+  ] },
+  { "id": "family", "title": "Семейство", "img": "family", "lines": [
+   { "who": "emma", "text": "Have you got any brothers or sisters?", "bg": "Имаш ли братя или сестри?" },
+   { "who": "jack", "text": "Yes, I've got a little sister. Her name is Lily.", "bg": "Да, имам малка сестра. Казва се Лили." },
+   { "who": "emma", "text": "How old is Lily?", "bg": "На колко години е Лили?" },
+   { "who": "jack", "text": "She's five. And you? Have you got any brothers or sisters?", "bg": "На пет е. А ти? Имаш ли братя или сестри?" },
+   { "who": "emma", "text": "No, but I've got a dog!", "bg": "Не, но имам куче!" }
+  ] },
+  { "id": "weather", "title": "Времето", "img": "rain", "lines": [
+   { "who": "jack", "text": "Mum, what's the weather like today?", "bg": "Мамо, какво е времето днес?" },
+   { "who": "mum", "text": "It's raining and it's cold.", "bg": "Вали и е студено." },
+   { "who": "jack", "text": "Oh no! I want to play in the park.", "bg": "О, не! Искам да играя в парка." },
+   { "who": "mum", "text": "Take your coat and your umbrella.", "bg": "Вземи си палтото и чадъра." },
+   { "who": "jack", "text": "OK, Mum. Bye!", "bg": "Добре, мамо. Чао!" }
+  ] },
+  { "id": "birthday", "title": "Рожден ден", "img": "gift", "lines": [
+   { "who": "jack", "text": "Happy birthday, Emma!", "bg": "Честит рожден ден, Ема!" },
+   { "who": "emma", "text": "Thank you, Jack!", "bg": "Благодаря, Джак!" },
+   { "who": "jack", "text": "Here is a present for you.", "bg": "Ето един подарък за теб." },
+   { "who": "emma", "text": "Oh, a book! Great, thank you very much!", "bg": "О, книга! Супер, много благодаря!" },
+   { "who": "jack", "text": "You're welcome!", "bg": "Няма защо!" }
+  ] },
+  { "id": "pet", "title": "Домашен любимец", "img": "cat", "lines": [
+   { "who": "emma", "text": "Have you got a pet?", "bg": "Имаш ли домашен любимец?" },
+   { "who": "jack", "text": "Yes, I've got a cat.", "bg": "Да, имам котка." },
+   { "who": "emma", "text": "What's your cat's name?", "bg": "Как се казва котката ти?" },
+   { "who": "jack", "text": "Her name is Kitty. She's black and small.", "bg": "Казва се Кити. Черна е и малка." },
+   { "who": "emma", "text": "How cute! I love cats.", "bg": "Колко сладко! Обожавам котки." }
+  ] }
+ ]
+}

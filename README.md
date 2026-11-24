@@ -40,6 +40,12 @@ Each instance installs as a separate app with its own progress.
   both) are put on different boards. English "a"/"an" follows the spelling with the usual exceptions (an hour, a
   unicorn); uncountable and plural-only English nouns (milk, scissors) are listed in `src/lib/langs.js` (`NO_INDEF`)
   and get no article step: a new one must be added there.
+- **Dialogues** (Диалози): short conversations (introductions, how are you, at the bakery, at school, family,
+  weather, a birthday, a pet) with their lines in a random order. The lines are put in order by dragging the handle
+  on their right (or with the arrow keys on it), then checked: lines in the wrong place turn red, and the order can be
+  changed and checked again. A dialogue counts as right when the first check is right; missed dialogues come back in
+  the same round. Once in order, every line shows its Bulgarian translation; a tap on a line plays it. One dialogue
+  or several (1, 3, 5 or all) per round.
 - **Verb conjugation** (German, French): three formats. **Таблица**: every form hidden until tapped; tapping plays
   the form. **Тест** / **Свободен отговор**: a pronoun and a verb (`nous` + `être`), the form chosen from four or typed
   (`sommes` or `nous sommes`), with specific feedback (another person's form, the infinitive, a missing `j'`); progress
@@ -74,6 +80,8 @@ dictionary/
   de/words.csv              German words          de/verbs.csv   German conjugation tables
   de/audio/                 German recordings (all courses of a language share one folder)
   de/images.json, de/img/   German word pictures and where each comes from (shared like the recordings)
+  de/dialogues.json         German dialogues (also fr/, en/elementary/: one file per course)
+  dialogues/images.json, dialogues/img/   pictures of the dialogues' people and scenes, shared by all languages
   fr/words.csv              French words (topics)  fr/verbs.csv   French conjugation tables
   en/elementary/words.csv   Elementary English (alphabet book, letters A–R)
   en/basic/words.csv        Basic English (inactive until it has words)
@@ -114,6 +122,25 @@ Columns: `verb, bulgarian`, one column per pronoun, and optionally `set` (verb g
 - French `je` becomes `j'` before a vowel or `h` (`j'ai`, `j'habite`), in the table and in the recordings.
 - Progress is stored per verb and pronoun under `<course key>:conj:<verb>:<column>` (e.g. `fr:conj:être:nous`):
   renaming a verb resets it, moving it to another group does not.
+
+### dialogues.json (dialogue exercise)
+Optional, per course, beside `words.csv`. The people of the course's dialogues, then the dialogues:
+```json
+{ "people": { "anna": { "name": "Anna", "img": "girl" }, "ben": { "name": "Ben", "img": "boy" } },
+  "dialogues": [
+    { "id": "hallo", "title": "Запознанство", "img": "waving-hand", "lines": [
+      { "who": "anna", "text": "Hallo! Ich bin Anna. Wie heißt du?", "bg": "Здравей! Аз съм Анна. Как се казваш?" },
+      { "who": "ben", "text": "Hallo, Anna! Ich heiße Ben.", "bg": "Здравей, Анна! Казвам се Бен." } ] } ] }
+```
+- Lines are written in the right order; the app shuffles them. 3 to 8 lines, no two with the same text, and the order
+  must follow from the content alone (questions before answers, names), since the learner has no other help.
+- `id`: lower case letters, digits and `-`. Progress is stored under `<course key>:dlg:<id>` (e.g. `de:dlg:hallo`):
+  renaming an id resets it.
+- `title` (Bulgarian) names the situation; `bg` is shown under each line once the order is right.
+- `img` (a dialogue's scene, a person's picture): a name from `dictionary/dialogues/images.json`, which lists the
+  files in `dictionary/dialogues/img/` in the same format as the word pictures below. Only openly licensed pictures.
+- The recordings workflow records every line (`scripts/make_audio.py`), under the line's text as file name.
+- `npm run check` reports a dialogue with missing fields, an unknown speaker or picture, or two equal lines.
 
 ### images.json and img/ (word pictures)
 Optional, per language: `dictionary/<code>/images.json` lists the pictures in `dictionary/<code>/img/`. A picture

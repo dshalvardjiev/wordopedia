@@ -2,7 +2,7 @@
 
 Usage: python scripts/make_audio.py dictionary [voice_cache_dir]
 Reads dictionary/languages.json; for each language it reads dictionary/<code>/words.csv and, for languages with
-courses, dictionary/<code>/<course>/words.csv, and writes dictionary/<code>/audio/<slug>.mp3 (shared by the courses)
+courses, dictionary/<code>/<course>/words.csv (plus verbs.csv and the lines of dialogues.json beside them), and writes dictionary/<code>/audio/<slug>.mp3 (shared by the courses)
 using that language's Piper voice (downloaded from Hugging Face on first use).
 Inactive languages are recorded too, so their audio is ready when they are switched on.
 File names must match src/lib/audio.js: "der Affe" -> der-affe.mp3, "l'élève" -> l-eleve.mp3.
@@ -51,6 +51,11 @@ def verb_texts(csv_path, code):
             out.append(e + form if e and VOWEL.match(form) else f'{say} {form}')
     return out
 
+def dialogue_texts(json_path):
+    # Every line of every dialogue, as written (src/lib/dialogues.js plays them by their text).
+    data = json.load(open(json_path, encoding='utf-8'))
+    return [' '.join(str(x.get('text', '')).split()) for d in data.get('dialogues', []) for x in d.get('lines', []) if x.get('text')]
+
 def voice_file(voice, cache):
     os.makedirs(cache, exist_ok=True)
     name = os.path.basename(voice)
@@ -74,6 +79,8 @@ def main(root, cache='voice'):
         for d in [os.path.dirname(p) for p in paths]:
             vp = os.path.join(d, 'verbs.csv')
             if os.path.exists(vp): texts += verb_texts(vp, code)
+            dp = os.path.join(d, 'dialogues.json')
+            if os.path.exists(dp): texts += dialogue_texts(dp)
         texts = list(dict.fromkeys(texts))
         todo = [t for t in texts if not os.path.exists(os.path.join(out_dir, slug(t) + '.mp3'))]
         print(f'{code}: {len(todo)} new recording(s)')

@@ -5,9 +5,10 @@ import { STORE_KEY as KEY, LEGACY_STORE_KEY } from './content.js';
 
 export const DEFAULT_DICT_BASE = import.meta.env.VITE_DICT_BASE ||
   'https://raw.githubusercontent.com/dshalvardjiev/wordopedia/main/dictionary/';
-// rounds: boards of 10 words in the matching exercise ('1', '2', '3' or '5').
+// rounds: boards of 10 words in the matching exercise ('1', '2', '3' or '5'). dlgCount: dialogues per round ('1', '3',
+// '5' or 'all').
 // conjMode: 'table' (forms revealed by tapping), 'test' (choice of four) or 'open' (typed) for the conjugation exercise.
-const DEFAULT_SETTINGS = { dir: 'x-bg', mode: 'test', conjMode: 'table', filter: 'all', size: 'all', reqArt: true, retry: true, autoSpeak: false, track: true, rounds: '1' };
+const DEFAULT_SETTINGS = { dir: 'x-bg', mode: 'test', conjMode: 'table', filter: 'all', size: 'all', reqArt: true, retry: true, autoSpeak: false, track: true, rounds: '1', dlgCount: '3' };
 
 // Version 1 ids never carry a language prefix, so every key gets one.
 const prefixKeys = (o, l) => Object.fromEntries(Object.entries(o || {}).map(([k, v]) => [l + ':' + k, v]));
@@ -55,6 +56,8 @@ export function loadStore() {
     syncAt: s.syncAt || {},            // course key -> time of the last automatic word update
     verbs: s.verbs || {},              // course key -> {csv, updatedAt}: downloaded verbs.csv
     images: s.images || {},            // language code -> {json, updatedAt}: downloaded images.json
+    dialogues: s.dialogues || {},      // course key -> {json, updatedAt}: downloaded dialogues.json
+    dlgImages: s.dlgImages || null,    // {json, updatedAt}: downloaded dialogues/images.json (people and scenes)
     ach: loadAch(s.ach),               // achievements (lib/ach.js); null until the first start with achievements
   };
 }

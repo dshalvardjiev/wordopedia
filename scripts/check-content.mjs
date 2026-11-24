@@ -8,6 +8,7 @@ import { parseCSV } from '../src/lib/csv.js';
 import { coursesFrom, courseL, instanceCourses, ID_RE, PRODUCTION, STAGING } from '../src/lib/courses.js';
 import { parseImages } from '../src/lib/images.js';
 import { full } from '../src/lib/dictionary.js';
+import { parseDialogues } from '../src/lib/dialogues.js';
 
 const D = 'dictionary/';
 const errors = [], warnings = [];
@@ -36,6 +37,29 @@ for (const c of courses) {
     names.filter((v, i) => v && names.indexOf(v) !== i).forEach(v => err(`${vfile}: ${v} is listed twice`));
   }
 }
+
+// Dialogues (optional): dictionary/<course path>/dialogues.json; their pictures of people and scenes are listed in
+// dictionary/dialogues/images.json (files in dictionary/dialogues/img/), shared by all languages.
+const DLG_IMG = 'dialogues/images.json';
+const dlgPics = fs.existsSync(D + DLG_IMG) ? readJson(DLG_IMG) : null;
+const dlgIm = dlgPics ? parseImages(dlgPics) : null;
+if (dlgIm) {
+  dlgIm.problems.forEach(x => err(`${DLG_IMG}: ${x}`));
+  for (const [name, file] of dlgIm.byWord) if (!fs.existsSync(`${D}dialogues/img/${file}`)) err(`${DLG_IMG}: ${name}: file img/${file} not found`);
+}
+const dlgUsed = new Set();
+for (const c of courses) {
+  const f = `${c.path}/dialogues.json`;
+  if (!fs.existsSync(D + f)) continue;
+  const data = readJson(f);
+  if (!data) continue;
+  const p = parseDialogues(data, courseL(c));
+  p.problems.forEach(x => err(`${f}: ${x}`));
+  for (const [k, person] of Object.entries(data.people || {})) if (person && person.img) dlgUsed.add(person.img); else warn(`${f}: person "${k}" has no picture`);
+  for (const d of p.list) if (d.img) dlgUsed.add(d.img); else warn(`${f}: dialogue "${d.key}" has no picture`);
+}
+for (const name of dlgUsed) if (!dlgIm || !dlgIm.byWord.has(name)) err(`${DLG_IMG}: picture "${name}" is used by a dialogue but not listed`);
+if (dlgIm) for (const name of dlgIm.byWord.keys()) if (!dlgUsed.has(name)) warn(`${DLG_IMG}: picture "${name}" is not used by any dialogue`);
 
 // Usage tracking settings (docs/tracking.md): {"url": "https://…/e", "enabled": false to switch it off everywhere}.
 if (conf && 'tracking' in conf) {

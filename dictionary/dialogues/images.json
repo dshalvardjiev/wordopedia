@@ -1,0 +1,75 @@
+{
+ "sources": {
+  "fluent": {
+   "name": "Microsoft Fluent Emoji",
+   "license": "MIT",
+   "url": "https://github.com/microsoft/fluentui-emoji"
+  }
+ },
+ "images": {
+  "boy": {
+   "file": "boy.svg",
+   "source": "fluent"
+  },
+  "bread": {
+   "file": "bread.svg",
+   "source": "fluent"
+  },
+  "cat": {
+   "file": "cat.svg",
+   "source": "fluent"
+  },
+  "cook": {
+   "file": "cook.svg",
+   "source": "fluent"
+  },
+  "croissant": {
+   "file": "croissant.svg",
+   "source": "fluent"
+  },
+  "cupcake": {
+   "file": "cupcake.svg",
+   "source": "fluent"
+  },
+  "family": {
+   "file": "family.svg",
+   "source": "fluent"
+  },
+  "gift": {
+   "file": "gift.svg",
+   "source": "fluent"
+  },
+  "girl": {
+   "file": "girl.svg",
+   "source": "fluent"
+  },
+  "old-woman": {
+   "file": "old-woman.svg",
+   "source": "fluent"
+  },
+  "rain": {
+   "file": "rain.svg",
+   "source": "fluent"
+  },
+  "school": {
+   "file": "school.svg",
+   "source": "fluent"
+  },
+  "smile": {
+   "file": "smile.svg",
+   "source": "fluent"
+  },
+  "teacher": {
+   "file": "teacher.svg",
+   "source": "fluent"
+  },
+  "waving-hand": {
+   "file": "waving-hand.svg",
+   "source": "fluent"
+  },
+  "woman": {
+   "file": "woman.svg",
+   "source": "fluent"
+  }
+ }
+}

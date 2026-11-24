@@ -1,0 +1,67 @@
+{
+ "people": {
+  "anna": { "name": "Anna", "img": "girl" },
+  "ben": { "name": "Ben", "img": "boy" },
+  "oma": { "name": "Oma", "img": "old-woman" },
+  "mama": { "name": "Mama", "img": "woman" },
+  "baecker": { "name": "Verkäuferin", "img": "cook" },
+  "lehrerin": { "name": "Frau Klein", "img": "teacher" }
+ },
+ "dialogues": [
+  { "id": "hallo", "title": "Запознанство", "img": "waving-hand", "lines": [
+   { "who": "anna", "text": "Hallo! Ich bin Anna. Wie heißt du?", "bg": "Здравей! Аз съм Анна. Как се казваш?" },
+   { "who": "ben", "text": "Hallo, Anna! Ich heiße Ben.", "bg": "Здравей, Анна! Казвам се Бен." },
+   { "who": "anna", "text": "Wie alt bist du, Ben?", "bg": "На колко години си, Бен?" },
+   { "who": "ben", "text": "Ich bin acht Jahre alt. Und du?", "bg": "На осем години съм. А ти?" },
+   { "who": "anna", "text": "Ich bin auch acht.", "bg": "И аз съм на осем." }
+  ] },
+  { "id": "wie-gehts", "title": "Как си?", "img": "smile", "lines": [
+   { "who": "ben", "text": "Guten Morgen, Oma!", "bg": "Добро утро, бабо!" },
+   { "who": "oma", "text": "Guten Morgen, Ben! Wie geht es dir?", "bg": "Добро утро, Бен! Как си?" },
+   { "who": "ben", "text": "Danke, gut. Und dir?", "bg": "Благодаря, добре. А ти?" },
+   { "who": "oma", "text": "Mir geht es auch gut, danke.", "bg": "И аз съм добре, благодаря." }
+  ] },
+  { "id": "baeckerei", "title": "В пекарната", "img": "bread", "lines": [
+   { "who": "baecker", "text": "Guten Tag! Was möchtest du?", "bg": "Добър ден! Какво желаеш?" },
+   { "who": "anna", "text": "Ich möchte zwei Brezeln, bitte.", "bg": "Искам два брецела, моля." },
+   { "who": "baecker", "text": "Hier, bitte. Sonst noch etwas?", "bg": "Заповядай. Нещо друго?" },
+   { "who": "anna", "text": "Nein, danke. Was kostet das?", "bg": "Не, благодаря. Колко струва?" },
+   { "who": "baecker", "text": "Das kostet zwei Euro.", "bg": "Струва две евро." },
+   { "who": "anna", "text": "Danke! Auf Wiedersehen!", "bg": "Благодаря! Довиждане!" }
+  ] },
+  { "id": "schule", "title": "В училище", "img": "school", "lines": [
+   { "who": "lehrerin", "text": "Guten Morgen, Ben! Wo ist dein Buch?", "bg": "Добро утро, Бен! Къде ти е книгата?" },
+   { "who": "ben", "text": "Entschuldigung, mein Buch ist zu Hause.", "bg": "Извинете, книгата ми е вкъщи." },
+   { "who": "lehrerin", "text": "Kein Problem. Hier ist ein Buch für dich.", "bg": "Няма проблем. Ето една книга за теб." },
+   { "who": "ben", "text": "Danke schön, Frau Klein!", "bg": "Благодаря, госпожо Клайн!" }
+  ] },
+  { "id": "familie", "title": "Семейство", "img": "family", "lines": [
+   { "who": "anna", "text": "Hast du Geschwister?", "bg": "Имаш ли братя и сестри?" },
+   { "who": "ben", "text": "Ja, ich habe eine Schwester. Sie heißt Lea.", "bg": "Да, имам сестра. Казва се Леа." },
+   { "who": "anna", "text": "Wie alt ist Lea?", "bg": "На колко години е Леа?" },
+   { "who": "ben", "text": "Sie ist fünf. Und du? Hast du Geschwister?", "bg": "На пет е. А ти? Имаш ли братя и сестри?" },
+   { "who": "anna", "text": "Nein, aber ich habe einen Hund!", "bg": "Не, но имам куче!" }
+  ] },
+  { "id": "wetter", "title": "Времето", "img": "rain", "lines": [
+   { "who": "ben", "text": "Mama, wie ist das Wetter heute?", "bg": "Мамо, какво е времето днес?" },
+   { "who": "mama", "text": "Es regnet und es ist kalt.", "bg": "Вали и е студено." },
+   { "who": "ben", "text": "Oh nein! Ich will im Park spielen.", "bg": "О, не! Искам да играя в парка." },
+   { "who": "mama", "text": "Nimm deine Jacke und deinen Regenschirm.", "bg": "Вземи си якето и чадъра." },
+   { "who": "ben", "text": "Okay, Mama. Tschüss!", "bg": "Добре, мамо. Чао!" }
+  ] },
+  { "id": "geburtstag", "title": "Рожден ден", "img": "gift", "lines": [
+   { "who": "ben", "text": "Alles Gute zum Geburtstag, Anna!", "bg": "Честит рожден ден, Анна!" },
+   { "who": "anna", "text": "Danke, Ben!", "bg": "Благодаря, Бен!" },
+   { "who": "ben", "text": "Hier ist ein Geschenk für dich.", "bg": "Ето един подарък за теб." },
+   { "who": "anna", "text": "Oh, ein Buch! Toll, vielen Dank!", "bg": "О, книга! Супер, много благодаря!" },
+   { "who": "ben", "text": "Gern geschehen!", "bg": "Няма защо!" }
+  ] },
+  { "id": "haustier", "title": "Домашен любимец", "img": "cat", "lines": [
+   { "who": "anna", "text": "Hast du ein Haustier?", "bg": "Имаш ли домашен любимец?" },
+   { "who": "ben", "text": "Ja, ich habe eine Katze.", "bg": "Да, имам котка." },
+   { "who": "anna", "text": "Wie heißt deine Katze?", "bg": "Как се казва котката ти?" },
+   { "who": "ben", "text": "Sie heißt Mimi. Sie ist weiß und klein.", "bg": "Казва се Мими. Бяла е и малка." },
+   { "who": "anna", "text": "Wie süß! Ich mag Katzen.", "bg": "Колко сладко! Харесвам котки." }
+  ] }
+ ]
+}

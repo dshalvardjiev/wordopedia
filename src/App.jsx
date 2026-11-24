@@ -6,7 +6,7 @@ import { coursesFrom, courseL, instanceCourses } from './lib/courses.js';
 import { BUNDLED_INSTANCE, INSTANCE, ENV } from './lib/content.js';
 import { loadStore, saveStore, sortSets, DEFAULT_DICT_BASE } from './lib/store.js';
 import { audioBase, speak as speakAudio, prefetchAll, resetPrepared } from './lib/audio.js';
-import { fetchLangConf, fetchInstance, fetchDictionary, fetchVerbs, fetchImages } from './lib/sync.js';
+import { fetchLangConf, fetchInstance, fetchDictionary, fetchVerbs, fetchImages, fetchDialogues, fetchDialogueImages } from './lib/sync.js';
 import { imgBase, parseImages, prefetchImages } from './lib/images.js';
 import { shuffle } from './lib/match.js';
 import LangPick from './components/LangPick.jsx';
@@ -22,6 +22,8 @@ import Words from './components/Words.jsx';
 import Conj from './components/Conj.jsx';
 import ConjQuiz from './components/ConjQuiz.jsx';
 import MatchQuiz from './components/MatchQuiz.jsx';
+import DialogQuiz from './components/DialogQuiz.jsx';
+import { parseDialogues, dialogueText, dialogueTexts } from './lib/dialogues.js';
 import { buildRounds, maxPoints } from './lib/pairs.js';
 import { conjFacts, conjText } from './lib/conj.js';
 import { parseVerbs, formText } from './lib/verbs.js';
@@ -37,6 +39,10 @@ const bundledFor = L => parseSafe(BUNDLED_CSV[`../dictionary/${L.path}/words.csv
 const BUNDLED_VERBS = import.meta.glob('../dictionary/**/verbs.csv', { query: '?raw', import: 'default', eager: true });
 // Picture lists (not the pictures): dictionary/<lang>/images.json.
 const BUNDLED_IMAGES = import.meta.glob('../dictionary/*/images.json', { import: 'default', eager: true });
+// Dialogues of each course, and the pictures of their people and scenes (shared by all languages).
+const BUNDLED_DLG = import.meta.glob('../dictionary/**/dialogues.json', { import: 'default', eager: true });
+const BUNDLED_DLG_IMG = import.meta.glob('../dictionary/dialogues/images.json', { import: 'default', eager: true })['../dictionary/dialogues/images.json'] || null;
+const dlgJson = (store, CL) => (store.dialogues[CL.key] && store.dialogues[CL.key].json) || BUNDLED_DLG[`../dictionary/${CL.path}/dialogues.json`] || null;
 const NO_ACH = { earned: {}, seen: [], c: {}, q: [], retro: null };
 
 export default function App() {
@@ -85,6 +91,10 @@ export default function App() {
   const images = useMemo(() => parseImages((store.images[L.code] && store.images[L.code].json) || BUNDLED_IMAGES[`../dictionary/${L.code}/images.json`] || null), [store.images, L.code]);
   const ibase = imgBase(base, L.code);
   const picFor = useCallback(text => images.byWord.get(text) || '', [images]);
+  const dialogues = useMemo(() => parseDialogues(dlgJson(store, L), L).list, [store.dialogues, L]); // eslint-disable-line react-hooks/exhaustive-deps
+  const dlgPics = useMemo(() => parseImages((store.dlgImages && store.dlgImages.json) || BUNDLED_DLG_IMG), [store.dlgImages]);
+  const dlgBase = base + 'dialogues/img/';
+  const dlgPicFor = useCallback(name => dlgPics.byWord.get(name) || '', [dlgPics]);
   // Words come only from the curated dictionary; learners cannot add words or answers.
   const words = useMemo(() => dict.words.map(w => ({ ...w, on: true, img: images.byWord.get(full(w)) || '' })), [dict, images]);
   const abase = audioBase(base, L.code);
@@ -92,7 +102,7 @@ export default function App() {
 
   const s = store.settings;
   // No article exercise for English; conjugation only where the course has verb tables.
-  const dir = (s.dir === 'art' && !L.quizArticles.length) || (s.dir === 'conj' && !verbs.length) ? 'x-bg' : s.dir;
+  const dir = (s.dir === 'art' && !L.quizArticles.length) || (s.dir === 'conj' && !verbs.length) || (s.dir === 'dialog' && !dialogues.length) ? 'x-bg' : s.dir;
   const setSel = store.setByLang[L.key] || 'all';
   const activeSet = setSel === 'latest' ? (sets[0] && sets[0].id) : (setSel !== 'all' && sets.some(x => x.id === setSel) ? setSel : null);
   const passFilter = w => {
@@ -110,6 +120,9 @@ export default function App() {
   const conjSel = conjGroups.includes(store.setByLang[L.key + ':conj']) ? store.setByLang[L.key + ':conj'] : 'all';
   const conjEligible = conjAll.filter(f => conjSel === 'all' || f.set === conjSel);
   const conjMode = s.conjMode || 'table';
+  // Dialogues: one or all, stored under "<course key>:dlg"; dlgCount per round.
+  const dlgSel = dialogues.some(x => x.key === store.setByLang[L.key + ':dlg']) ? store.setByLang[L.key + ':dlg'] : 'all';
+  const dlgEligible = dialogues.filter(x => dlgSel === 'all' || x.key === dlgSel);
 
   // ----- achievements (lib/ach.js) -----
   // What this device's courses offer, from the live word lists and verb tables: decides which achievements it shows.
@@ -119,8 +132,9 @@ export default function App() {
     const vb = parseVerbs((store.verbs[c.key] && store.verbs[c.key].csv) || BUNDLED_VERBS[`../dictionary/${CL.path}/verbs.csv`] || '', CL);
     const facts = conjFacts(CL, vb);
     return { key: c.key, kind: 'vocab', lang: c.lang, arts: CL.quizArticles.length > 0, words: d.words, sets: sortSets(d.sets),
-      verbs: vb.map(v => ({ verb: v.verb, ids: facts.filter(f => f.verb === v.verb).map(f => f.id) })) };
-  })), [offered, dictFor, store.verbs]);
+      verbs: vb.map(v => ({ verb: v.verb, ids: facts.filter(f => f.verb === v.verb).map(f => f.id) })),
+      dialogs: parseDialogues(dlgJson(store, CL), CL).list.length };
+  })), [offered, dictFor, store.verbs, store.dialogues]); // eslint-disable-line react-hooks/exhaustive-deps
   const A = store.ach || NO_ACH;
   // First start with achievements: grant what earlier progress proves (shown on the first visit to the tab).
   useEffect(() => {
@@ -190,7 +204,14 @@ export default function App() {
     // Verb tables are optional: a course without verbs.csv keeps working.
     let vb = [];
     try { const vt = await fetchVerbs(base, CL); if (vt !== null) { update(n => { n.verbs = { ...n.verbs, [code]: { csv: vt, updatedAt: Date.now() } }; }); vb = parseVerbs(vt, CL); } } catch (e) { /* keep the previous tables */ }
-    const texts = [...parsed.words.map(full), ...vb.flatMap(v => v.forms.map(formText))];
+    // Dialogues are optional too; their pictures are shared by all languages.
+    let dl = [];
+    try { const dj = await fetchDialogues(base, CL); if (dj !== null) { update(n => { n.dialogues = { ...n.dialogues, [code]: { json: dj, updatedAt: Date.now() } }; }); dl = parseDialogues(dj, CL).list; } } catch (e) { /* keep the previous dialogues */ }
+    try {
+      const pj = dl.length ? await fetchDialogueImages(base) : null;
+      if (pj) { update(n => { n.dlgImages = { json: pj, updatedAt: Date.now() }; }); await prefetchImages(base + 'dialogues/img/', [...new Set(parseImages(pj).byWord.values())]); }
+    } catch (e) { /* keep the previous list */ }
+    const texts = [...parsed.words.map(full), ...vb.flatMap(v => v.forms.map(formText)), ...dialogueTexts(dl)];
     const audio = await prefetchAll(audioBase(base, CL.code), texts, onAudio);
     // Pictures are optional: without images.json (or offline) the words simply show none.
     try {
@@ -279,6 +300,14 @@ export default function App() {
   // Points of a matching session for usage statistics; a stopped one counts the words finished so far.
   const matchScore = (S, early) => (S.rounds ? { score: Math.max(0, S.points || 0), max_score: early ? S.maxSeen || 0 : S.maxPoints } : undefined);
   function finishMatch() { const S = session.current; if (!S || S.finishedAt) return; S.queue = []; next(); }
+  // Dialogues: the given ones (missed or often confused), or the chosen one or all, as many as chosen per round.
+  function startDialogs(ids) {
+    let pool = ids ? dialogues.filter(x => ids.includes(x.id)) : dlgEligible.slice();
+    if (!pool.length) { toast('Няма диалози'); return; }
+    shuffle(pool);
+    if (!ids && (s.dlgCount || '3') !== 'all') pool = pool.slice(0, +(s.dlgCount || 3));
+    run(pool, s.retry, 'dlg', { course: L.key, ex: 'dialog', fmt: 'order' }, { weak: !!ids });
+  }
   // Conjugation: the given questions (missed or often confused ones), or the chosen verb group.
   function startConj(ids) {
     let pool = ids ? conjAll.filter(f => ids.includes(f.id)) : conjEligible.slice();
@@ -373,16 +402,19 @@ export default function App() {
       {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} news={S.news} onAwards={toAwards} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
       {!isMath && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
         verbs={verbs} conjAll={conjAll} conjGroups={conjGroups} conjSel={conjSel} conjCount={conjEligible.length}
-        onStart={() => (dir === 'match' ? startMatch() : dir !== 'conj' ? start() : conjMode === 'table' ? openTable() : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : dir === 'match' ? startMatch(ids) : start(ids))} />}
+        dialogues={dialogues} dlgSel={dlgSel} dlgCount={dlgEligible.length}
+        onStart={() => (dir === 'match' ? startMatch() : dir === 'dialog' ? startDialogs() : dir !== 'conj' ? start() : conjMode === 'table' ? openTable() : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : dir === 'match' ? startMatch(ids) : dir === 'dialog' ? startDialogs(ids) : start(ids))} />}
       {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} hear={hear} ibase={ibase} picFor={picFor} onClose={() => { track.sessionEnd('done'); setView('home'); }} />}
       {!isMath && shown === 'quiz' && S && S.cur && S.kind === 'conj' && <ConjQuiz L={L} S={S} facts={conjAll} mode={conjMode} retry={s.retry} autoSpeak={s.autoSpeak}
         say={say} hear={hear} abase={abase} ibase={ibase} picFor={picFor} onSettle={settle} onNext={next} onQuit={quit} />}
       {!isMath && shown === 'quiz' && S && S.rounds && <MatchQuiz key={S.startedAt} L={L} S={S} settings={s} say={say} hear={hear} abase={abase} ibase={ibase}
         onSettle={settleWord} onFinish={finishMatch} onQuit={quit} />}
-      {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && !S.rounds && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} hear={hear} abase={abase} ibase={ibase}
+      {!isMath && shown === 'quiz' && S && S.cur && S.kind === 'dlg' && <DialogQuiz key={S.qid} S={S} retry={s.retry} hear={hear} abase={abase}
+        picBase={dlgBase} picFor={dlgPicFor} onSettle={settle} onNext={next} onQuit={quit} />}
+      {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && S.kind !== 'dlg' && !S.rounds && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} hear={hear} abase={abase} ibase={ibase}
         onSettle={settle} onNext={next} onQuit={quit} />}
-      {!isMath && shown === 'result' && S && <Result S={S} item={S.kind === 'conj' ? conjText : null} news={S.news} onAwards={toAwards}
-        onAgain={() => (S.kind === 'conj' ? startConj() : S.rounds ? startMatch() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : S.rounds ? startMatch(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
+      {!isMath && shown === 'result' && S && <Result S={S} item={S.kind === 'conj' ? conjText : S.kind === 'dlg' ? dialogueText : null} news={S.news} onAwards={toAwards}
+        onAgain={() => (S.kind === 'conj' ? startConj() : S.kind === 'dlg' ? startDialogs() : S.rounds ? startMatch() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : S.kind === 'dlg' ? startDialogs(ids) : S.rounds ? startMatch(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
       {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={hear} abase={abase} ibase={ibase} images={images} />}
       {shown === 'awards' && <Awards x={achX} D={{ stats: store.stats, ok: store.okTotal, c: A.c, now: new Date() }} A={A} onDetail={id => track.awardOpened(id, lang)}
         onSeen={ids => update(n => { const a = n.ach || NO_ACH; n.ach = { ...a, seen: [...new Set([...a.seen, ...ids])] }; })}

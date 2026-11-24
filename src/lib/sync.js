@@ -29,6 +29,16 @@ export async function fetchImages(base, L) {
   try { return await (await get(base + L.code + '/images.json')).json(); }
   catch (e) { if (/404/.test(e.message)) return null; throw e; }
 }
+// dialogues.json is optional: null when the course has none.
+export async function fetchDialogues(base, L) {
+  try { return await (await get(base + L.path + '/dialogues.json')).json(); }
+  catch (e) { if (/404/.test(e.message)) return null; throw e; }
+}
+// Pictures of the dialogues' people and scenes, shared by all languages: dictionary/dialogues/images.json.
+export async function fetchDialogueImages(base) {
+  try { return await (await get(base + 'dialogues/images.json')).json(); }
+  catch (e) { if (/404/.test(e.message)) return null; throw e; }
+}
 export async function fetchDictionary(base, L) {
   const text = await (await get(base + L.path + '/words.csv')).text();
   return { text, parsed: parseDictionary(text, L) };

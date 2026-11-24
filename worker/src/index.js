@@ -5,8 +5,8 @@
 
 const KINDS = new Set(['open', 'session_start', 'answer', 'session_end', 'tick', 'view', 'award']);
 const SESSION_KINDS = new Set(['session_start', 'answer', 'session_end', 'tick']);
-const EXERCISES = new Set(['x-bg', 'bg-x', 'art', 'conj', 'conj-table', 'match', 'math']);
-const FORMATS = new Set(['test', 'open', 'table']);
+const EXERCISES = new Set(['x-bg', 'bg-x', 'art', 'conj', 'conj-table', 'match', 'dialog', 'math']);
+const FORMATS = new Set(['test', 'open', 'table', 'order']); // order: lines of a dialogue put in order
 // Answers; the matching exercise tells a wrong pair, a wrong article or both apart.
 const RESULTS = new Set(['ok', 'typo', 'wrong', 'hint', 'shown', 'time', 'pair', 'art', 'both']);
 const AWARD_HOW = new Set(['new', 'retro']);         // award: earned now, or granted from earlier progress

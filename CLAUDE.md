@@ -27,11 +27,15 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
   `math.js`: maths tests. `track.js`: usage events (queue, batches to the Worker; see docs/tracking.md).
   `images.js`: word pictures (`parseImages` is pure, also used by `check-content.mjs`).
   `pairs.js`: matching exercise (boards of 10 without clashing words, article step per language, points); pure.
+  `dialogues.js`: dialogue exercise (`parseDialogues` of `dialogues.json`, shuffled order, check); pure, also used by
+  `check-content.mjs`.
   `progress.js`: `isLearned`/`isWeak`. `ach.js`: achievements (catalogue of 98, deferred ones listed in a comment;
   visibility, progress, counters `onAnswer`/`onEvent`/`onRound`, `grants`, `retro`); pure, runs in Node.
 - `src/components/`: `Home`, `Quiz`, `Result`, `Words` (vocabulary), `Conj` (conjugation table), `ConjQuiz`
   (conjugation test / typed; not keyed by question, like `MathQuiz`), `MatchQuiz` (matching exercise: whole boards
-  from `S.rounds`; App settles each finished word through `settleWord`, which sets `S.cur`), `LangPick`,
+  from `S.rounds`; App settles each finished word through `settleWord`, which sets `S.cur`), `DialogQuiz` (dialogue
+  exercise: lines dragged by a handle with pointer events, `touch-action: none`, arrow keys on the handle; keyed by
+  question, no text input), `LangPick`,
   `Chrome` (language menu, tab bar: three tabs, two in maths, with the count of new achievements),
   `ui` (flags, icons, segmented control), `math/`, `Pic` (a word's picture),
   `Confetti` (reward burst; canvas with `pointer-events: none`, never takes focus). `Result` exports `isPerfect(S)`.
@@ -79,6 +83,9 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - Must match between JS and Python: `slug` (audio.js ↔ make_audio.py), article lists (langs.js `articles` ↔
   `ARTICLES`), pronouns (langs.js `pronouns` ↔ `PRONOUNS`), French elision (langs.js `elide` + verbs.js `VOWEL` ↔
   `ELIDE` + `VOWEL`): recordings of verb forms are found by their text (`j'ai`, `er, sie, es ist`).
+- Dialogue progress id = `<courseKey>:dlg:<id>`; sessions of kind `dlg`; the dialogue choice is
+  `setByLang['<courseKey>:dlg']`, the number per round `settings.dlgCount`. Pictures of people and scenes:
+  `dictionary/dialogues/` (shared by all languages). Dialogue lines are recorded by their text, like words.
 - Conjugation progress id = `<courseKey>:conj:<verb>:<column>` (e.g. `fr:conj:être:nous`); sessions carry `kind`
   (`words` | `conj`). The verb group is `setByLang['<courseKey>:conj']`; the format is `settings.conjMode`.
 - Learners must not be able to add or change words, answers or verbs in the app (owner's decision).
