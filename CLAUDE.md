@@ -11,7 +11,9 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
   root, `<instance>/` folders from `main`, the `staging` instance from the `staging` branch into `staging/`.
   `.github/workflows/audio.yml` records missing words/verb forms with Piper TTS and commits them to the same branch.
   `.github/workflows/check.yml` runs `npm run check` (content validation) and builds all instances for PRs.
-- Commit directly to `main` (owner's instruction). Content in `dictionary/` is fetched at runtime from
+- Commit directly to `main` (owner's instruction). Every merge or finished change also goes to `staging` right away
+  (`git push origin HEAD:staging` when it fast-forwards; otherwise merge into `staging` and push), so it can be tried
+  at …/wordopedia/staging/ (owner's instruction). Content in `dictionary/` is fetched at runtime from
   raw.githubusercontent.com, so content changes need no release; the bundled copy is only the first-start fallback.
 
 ## Code map
