@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Art } from './Quiz.jsx';
-import { full } from '../lib/dictionary.js';
+import { full, sortKey, letterOf } from '../lib/dictionary.js';
 import { norm } from '../lib/langs.js';
 import { nbg } from '../lib/match.js';
 import { prepare } from '../lib/audio.js';
-import { isLearned, isWeak } from './Home.jsx';
+import { isLearned, isWeak } from '../lib/progress.js';
 import { Icon, Seg } from './ui.jsx';
 import Pic from './Pic.jsx';
 
-// Sort and file a word under its first letter, ignoring the article and signs ("Wer?" -> W, "Äpfel" -> A).
-const sortKey = w => w.de.replace(/^(jdm\.|etw\.)\s+/i, '').replace(/[^\p{L}\p{N}\s]/gu, '').trim();
-const letterOf = w => (sortKey(w).normalize('NFD').replace(/[̀-ͯ]/g, '')[0] || '#').toUpperCase();
 const clean = s => s.replace(/\s*\(.*?\)/g, '');
 
 // The vocabulary: a ruled exercise-book page per group, foreign word on the left, Bulgarian on the right.

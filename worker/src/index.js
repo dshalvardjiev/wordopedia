@@ -4,7 +4,7 @@
 // Monthly cron: first-answer totals of events older than 12 months go to word_summary, then those events are deleted.
 
 const KINDS = new Set(['open', 'session_start', 'answer', 'session_end', 'tick']);
-const EXERCISES = new Set(['x-bg', 'bg-x', 'art', 'conj', 'conj-table', 'math']);
+const EXERCISES = new Set(['x-bg', 'bg-x', 'art', 'conj', 'conj-table', 'match', 'math']);
 const FORMATS = new Set(['test', 'open', 'table']);
 const RESULTS = new Set(['ok', 'typo', 'wrong', 'hint', 'shown', 'time']);
 const STATUSES = new Set(['done', 'quit', 'abandoned']);

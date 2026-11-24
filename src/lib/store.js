@@ -5,16 +5,19 @@ import { STORE_KEY as KEY, LEGACY_STORE_KEY } from './content.js';
 
 export const DEFAULT_DICT_BASE = import.meta.env.VITE_DICT_BASE ||
   'https://raw.githubusercontent.com/dshalvardjiev/wordopedia/main/dictionary/';
+// rounds: boards of 10 words in the matching exercise ('1', '2', '3' or '5').
 // conjMode: 'table' (forms revealed by tapping), 'test' (choice of four) or 'open' (typed) for the conjugation exercise.
-const DEFAULT_SETTINGS = { dir: 'x-bg', mode: 'test', conjMode: 'table', filter: 'all', size: 'all', reqArt: true, retry: true, autoSpeak: false, track: true };
+const DEFAULT_SETTINGS = { dir: 'x-bg', mode: 'test', conjMode: 'table', filter: 'all', size: 'all', reqArt: true, retry: true, autoSpeak: false, track: true, rounds: '1' };
 
 // Version 1 ids never carry a language prefix, so every key gets one.
 const prefixKeys = (o, l) => Object.fromEntries(Object.entries(o || {}).map(([k, v]) => [l + ':' + k, v]));
 
 // Version 1 (German only) -> version 2 (several languages). Old progress becomes German progress.
 // Own words, own synonyms and switched-off words of version 1 are dropped: learners no longer edit content.
+// Only data without a version or with a version below 2 is converted; anything newer is kept as it is.
+const isOld = s => typeof s.version !== 'number' || s.version < 2;
 function migrate(s) {
-  if (s.version === 2) return s;
+  if (!isOld(s)) return s;
   const dirMap = { 'de-bg': 'x-bg', 'bg-de': 'bg-x', art: 'art' };
   const st = s.settings || {};
   return {
@@ -35,7 +38,7 @@ export function loadStore() {
     // First start of "production": take over the data of the former root app (the old key is left as it was).
     s = JSON.parse(localStorage.getItem(KEY) ?? (LEGACY_STORE_KEY && localStorage.getItem(LEGACY_STORE_KEY)));
   } catch (e) { /* storage unavailable */ }
-  if (s && s.version !== 2) s = migrate(s);
+  if (s && isOld(s)) s = migrate(s);
   s = s || { version: 2 };
   return {
     version: 2,
@@ -52,7 +55,14 @@ export function loadStore() {
     syncAt: s.syncAt || {},            // course key -> time of the last automatic word update
     verbs: s.verbs || {},              // course key -> {csv, updatedAt}: downloaded verbs.csv
     images: s.images || {},            // language code -> {json, updatedAt}: downloaded images.json
+    ach: loadAch(s.ach),               // achievements (lib/ach.js); null until the first start with achievements
   };
+}
+// Achievements on this device: earned {id: ISO date}, seen [ids], c {counters}, q [ids for the next result screen],
+// retro [ids granted from earlier progress, until their panel is closed] or null.
+function loadAch(a) {
+  if (!a || typeof a !== 'object') return null;
+  return { earned: a.earned || {}, seen: a.seen || [], c: a.c || {}, q: a.q || [], retro: a.retro || null };
 }
 export function saveStore(st) { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* ignore */ } }
 

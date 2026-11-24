@@ -21,9 +21,14 @@ import Confetti from './components/Confetti.jsx';
 import Words from './components/Words.jsx';
 import Conj from './components/Conj.jsx';
 import ConjQuiz from './components/ConjQuiz.jsx';
+import MatchQuiz from './components/MatchQuiz.jsx';
+import { buildRounds, maxPoints } from './lib/pairs.js';
 import { conjFacts, conjText } from './lib/conj.js';
 import { parseVerbs, formText } from './lib/verbs.js';
 import * as track from './lib/track.js';
+import Awards from './components/Awards.jsx';
+import { achContext, visibleAch, grants, retro, onAnswer, onEvent, onRound, BY_ID } from './lib/ach.js';
+import { isLearned, isWeak } from './lib/progress.js';
 
 // Every dictionary/<path>/words.csv is built into the app, so the first start works without a network.
 const BUNDLED_CSV = import.meta.glob('../dictionary/**/words.csv', { query: '?raw', import: 'default', eager: true });
@@ -32,6 +37,7 @@ const bundledFor = L => parseSafe(BUNDLED_CSV[`../dictionary/${L.path}/words.csv
 const BUNDLED_VERBS = import.meta.glob('../dictionary/**/verbs.csv', { query: '?raw', import: 'default', eager: true });
 // Picture lists (not the pictures): dictionary/<lang>/images.json.
 const BUNDLED_IMAGES = import.meta.glob('../dictionary/*/images.json', { import: 'default', eager: true });
+const NO_ACH = { earned: {}, seen: [], c: {}, q: [], retro: null };
 
 export default function App() {
   const [store, setStore] = useState(loadStore);
@@ -41,6 +47,7 @@ export default function App() {
   const session = useRef(null);
   const [party, setParty] = useState(null);   // confetti: {id, n} while it plays
   const okTotal = useRef(store.okTotal || 0);  // correct answers ever; saved as store.okTotal
+  const achC = useRef((store.ach && store.ach.c) || {}); // achievement counters; saved as store.ach.c
   const toastT = useRef(0);
 
   useEffect(() => { saveStore(store); }, [store]);
@@ -103,6 +110,51 @@ export default function App() {
   const conjSel = conjGroups.includes(store.setByLang[L.key + ':conj']) ? store.setByLang[L.key + ':conj'] : 'all';
   const conjEligible = conjAll.filter(f => conjSel === 'all' || f.set === conjSel);
   const conjMode = s.conjMode || 'table';
+
+  // ----- achievements (lib/ach.js) -----
+  // What this device's courses offer, from the live word lists and verb tables: decides which achievements it shows.
+  const achX = useMemo(() => achContext(offered.filter(c => c.active).map(c => {
+    if (c.kind === 'math') return { key: MATH, kind: 'math' };
+    const CL = courseL(c), d = dictFor(c.key);
+    const vb = parseVerbs((store.verbs[c.key] && store.verbs[c.key].csv) || BUNDLED_VERBS[`../dictionary/${CL.path}/verbs.csv`] || '', CL);
+    const facts = conjFacts(CL, vb);
+    return { key: c.key, kind: 'vocab', lang: c.lang, arts: CL.quizArticles.length > 0, words: d.words, sets: sortSets(d.sets),
+      verbs: vb.map(v => ({ verb: v.verb, ids: facts.filter(f => f.verb === v.verb).map(f => f.id) })) };
+  })), [offered, dictFor, store.verbs]);
+  const A = store.ach || NO_ACH;
+  // First start with achievements: grant what earlier progress proves (shown on the first visit to the tab).
+  useEffect(() => {
+    if (store.ach) return;
+    const r = retro(achX, store.stats, okTotal.current), date = new Date().toISOString();
+    achC.current = r.c;
+    update(n => { if (!n.ach) n.ach = { earned: Object.fromEntries(r.ids.map(id => [id, date])), seen: [], c: r.c, q: [], retro: r.ids.length ? r.ids : null }; });
+  }, [store.ach, achX]); // eslint-disable-line react-hooks/exhaustive-deps
+  const grantDate = (a, ids, date) => ({ ...a.earned, ...Object.fromEntries(ids.map(id => [id, date])) });
+  // Outside a round (a speaker tap, the Думи tab, the conjugation table): new achievements wait for the next result screen.
+  function achEvent(kind, course) {
+    const c0 = achC.current, c = onEvent(c0, kind, course);
+    if (c === c0) return;
+    achC.current = c;
+    const st = storeRef.current, now = new Date();
+    const got = grants(achX, { stats: st.stats, ok: okTotal.current, c, now }, (st.ach || NO_ACH).earned);
+    update(n => { const a = n.ach || NO_ACH; n.ach = { ...a, c, earned: grantDate(a, got, now.toISOString()), q: [...a.q.filter(id => !got.includes(id)), ...got] }; });
+  }
+  // End of a round with at least one answer: counters of the round, then every achievement now met.
+  function endRound(S) {
+    if (S.ended) return;
+    S.ended = true;
+    const st = storeRef.current, a0 = st.ach || NO_ACH, end = new Date(S.finishedAt || Date.now());
+    const math = S.kind === 'math';
+    const R = { kind: S.kind, ex: S.info.ex, course: S.info.course, lang: math ? null : L.code, weak: S.weak, total: S.total, answered: S.seen.size,
+      firstOk: S.firstOk, done: !S.early, perfect: isPerfect(S), start: new Date(S.startedAt), end, log: S.log, okWords: S.okWords, ids: [...S.seen],
+      tables: math ? new Set([...S.seen].map(id => id.split(':')[2].split('x')[0])).size : 0 };
+    const { c, hits } = onRound(achC.current, R, achX);
+    achC.current = c;
+    const got = grants(achX, { stats: st.stats, ok: okTotal.current, c, now: end }, a0.earned, hits);
+    S.news = [...a0.q.filter(id => !a0.seen.includes(id) && !got.includes(id)), ...got].map(id => BY_ID[id]).filter(Boolean);
+    update(n => { const a = n.ach || NO_ACH; n.ach = { ...a, c, q: [], earned: grantDate(a, got, end.toISOString()) }; });
+  }
+  const hear = text => { achEvent('listen'); say(text); };
 
   // ----- usage tracking (docs/tracking.md) -----
   // On when this instance allows it ("tracking": true), languages.json gives a URL and has not switched it off,
@@ -188,11 +240,14 @@ export default function App() {
   }
 
   // ----- session -----
-  // extra: fields added to the session, e.g. limit (ms per answer in maths; 0 = none).
+  // extra: fields added to the session, e.g. limit (ms per answer in maths; 0 = none) and weak (a round of the
+  // often-confused or missed questions, counted for an achievement).
   function run(pool, retry, kind, info, extra) {
-    session.current = { ...extra, kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0 };
+    session.current = { ...extra, kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0,
+      info, weak: !!(extra && extra.weak), log: [], okWords: [] };
     track.sessionStart({ ...info, size: pool.length });
-    next();
+    // The matching exercise shows whole boards (S.rounds) instead of one question at a time.
+    if (!session.current.rounds) next();
     setView('quiz');
   }
   function start(ids) {
@@ -201,15 +256,30 @@ export default function App() {
     if (!pool.length) { toast('Няма думи за тези настройки'); return; }
     shuffle(pool);
     if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
-    run(pool, s.retry, 'words', { course: L.key, ex: dir, fmt: s.mode });
+    run(pool, s.retry, 'words', { course: L.key, ex: dir, fmt: s.mode }, { weak: !!ids || s.filter === 'weak' });
   }
+  // Matching: boards of up to 10 words, as many as chosen (fewer when the list is short); the given words (missed or
+  // often confused ones) as boards too.
+  function startMatch(ids) {
+    const pool = shuffle(ids ? words.filter(w => ids.includes(w.id)) : eligible.slice());
+    // A board needs a few words: a short list of missed words is filled up with other words of the course.
+    if (ids && pool.length < 4) pool.push(...shuffle(words.filter(w => !ids.includes(w.id))).slice(0, 4 - pool.length));
+    const rounds = buildRounds(L, pool, ids ? Math.ceil(pool.length / 2) : +(s.rounds || 1));
+    if (!rounds.length) { toast('Нужни са поне две думи'); return; }
+    const list = rounds.flat();
+    run(list, false, 'words', { course: L.key, ex: 'match', fmt: 'test' }, { rounds, points: 0, maxPoints: rounds.reduce((n, r) => n + maxPoints(L, r), 0), weak: !!ids });
+    session.current.cur = list[0]; session.current.shownAt = Date.now();
+  }
+  // A word of the matching board is finished: settled like a question.
+  function settleWord(w, clean, info) { const S = session.current; if (!S) return; S.cur = w; S.maxSeen = (S.maxSeen || 0) + maxPoints(L, [w]); settle(clean, info); S.shownAt = Date.now(); }
+  function finishMatch() { const S = session.current; if (!S || S.finishedAt) return; S.queue = []; next(); }
   // Conjugation: the given questions (missed or often confused ones), or the chosen verb group.
   function startConj(ids) {
     let pool = ids ? conjAll.filter(f => ids.includes(f.id)) : conjEligible.slice();
     if (!pool.length) { toast('Няма глаголи за тези настройки'); return; }
     shuffle(pool);
     if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
-    run(pool, s.retry, 'conj', { course: L.key, ex: 'conj', fmt: conjMode });
+    run(pool, s.retry, 'conj', { course: L.key, ex: 'conj', fmt: conjMode }, { weak: !!ids });
   }
   // Maths: a given list of facts (e.g. the often-confused ones), or the chosen tables in the chosen order.
   function startMath(list) {
@@ -218,15 +288,15 @@ export default function App() {
     if (!pool.length) { toast('Няма избрана таблица'); return; }
     if (list || m.order === 'mixed') shuffle(pool);
     if (!list && m.size !== 'all') pool = pool.slice(0, +m.size);
-    run(pool, true, 'math', { course: MATH, ex: 'math', fmt: 'open' }, { limit: limitMs(m.timer) });
+    run(pool, true, 'math', { course: MATH, ex: 'math', fmt: 'open' }, { limit: limitMs(m.timer), weak: !!list });
   }
   // The conjugation table: no answers, but opening and time spent count as a session.
-  function openTable() { track.sessionStart({ course: L.key, ex: 'conj-table', fmt: 'table', size: verbs.length }); setView('conj'); }
+  function openTable() { track.sessionStart({ course: L.key, ex: 'conj-table', fmt: 'table', size: verbs.length }); achEvent('table', L.key); setView('conj'); }
   function next() {
     const S = session.current;
     if (!S) return;
     if (!S.queue.length) {
-      S.finishedAt = Date.now(); track.sessionEnd('done');
+      S.finishedAt = Date.now(); track.sessionEnd('done'); endRound(S);
       // A round without a single mistake gets its own celebration on the result screen; it replaces a milestone label.
       if (isPerfect(S)) setParty(null);
       setView('result'); setTick(t => t + 1); return;
@@ -248,6 +318,15 @@ export default function App() {
       if (n % 10 === 0) setParty({ id: Date.now(), n });
     }
     if (!clean) S.missed.set(w.id, w);
+    // Achievement counters: kept in a ref like okTotal, so the store update only assigns a finished object.
+    const before = storeRef.current.stats[w.id], after = { c: 0, w: 0, ...before };
+    clean ? after.c++ : after.w++;
+    S.log.push(clean);
+    if (clean && S.kind === 'words') S.okWords.push(w.de);
+    const c = onAnswer(achC.current, { clean, result: (info && info.result) || (clean ? 'ok' : 'wrong'), kind: S.kind, ex: S.info.ex, fmt: S.info.fmt,
+      lang: S.kind === 'math' ? null : L.code, art: w.art, word: w.de, fixed: isWeak(before) && isLearned(after), now: new Date() });
+    achC.current = c;
+    update(n => { n.ach = { ...(n.ach || NO_ACH), c }; });
     update(n => { const st = { ...(n.stats[w.id] || { c: 0, w: 0 }) }; clean ? st.c++ : st.w++; n.stats = { ...n.stats, [w.id]: st }; });
     if (!clean && S.retry && (S.reins[w.id] || 0) < 2) {
       S.reins[w.id] = (S.reins[w.id] || 0) + 1;
@@ -259,18 +338,21 @@ export default function App() {
     const S = session.current;
     track.sessionEnd('quit');
     if (!S || !S.seen.size) { session.current = null; setView('home'); return; }
-    S.early = true; S.finishedAt = Date.now(); setView('result');
+    S.early = true; S.finishedAt = Date.now(); endRound(S); setView('result');
   }
 
 
   const S = session.current;
   const shown = !lang ? 'lang' : view;
   const counts = Object.fromEntries(courses.map(c => [c.key, dictFor(c.key).words.length]));
-  const withTabs = !isMath && ['home', 'words'].includes(shown);
-  const withTop = withTabs || (isMath && shown === 'home');
+  const withTabs = (isMath ? ['home', 'awards'] : ['home', 'words', 'awards']).includes(shown);
+  const withTop = withTabs;
+  // Achievements earned and not yet opened in the tab.
+  const badge = useMemo(() => visibleAch(achX, A.earned).filter(e => A.earned[e.id] && !A.seen.includes(e.id)).length, [achX, A]);
+  const toAwards = () => { session.current = null; setView('awards'); };
   useEffect(() => { document.title = cur ? `Wordopedia: ${cur.title}` : 'Wordopedia'; }, [cur && cur.title]); // eslint-disable-line
   return (
-    <div className={'wrap' + (withTabs ? '' : ' notabs') + (isMath && shown === 'home' ? ' solo' : '')}>
+    <div className={'wrap' + (withTabs ? '' : ' notabs')}>
       {withTop && (
         <div className="topbar">
           <LangMenu L={L} isMath={isMath} courses={offered} counts={counts} onPick={chooseLang} onRefresh={refreshNow} toast={toast}
@@ -280,19 +362,24 @@ export default function App() {
       {shown === 'lang' && <LangPick courses={offered} counts={counts} onPick={chooseLang} onCheck={checkLangs} toast={toast} />}
       {isMath && shown === 'home' && <MathHome store={store} update={update} toast={toast} onStart={startMath} />}
       {isMath && shown === 'quiz' && S && S.cur && <MathQuiz S={S} onSettle={settle} onNext={next} onQuit={quit} />}
-      {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
+      {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} news={S.news} onAwards={toAwards} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
       {!isMath && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
         verbs={verbs} conjAll={conjAll} conjGroups={conjGroups} conjSel={conjSel} conjCount={conjEligible.length}
-        onStart={() => (dir !== 'conj' ? start() : conjMode === 'table' ? openTable() : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : start(ids))} />}
-      {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} ibase={ibase} picFor={picFor} onClose={() => { track.sessionEnd('done'); setView('home'); }} />}
+        onStart={() => (dir === 'match' ? startMatch() : dir !== 'conj' ? start() : conjMode === 'table' ? openTable() : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : dir === 'match' ? startMatch(ids) : start(ids))} />}
+      {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} hear={hear} ibase={ibase} picFor={picFor} onClose={() => { track.sessionEnd('done'); setView('home'); }} />}
       {!isMath && shown === 'quiz' && S && S.cur && S.kind === 'conj' && <ConjQuiz L={L} S={S} facts={conjAll} mode={conjMode} retry={s.retry} autoSpeak={s.autoSpeak}
-        say={say} abase={abase} ibase={ibase} picFor={picFor} onSettle={settle} onNext={next} onQuit={quit} />}
-      {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} abase={abase} ibase={ibase}
+        say={say} hear={hear} abase={abase} ibase={ibase} picFor={picFor} onSettle={settle} onNext={next} onQuit={quit} />}
+      {!isMath && shown === 'quiz' && S && S.rounds && <MatchQuiz key={S.startedAt} L={L} S={S} settings={s} say={say} hear={hear} abase={abase} ibase={ibase}
+        onSettle={settleWord} onFinish={finishMatch} onQuit={quit} />}
+      {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && !S.rounds && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} hear={hear} abase={abase} ibase={ibase}
         onSettle={settle} onNext={next} onQuit={quit} />}
-      {!isMath && shown === 'result' && S && <Result S={S} item={S.kind === 'conj' ? conjText : null}
-        onAgain={() => (S.kind === 'conj' ? startConj() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
-      {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={say} abase={abase} ibase={ibase} images={images} />}
-      {withTabs && <TabBar view={shown} onView={setView} />}
+      {!isMath && shown === 'result' && S && <Result S={S} item={S.kind === 'conj' ? conjText : null} news={S.news} onAwards={toAwards}
+        onAgain={() => (S.kind === 'conj' ? startConj() : S.rounds ? startMatch() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : S.rounds ? startMatch(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
+      {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={hear} abase={abase} ibase={ibase} images={images} />}
+      {shown === 'awards' && <Awards x={achX} D={{ stats: store.stats, ok: store.okTotal, c: A.c, now: new Date() }} A={A}
+        onSeen={ids => update(n => { const a = n.ach || NO_ACH; n.ach = { ...a, seen: [...new Set([...a.seen, ...ids])] }; })}
+        onRetroDone={() => update(n => { n.ach = { ...(n.ach || NO_ACH), retro: null }; })} onLater={() => setView('home')} />}
+      {withTabs && <TabBar view={shown} isMath={isMath} badge={badge} onView={v => { if (v === 'words') achEvent('words'); setView(v); }} />}
       {party && <Confetti key={party.id} label={`${party.n} верни отговора`} onDone={() => setParty(null)} />}
       {ENV !== 'production' && <div className="envtag" aria-hidden="true">{ENV}</div>}
       <div className={'toast' + (toastMsg ? ' show' : '')} role="status" aria-live="polite">{toastMsg}</div>

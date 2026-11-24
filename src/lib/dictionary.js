@@ -3,6 +3,9 @@ import { joinArt, normApos } from './langs.js';
 
 const split = v => (v || '').split(';').map(x => x.trim()).filter(Boolean);
 export const full = w => joinArt(w.art, w.de);
+// Sort and file a word under its first letter, ignoring the article and signs ("Wer?" -> W, "Äpfel" -> A).
+export const sortKey = w => w.de.replace(/^(jdm\.|etw\.)\s+/i, '').replace(/[^\p{L}\p{N}\s]/gu, '').trim();
+export const letterOf = w => (sortKey(w).normalize('NFD').replace(/[\u0300-\u036f]/g, '')[0] || '#').toUpperCase();
 
 function guessType(L, art, de) {
   if (art) return 'n';

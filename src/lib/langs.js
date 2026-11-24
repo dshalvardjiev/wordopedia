@@ -22,9 +22,24 @@ export const LANGS = {
     code: 'en', name: 'Английски', native: 'English', adj: 'английск', tts: 'en-GB',
     articles: [], quizArticles: [],      // no article exercise for English
     optionalPrefixes: { n: ['the', 'a', 'an'], v: ['to'] }, // "to eat" = "eat", "the dog" = "dog"
+    // "a" or "an" in the matching exercise, from the word; '' for nouns without it (uncountable, plural only).
+    indef: word => indefArticle(word),
     keys: [], capNouns: false, placeholder: 'напр. dog', exampleNoun: 'dog',
   },
 };
+// English indefinite article by sound, approximated from spelling: "an" before a vowel letter, with the usual
+// exceptions (an hour, a unicorn, a one). Nouns that take no "a/an" (milk, money, scissors) are listed: a new
+// uncountable or plural-only English noun must be added to NO_INDEF, or the exercise asks for "a milk".
+const NO_INDEF = new Set(['milk', 'money', 'juice', 'jam', 'ink', 'water', 'bread', 'rice', 'sugar', 'salt', 'butter', 'cheese',
+  'tea', 'coffee', 'honey', 'soup', 'meat', 'snow', 'rain', 'air', 'sand', 'music', 'homework', 'information', 'advice',
+  'furniture', 'luggage', 'news', 'trousers', 'scissors', 'jeans', 'glasses', 'pants', 'shorts', 'clothes', 'pyjamas']);
+function indefArticle(word) {
+  const w = String(word).trim().toLowerCase();
+  if (!w || NO_INDEF.has(w)) return '';
+  if (/^(hour|honest|honou?r|heir)/.test(w)) return 'an';
+  if (/^(uni|use|usu|eu|ewe|one|once)/.test(w)) return 'a';
+  return /^[aeiou]/.test(w) ? 'an' : 'a';
+}
 export const LANG_ORDER = ['de', 'fr', 'en'];
 
 // "l'" joins without a space: l'eau; other articles take one: der Affe, le chat.

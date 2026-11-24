@@ -30,6 +30,9 @@ const paths = {
   chevron: <path d="M6 9l6 6 6-6" />,
   speaker: <><path d="M11 5 6 9H3v6h3l5 4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M18.5 5.5a9 9 0 0 1 0 13" /></>,
   search: <><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5" /></>,
+  medal: <><path d="M8 3h8l-2 6h-4zM9 3l3 6M15 3l-3 6" /><circle cx="12" cy="15" r="5.5" /><path d="M12 12.5v5" /></>,
+  back: <path d="M15 6l-6 6 6 6" />,
+  next: <path d="M9 6l6 6-6 6" />,
 };
 // "Слушане": replays the word. Large enough for a child's tap; placed at the right of the word or the answer box.
 export const Spk = ({ onClick }) => (
