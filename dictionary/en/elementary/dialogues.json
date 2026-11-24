@@ -4,7 +4,7 @@
   "jack": { "name": "Jack", "img": "boy" },
   "grandma": { "name": "Grandma", "img": "old-woman" },
   "mum": { "name": "Mum", "img": "woman" },
-  "baker": { "name": "Baker", "img": "cook" },
+  "baker": { "name": "The baker", "img": "cook" },
   "teacher": { "name": "Mrs Brown", "img": "teacher" }
  },
  "dialogues": [
@@ -22,7 +22,7 @@
    { "who": "grandma", "text": "I'm very well, thanks.", "bg": "Много съм добре, благодаря." }
   ] },
   { "id": "bakery", "title": "В пекарната", "img": "cupcake", "lines": [
-   { "who": "baker", "text": "Hello! What would you like?", "bg": "Здравей! Какво ще желаеш?" },
+   { "who": "baker", "text": "Hello! What would you like?", "bg": "Добър ден! Какво ще желаеш?" },
    { "who": "emma", "text": "Two muffins, please.", "bg": "Два мъфина, моля." },
    { "who": "baker", "text": "Here you are. Anything else?", "bg": "Заповядай. Нещо друго?" },
    { "who": "emma", "text": "No, thank you. How much is it?", "bg": "Не, благодаря. Колко струва?" },
@@ -51,7 +51,7 @@
   ] },
   { "id": "birthday", "title": "Рожден ден", "img": "gift", "lines": [
    { "who": "jack", "text": "Happy birthday, Emma!", "bg": "Честит рожден ден, Ема!" },
-   { "who": "emma", "text": "Thank you, Jack!", "bg": "Благодаря, Джак!" },
+   { "who": "emma", "text": "Thank you, Jack! I'm nine today!", "bg": "Благодаря, Джак! Днес ставам на девет!" },
    { "who": "jack", "text": "Here is a present for you.", "bg": "Ето един подарък за теб." },
    { "who": "emma", "text": "Oh, a book! Great, thank you very much!", "bg": "О, книга! Супер, много благодаря!" },
    { "who": "jack", "text": "You're welcome!", "bg": "Няма защо!" }
@@ -60,7 +60,7 @@
    { "who": "emma", "text": "Have you got a pet?", "bg": "Имаш ли домашен любимец?" },
    { "who": "jack", "text": "Yes, I've got a cat.", "bg": "Да, имам котка." },
    { "who": "emma", "text": "What's your cat's name?", "bg": "Как се казва котката ти?" },
-   { "who": "jack", "text": "Her name is Kitty. She's black and small.", "bg": "Казва се Кити. Черна е и малка." },
+   { "who": "jack", "text": "Her name is Kitty. She's small and black.", "bg": "Казва се Кити. Малка е и черна." },
    { "who": "emma", "text": "How cute! I love cats.", "bg": "Колко сладко! Обожавам котки." }
   ] }
  ]

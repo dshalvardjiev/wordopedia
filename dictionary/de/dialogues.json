@@ -51,7 +51,7 @@
   ] },
   { "id": "geburtstag", "title": "Рожден ден", "img": "gift", "lines": [
    { "who": "ben", "text": "Alles Gute zum Geburtstag, Anna!", "bg": "Честит рожден ден, Анна!" },
-   { "who": "anna", "text": "Danke, Ben!", "bg": "Благодаря, Бен!" },
+   { "who": "anna", "text": "Danke, Ben! Heute werde ich neun.", "bg": "Благодаря, Бен! Днес ставам на девет." },
    { "who": "ben", "text": "Hier ist ein Geschenk für dich.", "bg": "Ето един подарък за теб." },
    { "who": "anna", "text": "Oh, ein Buch! Toll, vielen Dank!", "bg": "О, книга! Супер, много благодаря!" },
    { "who": "ben", "text": "Gern geschehen!", "bg": "Няма защо!" }

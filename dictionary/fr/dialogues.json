@@ -16,8 +16,8 @@
    { "who": "lea", "text": "Moi aussi, j'ai huit ans !", "bg": "И аз съм на осем години!" }
   ] },
   { "id": "ca-va", "title": "Как си?", "img": "smile", "lines": [
-   { "who": "hugo", "text": "Bonjour, Mamie !", "bg": "Добро утро, бабо!" },
-   { "who": "mamie", "text": "Bonjour, mon chéri ! Comment ça va ?", "bg": "Добро утро, миличък! Как си?" },
+   { "who": "hugo", "text": "Bonjour, Mamie !", "bg": "Здравей, бабо!" },
+   { "who": "mamie", "text": "Bonjour, mon chéri ! Comment ça va ?", "bg": "Здравей, миличък! Как си?" },
    { "who": "hugo", "text": "Ça va bien, merci. Et toi ?", "bg": "Добре съм, благодаря. А ти?" },
    { "who": "mamie", "text": "Très bien, merci !", "bg": "Много добре, благодаря!" }
   ] },
@@ -30,7 +30,7 @@
    { "who": "lea", "text": "Merci ! Au revoir, madame !", "bg": "Благодаря! Довиждане, госпожо!" }
   ] },
   { "id": "ecole", "title": "В училище", "img": "school", "lines": [
-   { "who": "maitresse", "text": "Bonjour, Hugo ! Où est ton livre ?", "bg": "Добро утро, Юго! Къде ти е книгата?" },
+   { "who": "maitresse", "text": "Bonjour, Hugo ! Où est ton livre ?", "bg": "Добър ден, Юго! Къде ти е книгата?" },
    { "who": "hugo", "text": "Pardon, madame. Mon livre est à la maison.", "bg": "Извинете, госпожо. Книгата ми е вкъщи." },
    { "who": "maitresse", "text": "Ce n'est pas grave. Voilà un livre pour toi.", "bg": "Няма нищо. Ето една книга за теб." },
    { "who": "hugo", "text": "Merci beaucoup, madame !", "bg": "Много благодаря, госпожо!" }
@@ -51,7 +51,7 @@
   ] },
   { "id": "anniversaire", "title": "Рожден ден", "img": "gift", "lines": [
    { "who": "hugo", "text": "Joyeux anniversaire, Léa !", "bg": "Честит рожден ден, Леа!" },
-   { "who": "lea", "text": "Merci, Hugo !", "bg": "Благодаря, Юго!" },
+   { "who": "lea", "text": "Merci, Hugo ! Aujourd'hui, j'ai neuf ans !", "bg": "Благодаря, Юго! Днес ставам на девет!" },
    { "who": "hugo", "text": "Voilà un cadeau pour toi.", "bg": "Ето един подарък за теб." },
    { "who": "lea", "text": "Oh, un livre ! Super, merci beaucoup !", "bg": "О, книга! Супер, много благодаря!" },
    { "who": "hugo", "text": "De rien !", "bg": "Няма защо!" }
