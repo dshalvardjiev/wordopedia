@@ -1,6 +1,7 @@
 // Usage tracking (see docs/tracking.md): events go into a queue in localStorage and are sent in batches to the
 // events Worker. Nothing here touches React state, so tracking never re-renders a quiz (phone keyboards stay open).
-// Sent: random ids, course, exercise, word ids, results, timings. Never: the instance, names, typed text.
+// Sent: random ids, course, exercise, word ids, results, timings, sections opened, achievements earned.
+// Never: the instance, names, typed text.
 import { INSTANCE, ENV } from './content.js';
 
 const QKEY = `wordopedia.${INSTANCE}.q`;      // queue of unsent events
@@ -18,6 +19,7 @@ const TAB = (() => { try { let t = sessionStorage.getItem('wordopedia.tab'); if 
 
 let cfg = { on: false, url: '' };
 let active = null;        // { sess, course, ex, fmt, size, n, secs, visibleSince }
+let section = null;       // { section, course, secs, visibleSince }: the Думи or Награди tab on screen
 let timer = 0, inflight = false, again = false, started = false, opened = false;
 
 function device() { let d = read(DKEY, null); if (!d) { d = uid(); write(DKEY, d); } return d; }
@@ -91,7 +93,10 @@ function startTimer() {
 }
 const meta = () => ({ course: active.course, sess: active.sess, ex: active.ex, fmt: active.fmt });
 
+// Seconds a section has been on screen; a section left in the background stops counting.
+const sectionSecs = () => Math.round(section.secs + (section.visibleSince ? (Date.now() - section.visibleSince) / 1000 : 0));
 function onVisibility() {
+  if (section) { if (visible()) section.visibleSince = Date.now(); else { section.secs = sectionSecs(); section.visibleSince = 0; } }
   if (!active) { if (!visible()) flush(); return; }
   if (visible()) { active.visibleSince = Date.now(); startTimer(); }
   else { active.secs = secsNow(); active.visibleSince = 0; stopTimer(); save(); flush(); }
@@ -104,11 +109,11 @@ export function configure({ on, url }) {
   const was = cfg.on;
   cfg = { on: !!(on && url), url: url || '' };
   // Switched off: forget everything, including the device id, so switching on again starts as a new device.
-  if (was && !cfg.on) { write(QKEY, null); write(AKEY, null); write(DKEY, null); active = null; stopTimer(); }
+  if (was && !cfg.on) { write(QKEY, null); write(AKEY, null); write(DKEY, null); active = null; section = null; stopTimer(); }
   if (cfg.on && !started) {
     started = true;
     document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('pagehide', () => { if (active) { active.secs = secsNow(); active.visibleSince = 0; save(); } flush(); });
+    window.addEventListener('pagehide', () => { if (active) { active.secs = secsNow(); active.visibleSince = 0; save(); } sectionClose(); flush(); });
     window.addEventListener('online', () => flush());
     // Sessions still marked as running from an earlier page load: the app was closed or reloaded during them.
     sweep();
@@ -123,12 +128,13 @@ export function appOpened(course) {
   flush();
 }
 
-export function sessionStart({ course, ex, fmt, size }) {
+// rounds: boards of the matching exercise.
+export function sessionStart({ course, ex, fmt, size, rounds }) {
   if (!cfg.on) return;
   if (active) sessionEnd('quit');
   sweep();
   active = { sess: uid(), course, ex, fmt, size, n: 0, secs: 0, visibleSince: visible() ? Date.now() : 0 };
-  push('session_start', { ...meta(), size });
+  push('session_start', { ...meta(), size, ...(rounds ? { rounds } : {}) });
   save(); startTimer();
 }
 
@@ -139,9 +145,39 @@ export function answer({ word, first, result, ms, pick }) {
   save();
 }
 
-export function sessionEnd(status) {
+// score: {score, max_score}, the points of a matching session (of the words finished when it was stopped).
+export function sessionEnd(status, score) {
   if (!cfg.on || !active) return;
-  push('session_end', { ...meta(), n: active.n, size: active.size, secs: secsNow(), status });
+  push('session_end', { ...meta(), n: active.n, size: active.size, secs: secsNow(), status, ...(score || {}) });
   forget(active.sess); active = null; stopTimer();
+  flush();
+}
+
+// ----- sections and achievements (outside exercises) -----
+// A section on screen: 'words' (Думи) or 'awards' (Награди). One event when it is left (or the page closes), with the
+// seconds it was visible. Opening the same section again while it is shown changes nothing.
+export function sectionOpen(name, course) {
+  if (!cfg.on) return;
+  if (section && section.section === name && section.course === course) return;
+  sectionClose();
+  section = { section: name, course, secs: 0, visibleSince: visible() ? Date.now() : 0 };
+}
+export function sectionClose() {
+  if (!section) return;
+  const s = section, secs = sectionSecs();
+  section = null;
+  if (cfg.on) { push('view', { ...(s.course ? { course: s.course } : {}), section: s.section, secs }); flush(); }
+}
+// The detail sheet of one achievement in Награди.
+export function awardOpened(id, course) {
+  if (!cfg.on) return;
+  push('view', { ...(course ? { course } : {}), section: 'award', item: id });
+  flush();
+}
+// Achievements earned: how = 'new' (in a round or by an action) or 'retro' (granted from earlier progress on the first
+// start with achievements); course: the course where it happened, if any.
+export function awards(ids, how, course) {
+  if (!cfg.on || !ids.length) return;
+  ids.forEach(id => push('award', { ...(course ? { course } : {}), item: id, result: how }));
   flush();
 }

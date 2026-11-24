@@ -128,6 +128,8 @@ export default function App() {
     const r = retro(achX, store.stats, okTotal.current), date = new Date().toISOString();
     achC.current = r.c;
     update(n => { if (!n.ach) n.ach = { earned: Object.fromEntries(r.ids.map(id => [id, date])), seen: [], c: r.c, q: [], retro: r.ids.length ? r.ids : null }; });
+    // After this render's effects, so the tracking settings (configured further down) are in place.
+    setTimeout(() => track.awards(r.ids, 'retro'), 0);
   }, [store.ach, achX]); // eslint-disable-line react-hooks/exhaustive-deps
   const grantDate = (a, ids, date) => ({ ...a.earned, ...Object.fromEntries(ids.map(id => [id, date])) });
   // Outside a round (a speaker tap, the Думи tab, the conjugation table): new achievements wait for the next result screen.
@@ -137,6 +139,7 @@ export default function App() {
     achC.current = c;
     const st = storeRef.current, now = new Date();
     const got = grants(achX, { stats: st.stats, ok: okTotal.current, c, now }, (st.ach || NO_ACH).earned);
+    track.awards(got, 'new', course || lang);
     update(n => { const a = n.ach || NO_ACH; n.ach = { ...a, c, earned: grantDate(a, got, now.toISOString()), q: [...a.q.filter(id => !got.includes(id)), ...got] }; });
   }
   // End of a round with at least one answer: counters of the round, then every achievement now met.
@@ -151,6 +154,7 @@ export default function App() {
     const { c, hits } = onRound(achC.current, R, achX);
     achC.current = c;
     const got = grants(achX, { stats: st.stats, ok: okTotal.current, c, now: end }, a0.earned, hits);
+    track.awards(got, 'new', S.info.course);
     S.news = [...a0.q.filter(id => !a0.seen.includes(id) && !got.includes(id)), ...got].map(id => BY_ID[id]).filter(Boolean);
     update(n => { const a = n.ach || NO_ACH; n.ach = { ...a, c, q: [], earned: grantDate(a, got, end.toISOString()) }; });
   }
@@ -245,7 +249,7 @@ export default function App() {
   function run(pool, retry, kind, info, extra) {
     session.current = { ...extra, kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0,
       info, weak: !!(extra && extra.weak), log: [], okWords: [] };
-    track.sessionStart({ ...info, size: pool.length });
+    track.sessionStart({ ...info, size: pool.length, rounds: extra && extra.rounds ? extra.rounds.length : 0 });
     // The matching exercise shows whole boards (S.rounds) instead of one question at a time.
     if (!session.current.rounds) next();
     setView('quiz');
@@ -272,6 +276,8 @@ export default function App() {
   }
   // A word of the matching board is finished: settled like a question.
   function settleWord(w, clean, info) { const S = session.current; if (!S) return; S.cur = w; S.maxSeen = (S.maxSeen || 0) + maxPoints(L, [w]); settle(clean, info); S.shownAt = Date.now(); }
+  // Points of a matching session for usage statistics; a stopped one counts the words finished so far.
+  const matchScore = (S, early) => (S.rounds ? { score: Math.max(0, S.points || 0), max_score: early ? S.maxSeen || 0 : S.maxPoints } : undefined);
   function finishMatch() { const S = session.current; if (!S || S.finishedAt) return; S.queue = []; next(); }
   // Conjugation: the given questions (missed or often confused ones), or the chosen verb group.
   function startConj(ids) {
@@ -296,7 +302,7 @@ export default function App() {
     const S = session.current;
     if (!S) return;
     if (!S.queue.length) {
-      S.finishedAt = Date.now(); track.sessionEnd('done'); endRound(S);
+      S.finishedAt = Date.now(); track.sessionEnd('done', matchScore(S, false)); endRound(S);
       // A round without a single mistake gets its own celebration on the result screen; it replaces a milestone label.
       if (isPerfect(S)) setParty(null);
       setView('result'); setTick(t => t + 1); return;
@@ -336,7 +342,7 @@ export default function App() {
   }
   function quit() {
     const S = session.current;
-    track.sessionEnd('quit');
+    track.sessionEnd('quit', S && matchScore(S, true));
     if (!S || !S.seen.size) { session.current = null; setView('home'); return; }
     S.early = true; S.finishedAt = Date.now(); endRound(S); setView('result');
   }
@@ -350,6 +356,8 @@ export default function App() {
   // Achievements earned and not yet opened in the tab.
   const badge = useMemo(() => visibleAch(achX, A.earned).filter(e => A.earned[e.id] && !A.seen.includes(e.id)).length, [achX, A]);
   const toAwards = () => { session.current = null; setView('awards'); };
+  // Usage statistics: time spent in the Думи and Награди tabs.
+  useEffect(() => { if (shown === 'words' || shown === 'awards') track.sectionOpen(shown, lang); else track.sectionClose(); }, [shown, lang]);
   useEffect(() => { document.title = cur ? `Wordopedia: ${cur.title}` : 'Wordopedia'; }, [cur && cur.title]); // eslint-disable-line
   return (
     <div className={'wrap' + (withTabs ? '' : ' notabs')}>
@@ -376,7 +384,7 @@ export default function App() {
       {!isMath && shown === 'result' && S && <Result S={S} item={S.kind === 'conj' ? conjText : null} news={S.news} onAwards={toAwards}
         onAgain={() => (S.kind === 'conj' ? startConj() : S.rounds ? startMatch() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : S.rounds ? startMatch(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
       {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={hear} abase={abase} ibase={ibase} images={images} />}
-      {shown === 'awards' && <Awards x={achX} D={{ stats: store.stats, ok: store.okTotal, c: A.c, now: new Date() }} A={A}
+      {shown === 'awards' && <Awards x={achX} D={{ stats: store.stats, ok: store.okTotal, c: A.c, now: new Date() }} A={A} onDetail={id => track.awardOpened(id, lang)}
         onSeen={ids => update(n => { const a = n.ach || NO_ACH; n.ach = { ...a, seen: [...new Set([...a.seen, ...ids])] }; })}
         onRetroDone={() => update(n => { n.ach = { ...(n.ach || NO_ACH), retro: null }; })} onLater={() => setView('home')} />}
       {withTabs && <TabBar view={shown} isMath={isMath} badge={badge} onView={v => { if (v === 'words') achEvent('words'); setView(v); }} />}

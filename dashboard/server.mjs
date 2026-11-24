@@ -12,6 +12,8 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { parseFilter, reportQueries, deviceQueries, sessionsQueries, sessionQueries } from './queries.mjs';
+// Achievement names and symbols from the app's catalogue (pure module, no browser needed).
+import { BY_ID } from '../src/lib/ach.js';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const LOCAL = process.argv.includes('--local');
@@ -90,6 +92,7 @@ async function run(route, query) {
   if (out.tiles) out.tiles = out.tiles[0] || {};
   if (out.freshness) out.freshness = out.freshness[0] || {};
   if (out.end) out.end = out.end[0] || null;
+  if (out.awards) out.awards = out.awards.map(a => ({ ...a, name: (BY_ID[a.item] || {}).name || a.item, emoji: (BY_ID[a.item] || {}).emoji || '' }));
   return out;
 }
 

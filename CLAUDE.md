@@ -82,8 +82,9 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
 - Conjugation progress id = `<courseKey>:conj:<verb>:<column>` (e.g. `fr:conj:être:nous`); sessions carry `kind`
   (`words` | `conj`). The verb group is `setByLang['<courseKey>:conj']`; the format is `settings.conjMode`.
 - Learners must not be able to add or change words, answers or verbs in the app (owner's decision).
-- Usage events: the lists of event kinds, exercises, formats, results and statuses must match between `App.jsx` /
-  `track.js` and `toRow` in `worker/src/index.js` (the Worker drops events it does not know). Never send the instance,
+- Usage events: the lists of event kinds, exercises, formats, results, statuses, sections and award kinds must match
+  between `App.jsx` / `track.js` / `MatchQuiz` and `toRow` in `worker/src/index.js` (the Worker drops events it does not
+  know); a new event field also needs a column (new migration), `COLUMNS` and `KEEP` in the Worker. Never send the instance,
   names or typed text. `track.js` must not touch React state. `worker/migrations/` is append-only once applied. `images.js`: word pictures (`parseImages` is pure, also used by `check-content.mjs`).
 
 ## Pitfalls already hit

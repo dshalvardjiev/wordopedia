@@ -136,7 +136,8 @@ function Retro({ ids, onGo, onLater }) {
 
 // ----- the tab -----
 // x: the device's courses (achContext), D: {stats, ok, c, now}, A: store.ach.
-export default function Awards({ x, D, A, onSeen, onRetroDone, onLater }) {
+// onDetail: an achievement's detail sheet was opened (usage statistics).
+export default function Awards({ x, D, A, onSeen, onRetroDone, onLater, onDetail = () => {} }) {
   const earned = A.earned;
   const vis = useMemo(() => visibleAch(x, earned), [x, earned]);
   // Earned and not opened before: marked "Нова" during this visit, then counted as seen.
@@ -171,7 +172,7 @@ export default function Awards({ x, D, A, onSeen, onRetroDone, onLater }) {
               const on = !!earned[e.id], secret = secretLocked(e, earned), p = !on && !secret ? progress(e, x, D) : null;
               const status = on ? `получена на ${fmtDay(earned[e.id])}` : secret ? 'тайна' : p && p.b > 1 ? progText(p) : 'неполучена';
               return (
-                <button key={e.id} className="ach-tile" onClick={() => setOpen(e)} aria-label={`${nameOf(e, earned)}, ${status}${fresh.has(e.id) ? ', нова' : ''}`}>
+                <button key={e.id} className="ach-tile" onClick={() => { setOpen(e); onDetail(e.id); }} aria-label={`${nameOf(e, earned)}, ${status}${fresh.has(e.id) ? ', нова' : ''}`}>
                   {fresh.has(e.id) && <span className="ach-pill ach-corner" aria-hidden="true">Нова</span>}
                   <AchMedal e={e} on={on} size={64} />
                   <span className="ach-name">{nameOf(e, earned)}</span>
@@ -212,7 +213,7 @@ export default function Awards({ x, D, A, onSeen, onRetroDone, onLater }) {
         <h2>Най-близо до получаване</h2>
         <div className="ach-near">
           {near.map(({ e, p }) => (
-            <button key={e.id} className="ach-card" onClick={() => setOpen(e)} aria-label={`${e.name}, ${TIERS[e.tier].name}, ${progText(p)}`}>
+            <button key={e.id} className="ach-card" onClick={() => { setOpen(e); onDetail(e.id); }} aria-label={`${e.name}, ${TIERS[e.tier].name}, ${progText(p)}`}>
               <AchMedal e={e} on={false} size={44} />
               <span className="ach-txt">
                 <span className="ach-row"><b>{e.name}</b><span className="ach-tiername">{TIERS[e.tier].name}</span></span>

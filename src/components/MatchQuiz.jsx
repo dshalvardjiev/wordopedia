@@ -40,12 +40,14 @@ export default function MatchQuiz({ L, S, settings, say, hear, abase, ibase, onS
   function score(d) { setPoints(p => { const n = p + d; S.points = n; return n; }); }
   const shown = Math.max(0, points);
   function complete(w) {
-    const pick = miss.current.pair.get(w.id) || miss.current.art.get(w.id);
+    const pair = miss.current.pair.get(w.id), art = miss.current.art.get(w.id), pick = pair || art;
     const clean = !pick;
+    // For usage statistics: which step went wrong (a wrong pair, a wrong article, or both).
+    const result = clean ? 'ok' : pair && art ? 'both' : pair ? 'pair' : 'art';
     const nd = new Set(done).add(w.id);
     setDone(nd); setArtFor(null); setArtBad('');
     if (!clean) setRed(s => new Set(s).add(w.id));
-    onSettle(w, clean, { result: clean ? 'ok' : 'wrong', pick });
+    onSettle(w, clean, { result, pick });
     if (settings.autoSpeak) say(doneText(L, w));
     if (nd.size === board.length) {
       if (r + 1 < S.rounds.length) setBetween(true);

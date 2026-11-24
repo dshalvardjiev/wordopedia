@@ -24,6 +24,8 @@ function scope(f) {
   return c.join(' AND ');
 }
 const where = f => `${scope(f)} AND ts >= ${f.since}`;
+// Sections and achievements happen outside exercises: only the course and the period filter them.
+const outside = f => `${f.course ? `course = '${f.course}'` : '1 = 1'} AND ts >= ${f.since}`;
 
 export function reportQueries(f) {
   const W = where(f), S = scope(f);
@@ -112,6 +114,44 @@ export function reportQueries(f) {
     confusions: `SELECT course, ex, word, pick, COUNT(*) AS times, COUNT(DISTINCT dev) AS learners
       FROM v_events WHERE ${W} AND kind = 'answer' AND pick IS NOT NULL
       GROUP BY course, ex, word, pick ORDER BY times DESC, word LIMIT 12`,
+
+    // The Думи and Награди tabs (same as v_sections): visits, learners, time on screen.
+    sections: `SELECT course, section, COUNT(*) AS visits, COUNT(DISTINCT dev) AS learners,
+        ROUND(AVG(secs)) AS avg_secs, COALESCE(SUM(secs), 0) AS total_secs
+      FROM v_events WHERE ${outside(f)} AND kind = 'view' AND section IN ('words', 'awards')
+      GROUP BY course, section ORDER BY visits DESC`,
+
+    // Achievements (same as v_awards): earned in use or granted from earlier progress, detail sheets opened.
+    awards: `WITH got AS (
+        SELECT item, SUM(result = 'new') AS earned, SUM(result = 'retro') AS retro, COUNT(DISTINCT dev) AS learners
+        FROM v_events WHERE ${outside(f)} AND kind = 'award' GROUP BY item
+      ), opened AS (
+        SELECT item, COUNT(*) AS opened FROM v_events WHERE ${outside(f)} AND kind = 'view' AND section = 'award' GROUP BY item
+      )
+      SELECT k.item, COALESCE(g.earned, 0) AS earned, COALESCE(g.retro, 0) AS retro, COALESCE(g.learners, 0) AS learners,
+             COALESCE(o.opened, 0) AS opened
+      FROM (SELECT item FROM got UNION SELECT item FROM opened) k
+      LEFT JOIN got g ON g.item = k.item LEFT JOIN opened o ON o.item = k.item
+      ORDER BY earned + retro DESC, opened DESC LIMIT 20`,
+
+    // The matching exercise (same as v_match): boards, points, which step went wrong.
+    match: `WITH st AS (
+        SELECT course, COUNT(*) AS started, ROUND(AVG(rounds), 1) AS avg_rounds FROM v_events
+        WHERE ${outside(f)} AND kind = 'session_start' AND ex = 'match' GROUP BY course
+      ), en AS (
+        SELECT course, SUM(status = 'done') AS finished, SUM(score) AS score, SUM(max_score) AS max_score
+        FROM v_session_ends WHERE ${outside(f)} AND ex = 'match' GROUP BY course
+      ), an AS (
+        SELECT course, COUNT(*) AS words, SUM(result = 'ok') AS clean, SUM(result = 'pair') AS pair_only,
+               SUM(result = 'art') AS art_only, SUM(result = 'both') AS both
+        FROM v_events WHERE ${outside(f)} AND kind = 'answer' AND ex = 'match' GROUP BY course
+      )
+      SELECT st.course, st.started, st.avg_rounds, COALESCE(en.finished, 0) AS finished,
+             COALESCE(en.score, 0) AS score, COALESCE(en.max_score, 0) AS max_score,
+             COALESCE(an.words, 0) AS words, COALESCE(an.clean, 0) AS clean, COALESCE(an.pair_only, 0) AS pair_only,
+             COALESCE(an.art_only, 0) AS art_only, COALESCE(an.both, 0) AS both
+      FROM st LEFT JOIN en ON en.course = st.course LEFT JOIN an ON an.course = st.course
+      ORDER BY st.started DESC`,
   };
 }
 
@@ -166,9 +206,9 @@ export function sessionsQueries(f, dev) {
 export function sessionQueries(id) {
   if (!validId(id)) return null;
   return {
-    events: `SELECT kind, ts, dev, course, ex, fmt, size, word, first, result, ms, pick, n, secs, status
+    events: `SELECT kind, ts, dev, course, ex, fmt, size, word, first, result, ms, pick, n, secs, status, score, max_score, rounds
       FROM v_events WHERE sess = '${id}'
       ORDER BY ts, CASE kind WHEN 'session_start' THEN 0 WHEN 'session_end' THEN 2 ELSE 1 END`,
-    end: `SELECT status, n, secs, ts FROM v_session_ends WHERE sess = '${id}'`,
+    end: `SELECT status, n, secs, ts, score, max_score FROM v_session_ends WHERE sess = '${id}'`,
   };
 }

@@ -3,10 +3,15 @@
 // GET  /health "ok", for smoke tests
 // Monthly cron: first-answer totals of events older than 12 months go to word_summary, then those events are deleted.
 
-const KINDS = new Set(['open', 'session_start', 'answer', 'session_end', 'tick']);
+const KINDS = new Set(['open', 'session_start', 'answer', 'session_end', 'tick', 'view', 'award']);
+const SESSION_KINDS = new Set(['session_start', 'answer', 'session_end', 'tick']);
 const EXERCISES = new Set(['x-bg', 'bg-x', 'art', 'conj', 'conj-table', 'match', 'math']);
 const FORMATS = new Set(['test', 'open', 'table']);
-const RESULTS = new Set(['ok', 'typo', 'wrong', 'hint', 'shown', 'time']);
+// Answers; the matching exercise tells a wrong pair, a wrong article or both apart.
+const RESULTS = new Set(['ok', 'typo', 'wrong', 'hint', 'shown', 'time', 'pair', 'art', 'both']);
+const AWARD_HOW = new Set(['new', 'retro']);         // award: earned now, or granted from earlier progress
+const SECTIONS = new Set(['words', 'awards', 'award']); // view: Думи tab, Награди tab, one achievement's detail sheet
+const ITEM = /^[a-z0-9-]{1,40}$/;                    // achievement id
 const STATUSES = new Set(['done', 'quit', 'abandoned']);
 const ENVS = new Set(['production', 'staging', 'development']);
 const ID = /^[0-9a-z-]{8,40}$/i;
@@ -16,7 +21,17 @@ const MAX_EVENTS = 200;
 const DAY = 864e5;
 const RETENTION = 365 * DAY;
 export const COLUMNS = ['id', 'ts', 'rx', 'dev', 'ver', 'env', 'course', 'kind', 'sess', 'ex', 'fmt', 'word', 'first',
-  'result', 'ms', 'pick', 'n', 'size', 'secs', 'status'];
+  'result', 'ms', 'pick', 'n', 'size', 'secs', 'status', 'section', 'item', 'score', 'max_score', 'rounds'];
+// Fields beyond the common ones (id, ts, rx, dev, ver, env, course, kind) that each kind keeps; the rest are emptied.
+const KEEP = {
+  open: [],
+  session_start: ['sess', 'ex', 'fmt', 'n', 'size', 'secs', 'status', 'rounds'],
+  answer: ['sess', 'ex', 'fmt', 'word', 'first', 'result', 'ms', 'pick', 'n', 'size', 'secs', 'status'],
+  session_end: ['sess', 'ex', 'fmt', 'n', 'size', 'secs', 'status', 'score', 'max_score'],
+  tick: ['sess', 'ex', 'fmt', 'n', 'size', 'secs', 'status'],
+  view: ['section', 'item', 'secs'],
+  award: ['item', 'result'],
+};
 
 const str = (v, max) => (typeof v === 'string' && v.length > 0 && v.length <= max ? v : null);
 const int = (v, lo, hi) => (Number.isInteger(v) && v >= lo && v <= hi ? v : null);
@@ -42,14 +57,18 @@ export function toRow(e, now, offset = 0) {
     sess: typeof e.sess === 'string' && ID.test(e.sess) ? e.sess : null,
     ex: oneOf(e.ex, EXERCISES), fmt: oneOf(e.fmt, FORMATS),
     word: str(e.word, 160), first: e.first === 1 || e.first === true ? 1 : e.first === 0 || e.first === false ? 0 : null,
-    result: oneOf(e.result, RESULTS), ms: int(e.ms, 0, 36e5), pick: str(e.pick, 160),
+    result: oneOf(e.result, kind === 'award' ? AWARD_HOW : RESULTS), ms: int(e.ms, 0, 36e5), pick: str(e.pick, 160),
     n: int(e.n, 0, 1e4), size: int(e.size, 0, 1e4), secs: int(e.secs, 0, 86400), status: oneOf(e.status, STATUSES),
+    section: oneOf(e.section, SECTIONS), item: typeof e.item === 'string' && ITEM.test(e.item) ? e.item : null,
+    score: int(e.score, 0, 1e4), max_score: int(e.max_score, 0, 1e4), rounds: int(e.rounds, 1, 100),
   };
   // Required per kind.
-  if (kind !== 'open' && (!row.sess || !row.course || !row.ex || !row.fmt)) return null;
+  if (SESSION_KINDS.has(kind) && (!row.sess || !row.course || !row.ex || !row.fmt)) return null;
+  if (kind === 'view' && !row.section) return null;
+  if (kind === 'award' && (!row.item || !row.result)) return null;
   if (kind === 'answer' && (!row.word || row.first === null || !row.result)) return null;
   if (kind === 'session_end' && !row.status) return null;
-  if (kind !== 'answer') { row.word = row.first = row.result = row.ms = row.pick = null; }
+  for (const c of COLUMNS.slice(8)) if (!KEEP[kind].includes(c)) row[c] = null;
   return row;
 }
 

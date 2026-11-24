@@ -6,6 +6,8 @@ Status: live since 2026-11-21. Worker: `https://wordopedia-events.code-runners-a
 ## Goals
 1. Word difficulty across all learners of a course.
 2. Usability of exercises: which are chosen, which are dropped early, which are finished.
+3. Use of the sections outside exercises (Думи, Награди) and of the achievements; how the matching exercise goes
+   (boards, points, which step goes wrong).
 
 Reports are aggregated per course (`de`, `en-elementary`, `en-basic`, `math`). Nothing is reported per instance or per
 learner.
@@ -65,11 +67,16 @@ per database.
 |---|---|---|
 | `open` | app opened | |
 | `session_start` | exercise started | exercise, format, list size |
-| `answer` | every answer (matching exercise: every finished word of a board) | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`, `time`: maths time limit ran out), response ms, wrong option picked (choice exercises; with repeated tries, the first wrong one) |
+| `session_start` (matching) | | also boards (`rounds`) |
+| `answer` | every answer (matching exercise: every finished word of a board) | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`, `time`: maths time limit ran out; matching: `pair` wrong pair, `art` wrong article, `both`), response ms (matching: since the previous finished word), wrong option picked (choice exercises; with repeated tries, the first wrong one; matching: the first wrong translation, else the wrong article) |
 | `session_end` | finished, quit, or detected abandoned | answers given, size, status |
 | `tick` | every minute of a session | answers so far, active seconds |
+| `session_end` (matching) | | also points and highest possible points (`score`, `max_score`; when stopped, of the words finished) |
+| `view` | the Думи or Награди tab is left (or the app is closed); an achievement's detail sheet is opened | section (`words`, `awards`, `award`), seconds on screen (tabs; time in the background does not count), achievement id (`award`) |
+| `award` | an achievement is earned | achievement id, `new` (while practising or by an action) or `retro` (granted from earlier progress on the first start with achievements) |
 
-Common fields: event id, client time, device id, app version, environment, course, session id.
+Common fields: event id, client time, device id, app version, environment, course, session id (exercise events only).
+`view` and `award` have no session; their course is the course open at the time (none for `retro` awards).
 Never sent: instance id, names, typed free text, IP.
 
 ## 3. Worker (`worker/`)
@@ -91,6 +98,11 @@ Never sent: instance id, names, typed free text, IP.
   - `v_confusions`: per course and word; wrong options picked.
   - `v_exercise_usage`: per course, exercise, format; sessions started and finished, abandoned within 3 answers,
     median and active time, use of hints and "Показване на отговора".
+  - `v_sections`: per course and section (Думи, Награди); visits, learners, average and total time on screen.
+  - `v_awards`: per achievement; times earned while practising and granted from earlier progress, learners, detail
+    sheets opened.
+  - `v_match`: matching exercise per course; sessions, average boards, finished, points share, words without a mistake
+    and with a wrong pair, a wrong article or both.
   - Rows below a minimum number of attempts (for example 10) are hidden.
 - Retention: a monthly Cron Trigger adds raw events older than 12 months to a per-word summary table, then deletes them.
 - Backups: D1 Time Travel (7 days on the Free plan). Exports must never be committed to this public repository.
@@ -121,7 +133,7 @@ Taken as defaults on 2026-11-21 (the owner did not choose otherwise); each can b
 ## 8. Operations
 - Reports: Cloudflare dashboard > Storage & Databases > D1 > `wordopedia-events` > Console, for example
   `SELECT * FROM v_word_difficulty WHERE course = 'de' LIMIT 30;`. Views: `v_word_difficulty` (10+ first answers),
-  `v_word_stats` (all words), `v_confusions`, `v_exercise_usage`, `v_activity`.
+  `v_word_stats` (all words), `v_confusions`, `v_exercise_usage`, `v_activity`, `v_sections`, `v_awards`, `v_match`.
   From a terminal: `cd worker && npx wrangler d1 execute wordopedia-events --remote --command "..."`.
 - Pause everywhere without a release: `"tracking": {"enabled": false}` in `dictionary/languages.json`, or
   `ACCEPT = "false"` in `worker/wrangler.toml` (batches are then accepted and dropped).
@@ -149,8 +161,10 @@ localhost. `npm run dashboard:local` reads the database of `wrangler dev` in `wo
 
 Overview tab: learners, sessions, active time, finished share, right-first-time share; sessions per day; exercises
 (how sessions ended, dropped within 3 answers, active time, help used, idle minutes); hardest words (adjusted
-first-answer error rate, with a minimum number of first answers); most frequent wrong picks. Every chart has a table
-view.
+first-answer error rate, with a minimum number of first answers); most frequent wrong picks; matching (boards, points,
+which step went wrong); achievements (earned, granted from earlier progress, sheets opened; names from
+`src/lib/ach.js`); sections (Думи and Награди: visits, time). Sections and achievements are filtered by period and
+course only. Every chart has a table view. A matching session's replay also shows its boards and points.
 
 Sessions tab (owner's request, 2026-11-21): devices by their random id (names can be given; they are kept only in that
 browser's localStorage), the sessions of the chosen device, and a replay of one session: its answers on a time line

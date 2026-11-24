@@ -151,6 +151,11 @@
       <section class="card" id="c-words"></section>
       <section class="card" id="c-conf"></section>
     </div>
+    <section class="card" id="c-match"></section>
+    <div class="grid2">
+      <section class="card" id="c-awards"></section>
+      <section class="card" id="c-sections"></section>
+    </div>
   </div>
 
   <div id="tab-sessions" role="tabpanel" aria-labelledby="t-sessions" hidden>
@@ -394,6 +399,41 @@ function renderConfusions(rows) {
     null, 'No wrong picks in this period.');
 }
 
+// ----- Matching exercise, achievements, sections (Думи and Награди tabs) -----
+const MATCH_PARTS = [['clean', 'No mistake', 'var(--good)'], ['pair_only', 'Wrong pair', 'var(--s2)'], ['art_only', 'Wrong article', 'var(--warning)'], ['both', 'Both', 'var(--critical)']];
+function renderMatch(rows) {
+  const cells = r => {
+    const bar = r.words ? el('div', { class: 'segbar', role: 'img', 'aria-label': MATCH_PARTS.map(([k, n]) => `${n} ${r[k]}`).join(', ') },
+      MATCH_PARTS.filter(([k]) => r[k] > 0).map(([k, , c]) => el('i', { style: `--c:${c};flex:${r[k]} 1 0` })))
+      : el('div', { class: 'segbar none', 'aria-label': 'no words' });
+    if (r.words) hover(bar, courseName(r.course), MATCH_PARTS.map(([k, n]) => [n, `${r[k]} (${pct(r[k], r.words)})`]), MATCH_PARTS.map(([k, n]) => `${n} ${r[k]}`).join(', '));
+    return [courseName(r.course), nf.format(r.started), r.avg_rounds === null ? '–' : String(r.avg_rounds), pct(r.finished, r.started),
+      r.max_score ? `${pct(r.score, r.max_score)} (${nf.format(r.score)} of ${nf.format(r.max_score)})` : '–', bar];
+  };
+  card('#c-match', 'Matching', 'Boards chosen per session, points won (+1 per right pair or article, −1 per mistake), and which step of a word went wrong.',
+    rows.length && (() => el('div', {},
+      el('div', { class: 'legend' }, MATCH_PARTS.map(([, n, c]) => el('span', { style: `--c:${c}` }, n))),
+      tableOf(['Course', 'Sessions', 'Avg. boards', 'Finished', 'Points', 'Words'], rows.map(cells), [1, 2, 3, 4]))),
+    () => tableOf(['Course', 'Sessions', 'Avg. boards', 'Finished', 'Points', 'Max. points', 'Words', 'No mistake', 'Wrong pair', 'Wrong article', 'Both'],
+      rows.map(r => [courseName(r.course), r.started, r.avg_rounds ?? '–', r.finished, r.score, r.max_score, r.words, r.clean, r.pair_only, r.art_only, r.both]),
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+    'No matching sessions in this period.');
+}
+function renderAwards(rows) {
+  card('#c-awards', 'Achievements', 'Earned while practising, granted from earlier progress on the first start with achievements, and detail sheets opened in Награди.',
+    rows.length && (() => tableOf(['Achievement', 'Earned', 'From earlier progress', 'Learners', 'Opened'],
+      rows.map(r => [el('div', {}, `${r.emoji} ${r.name}`, el('div', { class: 'small' }, r.item)), nf.format(r.earned), nf.format(r.retro), nf.format(r.learners), nf.format(r.opened)]), [1, 2, 3, 4])),
+    null, 'No achievements earned or opened in this period.');
+}
+const SECTION_NAMES = { words: 'Думи (vocabulary)', awards: 'Награди (achievements)' };
+function renderSections(rows) {
+  card('#c-sections', 'Sections', 'Visits to the Думи and Награди tabs and the time they were on screen.',
+    rows.length && (() => tableOf(['Section', 'Visits', 'Learners', 'Avg. time', 'Total time'],
+      rows.map(r => [el('div', {}, SECTION_NAMES[r.section] || r.section, el('div', { class: 'small' }, courseName(r.course))), nf.format(r.visits), nf.format(r.learners),
+        r.avg_secs === null ? '–' : dur(r.avg_secs), dur(r.total_secs)]), [1, 2, 3, 4])),
+    null, 'No visits to these sections in this period.');
+}
+
 // ----- Sessions tab: devices, their sessions, a replay of one session -----
 const RESULTS = {
   ok: { label: 'Right', icon: '✓', c: 'var(--good)' },
@@ -402,6 +442,9 @@ const RESULTS = {
   shown: { label: 'Answer shown', icon: '!', c: 'var(--serious)' },
   time: { label: 'Time ran out', icon: '⏱', c: 'var(--critical)' },
   wrong: { label: 'Wrong', icon: '✗', c: 'var(--critical)' },
+  pair: { label: 'Wrong pair', icon: '✗', c: 'var(--critical)' },
+  art: { label: 'Wrong article', icon: '✗', c: 'var(--critical)' },
+  both: { label: 'Wrong pair and article', icon: '✗', c: 'var(--critical)' },
 };
 const STATUS = { done: 'Finished', quit: 'Quit', abandoned: 'App closed' };
 const statusName = s => STATUS[s] || 'Not ended';
@@ -496,7 +539,9 @@ function renderReplay(data) {
   const head = el('div', { class: 'card-head' }, el('div', {},
     el('h2', {}, `${exName(start.ex)}, ${FORMATS[start.fmt] || start.fmt}`),
     el('p', { class: 'sub' }, `${courseName(start.course)} · ${when(t0)} · ${table ? `${start.size} verbs` : `${answers.length} answers of ${start.size} questions`} · ` +
-      `active ${end && end.secs !== null ? dur(end.secs) : '–'} · ${statusName(end && end.status)}`)));
+      `active ${end && end.secs !== null ? dur(end.secs) : '–'} · ${statusName(end && end.status)}` +
+      (start.rounds ? ` · ${start.rounds} ${start.rounds === 1 ? 'board' : 'boards'}` : '') +
+      (end && end.max_score ? ` · ${end.score} of ${end.max_score} points` : ''))));
 
   // Controls
   let elapsed = total, playing = false, speed = 10, last = 0;
@@ -659,6 +704,7 @@ async function load() {
     syncControls(j.meta);
     $('#fresh').textContent = `${j.source === 'local' ? 'Local database' : 'Cloudflare D1'} · ${nf.format(j.freshness.events || 0)} events · ${ago(j.freshness.last_rx)}`;
     renderTiles(j.tiles); renderDaily(j.hourly, j.filter); renderExercises(j.exercises); renderWords(j.words, j.filter); renderConfusions(j.confusions);
+    renderMatch(j.match || []); renderAwards(j.awards || []); renderSections(j.sections || []);
   } catch (e) {
     if (my !== seq) return;
     showProblem(e);
