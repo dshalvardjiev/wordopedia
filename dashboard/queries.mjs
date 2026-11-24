@@ -4,7 +4,7 @@
 // source (wrangler d1 execute) cannot bind parameters.
 
 const COURSE_RE = /^[a-z0-9-]{1,32}$/;
-const EXERCISES = ['x-bg', 'bg-x', 'art', 'conj', 'conj-table', 'math'];
+const EXERCISES = ['x-bg', 'bg-x', 'art', 'conj', 'conj-table', 'match', 'math'];
 const DAY = 864e5;
 
 // { course, ex, days, min } -> validated filter

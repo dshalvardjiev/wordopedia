@@ -27,10 +27,10 @@ function Medal() {
   );
 }
 
-function Ring({ pct }) {
+function Ring({ pct, label }) {
   const r = 64, c = 2 * Math.PI * r;
   return (
-    <div className="ring" role="img" aria-label={`${pct}% верни от първия опит`}>
+    <div className="ring" role="img" aria-label={label || `${pct}% верни от първия опит`}>
       <svg width="148" height="148" viewBox="0 0 148 148">
         <circle cx="74" cy="74" r={r} fill="none" stroke="var(--pen-soft)" strokeWidth="12" />
         <circle cx="74" cy="74" r={r} fill="none" stroke={pct >= 80 ? 'var(--ok)' : 'var(--pen)'} strokeWidth="12" strokeLinecap="round"
@@ -43,7 +43,11 @@ function Ring({ pct }) {
 
 // news: achievements earned in this round (or outside rounds since the last one), listed after the score.
 export default function Result({ S, item, news = [], onAgain, onMissed, onHome, onAwards }) {
-  const answered = S.seen.size, pct = answered ? Math.round(S.firstOk / answered * 100) : 0;
+  const answered = S.seen.size;
+  // Matching exercise: the ring shows the points of the boards played (a stopped round counts its words so far).
+  const ptsMax = S.rounds ? (S.early ? S.maxSeen || 0 : S.maxPoints) : 0;
+  const pts = S.rounds ? { got: Math.max(0, Math.min(S.points || 0, ptsMax)), max: ptsMax } : null;
+  const pct = pts ? (pts.max ? Math.round(pts.got / pts.max * 100) : 0) : answered ? Math.round(S.firstOk / answered * 100) : 0;
   const missed = [...S.missed.values()];
   const perfect = isPerfect(S);
   const [party, setParty] = useState(perfect);
@@ -53,11 +57,12 @@ export default function Result({ S, item, news = [], onAgain, onMissed, onHome, 
         {perfect ? <>
           <Medal />
           <h1>Без нито една грешка</h1>
-          <p className="perfect-sub center">Отличен кръг: {S.total} от {S.total} верни от първия опит</p>
+          <p className="perfect-sub center">{pts ? `Точки: ${pts.got} от ${pts.max}` : `Отличен кръг: ${S.total} от ${S.total} верни от първия опит`}</p>
         </> : <>
-          <Ring pct={pct} />
+          <Ring pct={pct} label={pts ? `${pts.got} от ${pts.max} точки` : null} />
           <h1>{pct === 100 ? 'Всичко вярно' : pct >= 80 ? 'Много добре' : pct >= 50 ? 'Добре' : 'Има какво да се упражнява'}</h1>
-          <p className="muted center">{S.firstOk} от {answered} верни от първия опит{S.early && answered < S.total ? `; спряно при ${answered} от ${S.total}` : ''}</p>
+          {pts && <p className="points center">Точки: {pts.got} от {pts.max}</p>}
+          <p className="muted center">{S.firstOk} от {answered} {pts ? 'думи без грешка' : 'верни от първия опит'}{S.early && answered < S.total ? `; спряно при ${answered} от ${S.total}` : ''}</p>
         </>}
         {S.startedAt > 0 && S.finishedAt > 0 && <p className="small center">Време: {fmtTime(S.finishedAt - S.startedAt)}</p>}
       </div>

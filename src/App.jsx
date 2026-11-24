@@ -21,6 +21,8 @@ import Confetti from './components/Confetti.jsx';
 import Words from './components/Words.jsx';
 import Conj from './components/Conj.jsx';
 import ConjQuiz from './components/ConjQuiz.jsx';
+import MatchQuiz from './components/MatchQuiz.jsx';
+import { buildRounds, maxPoints } from './lib/pairs.js';
 import { conjFacts, conjText } from './lib/conj.js';
 import { parseVerbs, formText } from './lib/verbs.js';
 import * as track from './lib/track.js';
@@ -244,7 +246,8 @@ export default function App() {
     session.current = { ...extra, kind: kind || 'words', queue: pool.slice(), total: pool.length, firstOk: 0, seen: new Set(), missed: new Map(), reins: {}, cur: null, qid: 0, early: false, retry, startedAt: Date.now(), finishedAt: 0, shownAt: 0,
       info, weak: !!(extra && extra.weak), log: [], okWords: [] };
     track.sessionStart({ ...info, size: pool.length });
-    next();
+    // The matching exercise shows whole boards (S.rounds) instead of one question at a time.
+    if (!session.current.rounds) next();
     setView('quiz');
   }
   function start(ids) {
@@ -255,6 +258,21 @@ export default function App() {
     if (!ids && s.size !== 'all') pool = pool.slice(0, +s.size);
     run(pool, s.retry, 'words', { course: L.key, ex: dir, fmt: s.mode }, { weak: !!ids || s.filter === 'weak' });
   }
+  // Matching: boards of up to 10 words, as many as chosen (fewer when the list is short); the given words (missed or
+  // often confused ones) as boards too.
+  function startMatch(ids) {
+    const pool = shuffle(ids ? words.filter(w => ids.includes(w.id)) : eligible.slice());
+    // A board needs a few words: a short list of missed words is filled up with other words of the course.
+    if (ids && pool.length < 4) pool.push(...shuffle(words.filter(w => !ids.includes(w.id))).slice(0, 4 - pool.length));
+    const rounds = buildRounds(L, pool, ids ? Math.ceil(pool.length / 2) : +(s.rounds || 1));
+    if (!rounds.length) { toast('Нужни са поне две думи'); return; }
+    const list = rounds.flat();
+    run(list, false, 'words', { course: L.key, ex: 'match', fmt: 'test' }, { rounds, points: 0, maxPoints: rounds.reduce((n, r) => n + maxPoints(L, r), 0), weak: !!ids });
+    session.current.cur = list[0]; session.current.shownAt = Date.now();
+  }
+  // A word of the matching board is finished: settled like a question.
+  function settleWord(w, clean, info) { const S = session.current; if (!S) return; S.cur = w; S.maxSeen = (S.maxSeen || 0) + maxPoints(L, [w]); settle(clean, info); S.shownAt = Date.now(); }
+  function finishMatch() { const S = session.current; if (!S || S.finishedAt) return; S.queue = []; next(); }
   // Conjugation: the given questions (missed or often confused ones), or the chosen verb group.
   function startConj(ids) {
     let pool = ids ? conjAll.filter(f => ids.includes(f.id)) : conjEligible.slice();
@@ -347,14 +365,16 @@ export default function App() {
       {isMath && shown === 'result' && S && <Result S={S} item={f => `${factText(f)} = ${f.answer}`} news={S.news} onAwards={toAwards} onAgain={() => startMath()} onMissed={ids => startMath([...S.missed.values()].filter(f => ids.includes(f.id)))} onHome={() => { session.current = null; setView('home'); }} />}
       {!isMath && shown === 'home' && <Home L={L} dir={dir} store={store} update={update} sets={sets} words={words} eligibleCount={eligible.length} setSel={setSel}
         verbs={verbs} conjAll={conjAll} conjGroups={conjGroups} conjSel={conjSel} conjCount={conjEligible.length}
-        onStart={() => (dir !== 'conj' ? start() : conjMode === 'table' ? openTable() : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : start(ids))} />}
+        onStart={() => (dir === 'match' ? startMatch() : dir !== 'conj' ? start() : conjMode === 'table' ? openTable() : startConj())} onPractise={ids => (dir === 'conj' ? startConj(ids) : dir === 'match' ? startMatch(ids) : start(ids))} />}
       {!isMath && shown === 'conj' && verbs.length > 0 && <Conj verbs={verbs} abase={abase} say={say} hear={hear} ibase={ibase} picFor={picFor} onClose={() => { track.sessionEnd('done'); setView('home'); }} />}
       {!isMath && shown === 'quiz' && S && S.cur && S.kind === 'conj' && <ConjQuiz L={L} S={S} facts={conjAll} mode={conjMode} retry={s.retry} autoSpeak={s.autoSpeak}
         say={say} hear={hear} abase={abase} ibase={ibase} picFor={picFor} onSettle={settle} onNext={next} onQuit={quit} />}
-      {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} hear={hear} abase={abase} ibase={ibase}
+      {!isMath && shown === 'quiz' && S && S.rounds && <MatchQuiz key={S.startedAt} L={L} S={S} settings={s} say={say} hear={hear} abase={abase} ibase={ibase}
+        onSettle={settleWord} onFinish={finishMatch} onQuit={quit} />}
+      {!isMath && shown === 'quiz' && S && S.cur && S.kind !== 'conj' && !S.rounds && <Quiz key={S.qid} L={L} dir={dir} S={S} settings={s} words={words} say={say} hear={hear} abase={abase} ibase={ibase}
         onSettle={settle} onNext={next} onQuit={quit} />}
       {!isMath && shown === 'result' && S && <Result S={S} item={S.kind === 'conj' ? conjText : null} news={S.news} onAwards={toAwards}
-        onAgain={() => (S.kind === 'conj' ? startConj() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
+        onAgain={() => (S.kind === 'conj' ? startConj() : S.rounds ? startMatch() : start())} onMissed={ids => (S.kind === 'conj' ? startConj(ids) : S.rounds ? startMatch(ids) : start(ids))} onHome={() => { session.current = null; setView('home'); }} />}
       {shown === 'words' && <Words L={L} store={store} sets={sets} words={words} say={hear} abase={abase} ibase={ibase} images={images} />}
       {shown === 'awards' && <Awards x={achX} D={{ stats: store.stats, ok: store.okTotal, c: A.c, now: new Date() }} A={A}
         onSeen={ids => update(n => { const a = n.ach || NO_ACH; n.ach = { ...a, seen: [...new Set([...a.seen, ...ids])] }; })}

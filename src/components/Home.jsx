@@ -1,8 +1,9 @@
 import { Flag, Icon, Seg } from './ui.jsx';
 import { isLearned, isWeak } from '../lib/progress.js';
+import { PER_ROUND, ROUNDS } from '../lib/pairs.js';
 
 export default function Home({ L, dir, store, update, sets, words, eligibleCount, setSel, verbs = [], conjAll = [], conjGroups = [], conjSel = 'all', conjCount = 0, onStart, onPractise }) {
-  const conj = dir === 'conj';
+  const conj = dir === 'conj', match = dir === 'match';
   const s = store.settings;
   // Conjugation as a table (forms revealed by tapping) or as an exercise with questions (cq).
   const cmode = s.conjMode || 'table', cq = conj && cmode !== 'table';
@@ -29,7 +30,11 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
     ['bg-x', <span key="bx" className="dirflags"><Flag code="bg" size={30} /><span aria-hidden="true">→</span><Flag code={L.code} size={30} /></span>, `Превод на ${L.adj}и`, `BG → ${X}`],
     ...(L.quizArticles.length ? [['art', <span key="a">{L.quizArticles.slice(0, 3).map((a, i) => <span key={a} className={'a-' + a.replace("'", '')}>{i ? ' ' : ''}{a}</span>)}</span>, 'Членове']] : []),
     ...(verbs.length ? [['conj', `${L.pronouns[0][1]}, ${L.pronouns[1][1]}…`, 'Спрежение на глаголи']] : []),
+    ['match', <span key="m" className="matchicon" aria-hidden="true"><i /><b>⇄</b><i /></span>, 'Свързване на двойки', 'Свързване'],
   ];
+  // Matching: boards of 10 words; fewer boards when the list is short.
+  const rounds = Math.max(1, Math.min(+(s.rounds || 1), Math.ceil(count / PER_ROUND)));
+  const artName = L.quizArticles.length ? L.quizArticles.slice(0, 3).join('/') : 'a/an';
   const modeHint = s.mode === 'test'
     ? (dir === 'art' ? 'Един опит. При грешка се показва верният член.' : 'Избор от четири отговора. При грешка се показва верният.')
     : (dir === 'art' ? 'Опитите продължават до верния член.' : 'Отговорът се въвежда. Следващата дума идва след верен отговор.');
@@ -77,7 +82,7 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
 
       <div className="section">
         <p className="label">Упражнение</p>
-        <div className={'tiles' + (tiles.length === 4 ? ' two' : '')} role="radiogroup" aria-label="Упражнение">
+        <div className={'tiles' + (tiles.length >= 4 ? ' two' : '')} role="radiogroup" aria-label="Упражнение">
           {tiles.map(([v, big, sub, name]) => (
             <button key={v} role="radio" aria-checked={dir === v} aria-label={name ? `${name}, ${sub}` : undefined} className={'tile' + (dir === v ? ' on' : '')} onClick={() => set('dir', v)}>
               <span className="tile-big">{big}</span><span className="tile-sub">{sub}</span>
@@ -92,7 +97,13 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
         <p className="hint">{conjHint}</p>
       </div>}
 
-      {!conj && <div className="section">
+      {match && <div className="section">
+        <p className="label">Брой кръгове</p>
+        <Seg label="Брой кръгове" value={s.rounds || '1'} onChange={v => set('rounds', v)} options={ROUNDS.map(r => [r, r])} />
+        <p className="hint">{PER_ROUND} думи в кръг. Всяка дума се свързва с превода си, а съществителните получават и член ({artName}). Верен ход: +1 точка; грешна двойка или грешен член: −1 точка.</p>
+      </div>}
+
+      {!conj && !match && <div className="section">
         <p className="label">Формат</p>
         <Seg label="Формат" value={s.mode} onChange={v => set('mode', v)} options={[['test', 'Тест'], ['open', 'Свободен отговор']]} />
         <p className="hint">{modeHint}</p>
@@ -105,24 +116,25 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
             <p className="label">Кои думи</p>
             <Seg label="Кои думи" value={s.filter} onChange={v => set('filter', v)} options={[['all', 'Всички'], ['n', 'Същ.'], ['v', 'Глаголи'], ['other', 'Други'], ['weak', 'Грешени']]} />
           </div>}
-          <div>
+          {!match && <div>
             <p className="label">Брой въпроси</p>
             <Seg label="Брой въпроси" value={s.size} onChange={v => set('size', v)} options={[['10', '10'], ['20', '20'], ['all', 'Всички']]} />
-          </div>
+          </div>}
           <div className="toggles">
-            {L.articles.length > 0 && !cq && (
+            {L.articles.length > 0 && !cq && !match && (
               <label className="tog"><span>Член задължителен при BG → {X}<br /><span className="small">„{L.exampleNoun}“, а не само „{L.exampleNoun.replace(/^\S+\s|^l'/, '')}“</span></span>
                 <input type="checkbox" checked={s.reqArt} onChange={e => set('reqArt', e.target.checked)} /></label>
             )}
-            <label className="tog"><span>{cq ? 'Сгрешените форми се връщат в същия кръг' : 'Сгрешените думи се връщат в същия кръг'}</span><input type="checkbox" checked={s.retry} onChange={e => set('retry', e.target.checked)} /></label>
+            {!match && <label className="tog"><span>{cq ? 'Сгрешените форми се връщат в същия кръг' : 'Сгрешените думи се връщат в същия кръг'}</span><input type="checkbox" checked={s.retry} onChange={e => set('retry', e.target.checked)} /></label>}
             <label className="tog"><span>{cq ? `Автоматично произнасяне на формата след отговор` : `Автоматично произнасяне на думата на ${L.adj}и`}</span><input type="checkbox" checked={s.autoSpeak} onChange={e => set('autoSpeak', e.target.checked)} /></label>
           </div>
         </div>
       </details>}
 
       <div className="startbar">
-        <button className="primary" disabled={(!conj || cq) && !count} onClick={onStart}>
-          {cq ? (count ? `Начало: ${size} ${size === 1 ? 'въпрос' : 'въпроса'}` : 'Няма глаголи') : conj ? `Начало: ${verbs.length} ${verbs.length === 1 ? 'глагол' : 'глагола'}` : eligibleCount ? `Начало: ${size} ${size === 1 ? 'дума' : 'думи'}` : (s.filter === 'weak' ? 'Още няма грешени думи' : 'Няма думи с тези настройки')}
+        <button className="primary" disabled={match ? count < 2 : (!conj || cq) && !count} onClick={onStart}>
+          {match ? (count >= 2 ? `Начало: ${rounds} ${rounds === 1 ? 'кръг' : 'кръга'}, ${Math.min(count, rounds * PER_ROUND)} думи` : 'Нужни са поне две думи')
+            : cq ? (count ? `Начало: ${size} ${size === 1 ? 'въпрос' : 'въпроса'}` : 'Няма глаголи') : conj ? `Начало: ${verbs.length} ${verbs.length === 1 ? 'глагол' : 'глагола'}` : eligibleCount ? `Начало: ${size} ${size === 1 ? 'дума' : 'думи'}` : (s.filter === 'weak' ? 'Още няма грешени думи' : 'Няма думи с тези настройки')}
         </button>
       </div>
     </section>

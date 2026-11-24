@@ -24,10 +24,12 @@ UI text is Bulgarian; code, comments, commits and docs are English. See README.m
   `audio.js`: recordings (Cache Storage) and device-voice fallback. `sync.js`: downloads. `store.js`: localStorage.
   `math.js`: maths tests. `track.js`: usage events (queue, batches to the Worker; see docs/tracking.md).
   `images.js`: word pictures (`parseImages` is pure, also used by `check-content.mjs`).
+  `pairs.js`: matching exercise (boards of 10 without clashing words, article step per language, points); pure.
   `progress.js`: `isLearned`/`isWeak`. `ach.js`: achievements (catalogue of 98, deferred ones listed in a comment;
   visibility, progress, counters `onAnswer`/`onEvent`/`onRound`, `grants`, `retro`); pure, runs in Node.
 - `src/components/`: `Home`, `Quiz`, `Result`, `Words` (vocabulary), `Conj` (conjugation table), `ConjQuiz`
-  (conjugation test / typed; not keyed by question, like `MathQuiz`), `LangPick`,
+  (conjugation test / typed; not keyed by question, like `MathQuiz`), `MatchQuiz` (matching exercise: whole boards
+  from `S.rounds`; App settles each finished word through `settleWord`, which sets `S.cur`), `LangPick`,
   `Chrome` (language menu, tab bar: three tabs, two in maths, with the count of new achievements),
   `ui` (flags, icons, segmented control), `math/`, `Pic` (a word's picture),
   `Confetti` (reward burst; canvas with `pointer-events: none`, never takes focus). `Result` exports `isPerfect(S)`.

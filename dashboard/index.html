@@ -169,12 +169,12 @@
 'use strict';
 // ----- names -----
 const COURSES = { de: 'German', fr: 'French', 'en-elementary': 'Elementary English', 'en-basic': 'Basic English', math: 'Maths' };
-const EXERCISES = { 'x-bg': 'Translation into Bulgarian', 'bg-x': 'Translation from Bulgarian', art: 'Articles', conj: 'Conjugation', 'conj-table': 'Conjugation table', math: 'Multiplication' };
+const EXERCISES = { 'x-bg': 'Translation into Bulgarian', 'bg-x': 'Translation from Bulgarian', art: 'Articles', conj: 'Conjugation', 'conj-table': 'Conjugation table', match: 'Matching', math: 'Multiplication' };
 const FORMATS = { test: 'test', open: 'free answer', table: 'table' };
 const courseName = c => COURSES[c] || c || 'No course';
 const exName = e => EXERCISES[e] || e;
 // Short form beside a value, so the same word in two exercises can be told apart.
-const EX_SHORT = { 'x-bg': 'into BG', 'bg-x': 'from BG', art: 'articles', conj: 'conjugation', math: '' };
+const EX_SHORT = { 'x-bg': 'into BG', 'bg-x': 'from BG', art: 'articles', conj: 'conjugation', match: 'matching', math: '' };
 const exShort = (e, fmt) => [EX_SHORT[e] ?? e, fmt === 'open' ? 'typed' : ''].filter(Boolean).join(', ');
 // Word ids: "<course>:<set>|<article word>", "<course>:conj:<verb>:<person>", "math:mul:<a>x<b>".
 function wordParts(id) {

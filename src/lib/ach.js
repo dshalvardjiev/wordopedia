@@ -226,7 +226,7 @@ export function achContext(courses) {
     const bySet = new Map(c.sets.map(s => [s.id, []]));
     c.words.forEach(w => { if (!bySet.has(w.set)) bySet.set(w.set, []); bySet.get(w.set).push(w); });
     const latest = c.sets[0] && DATED.test(c.sets[0].id) ? bySet.get(c.sets[0].id) || [] : null;
-    const tiles = ['x-bg', 'bg-x', ...(c.arts ? ['art'] : []), ...(c.verbs.length ? ['conj'] : [])];
+    const tiles = ['x-bg', 'bg-x', ...(c.arts ? ['art'] : []), ...(c.verbs.length ? ['conj'] : []), 'match'];
     return { ...c, bySet, latest, tiles, heads: new Set(c.words.map(w => w.de)) };
   });
   const words = vocab.flatMap(c => c.words);

@@ -65,7 +65,7 @@ per database.
 |---|---|---|
 | `open` | app opened | |
 | `session_start` | exercise started | exercise, format, list size |
-| `answer` | every answer | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`, `time`: maths time limit ran out), response ms, wrong option picked (choice exercises; with repeated tries, the first wrong one) |
+| `answer` | every answer (matching exercise: every finished word of a board) | word id (or maths fact), first attempt, result (`ok`, `typo`, `wrong`, `shown`, `hint`, `time`: maths time limit ran out), response ms, wrong option picked (choice exercises; with repeated tries, the first wrong one) |
 | `session_end` | finished, quit, or detected abandoned | answers given, size, status |
 | `tick` | every minute of a session | answers so far, active seconds |
 
