@@ -33,7 +33,8 @@ Each instance installs as a separate app with its own progress.
   and often-confused words.
 - **Matching** (Свързване): boards of 10 words; each foreign word is paired with its Bulgarian translation by tapping
   both, in either order. A noun then gets its article (der/die/das, le/la/l'/les, a/an). +1 point for every right
-  pair or article, −1 for every wrong one; the result shows the points. The number of boards (1, 2, 3 or 5) is chosen
+  pair or article, −1 for every wrong one; the result shows the points. The article has one try: a wrong article is a
+  mistake that cannot be corrected (the word turns red and the right article is shown). The number of boards (1, 2, 3 or 5) is chosen
   on the start screen. Two words that could be confused on one board (der See / die See, or a translation that fits
   both) are put on different boards. English "a"/"an" follows the spelling with the usual exceptions (an hour, a
   unicorn); uncountable and plural-only English nouns (milk, scissors) are listed in `src/lib/langs.js` (`NO_INDEF`)

@@ -100,7 +100,7 @@ export default function Home({ L, dir, store, update, sets, words, eligibleCount
       {match && <div className="section">
         <p className="label">Брой кръгове</p>
         <Seg label="Брой кръгове" value={s.rounds || '1'} onChange={v => set('rounds', v)} options={ROUNDS.map(r => [r, r])} />
-        <p className="hint">{PER_ROUND} думи в кръг. Всяка дума се свързва с превода си, а съществителните получават и член ({artName}). Верен ход: +1 точка; грешна двойка или грешен член: −1 точка.</p>
+        <p className="hint">{PER_ROUND} думи в кръг. Всяка дума се свързва с превода си, а съществителните получават и член ({artName}). Верен ход: +1 точка; грешна двойка или грешен член: −1 точка. Членът се избира с един опит.</p>
       </div>}
 
       {!conj && !match && <div className="section">
