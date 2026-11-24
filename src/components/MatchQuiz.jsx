@@ -12,7 +12,7 @@ const order = list => shuffle(list.map(w => w.id));
 // Matching exercise: each round is a board of up to 10 words (S.rounds). A foreign word and a Bulgarian translation
 // are tapped in either order; a noun then needs its article. +1 point for every right pair or article, -1 for every
 // wrong one (shown as 0 at least). The article has one try: a wrong one is a mistake that cannot be corrected (the word
-// turns red, the right article is shown). A word counts as right (onSettle) when it was paired and given its article
+// turns red, the right article is shown). A word paired wrongly first also ends red. A word counts as right (onSettle) when it was paired and given its article
 // without a mistake; a wrong pair is held against the foreign word of that pair.
 // say: automatic playback; hear: a tap on a finished word (counted for the listening achievements).
 export default function MatchQuiz({ L, S, settings, say, hear, abase, ibase, onSettle, onFinish, onQuit }) {
@@ -26,7 +26,7 @@ export default function MatchQuiz({ L, S, settings, say, hear, abase, ibase, onS
   const [done, setDone] = useState(() => new Set());
   const [artFor, setArtFor] = useState(null);      // word whose article is being chosen
   const [artBad, setArtBad] = useState('');        // the wrong article chosen for that word: no second try
-  const [red, setRed] = useState(() => new Set()); // words finished with a wrong article
+  const [red, setRed] = useState(() => new Set()); // words finished with a mistake (wrong pair or article)
   const [flash, setFlash] = useState(null);        // {l, r}: a wrong pair, shown briefly
   const [points, setPoints] = useState(S.points || 0);
   const [between, setBetween] = useState(false);  // a round is finished and another follows
@@ -44,6 +44,7 @@ export default function MatchQuiz({ L, S, settings, say, hear, abase, ibase, onS
     const clean = !pick;
     const nd = new Set(done).add(w.id);
     setDone(nd); setArtFor(null); setArtBad('');
+    if (!clean) setRed(s => new Set(s).add(w.id));
     onSettle(w, clean, { result: clean ? 'ok' : 'wrong', pick });
     if (settings.autoSpeak) say(doneText(L, w));
     if (nd.size === board.length) {
