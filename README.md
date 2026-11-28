@@ -75,7 +75,7 @@ dictionary/
   de/audio/                 German recordings (all courses of a language share one folder)
   de/images.json, de/img/   German word pictures and where each comes from (shared like the recordings)
   fr/words.csv              French words (topics)  fr/verbs.csv   French conjugation tables
-  en/elementary/words.csv   Elementary English (alphabet book, letters A–R)
+  en/elementary/words.csv   Elementary English (alphabet book, letters A–Z and sounds)
   en/basic/words.csv        Basic English (inactive until it has words)
   en/audio/, fr/audio/
 ```
