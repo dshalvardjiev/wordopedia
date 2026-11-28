@@ -853,6 +853,46 @@
   "der Buntstift": {
    "file": "der-buntstift.svg",
    "source": "fluent"
+  },
+  "der Apfel": {
+   "file": "der-apfel.svg",
+   "source": "fluent"
+  },
+  "zählen": {
+   "file": "zaehlen.svg",
+   "source": "fluent"
+  },
+  "der Baum": {
+   "file": "der-baum.svg",
+   "source": "fluent"
+  },
+  "das Mädchen": {
+   "file": "das-maedchen.svg",
+   "source": "fluent"
+  },
+  "der Ärmel": {
+   "file": "der-aermel.svg",
+   "source": "fluent"
+  },
+  "träumen": {
+   "file": "traeumen.svg",
+   "source": "fluent"
+  },
+  "der Zahn": {
+   "file": "der-zahn.svg",
+   "source": "fluent"
+  },
+  "das Öl": {
+   "file": "das-oel.svg",
+   "source": "fluent"
+  },
+  "böse": {
+   "file": "boese.svg",
+   "source": "fluent"
+  },
+  "der Löffel": {
+   "file": "der-loeffel.svg",
+   "source": "fluent"
   }
  }
 }
